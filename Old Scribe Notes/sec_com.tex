@@ -1,0 +1,186 @@
+% !TEX root = collection.tex
+
+%\RestyleAlgo{boxruled}
+%\floatstyle{boxed}
+%\restylefloat{figure}
+%
+%\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+%\DeclarePairedDelimiter{\parens}{\(}{\)}
+%\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+
+\section{Yao's Two Party Computation Protocol}
+
+Yao's Two Party Protocol is a protocol conducted between two parties for
+computing any function. It is obtained by combining two primitives: a scheme
+for garbling circuits and oblivious transfer. Informally, the idea is that one
+party (say $\PartyA$) \emph{garbles} a circuit. This involves assigning random
+labels to each wire of the circuit, including the input and output wires.
+$\PartyA$ then sends the garbled circuit and the labels corresponding to its
+input wires to $\PartyB$. The two parties then engage in an oblivious
+transfer protocol to transfer the labels corresponding to $\PartyB$'s inputs to
+$\PartyB$. $\PartyB$ then evaluates the garbled circuit using the two sets of
+input labels to get the result of the computation.
+
+\paragraph{Problem Setup:}
+Let  $G$ and $W$ be the gates and wires respectively in $\mathcal{U}$, the universal circuit.
+Let $w_i$ be the $i^{th}$ input wire, $i \in [n]$, and $w_\out$ be the output wire.
+
+\begin{definition}[Garbling Scheme]
+  A \emph{garbling scheme} is a pair of ppt.\ algorithms $(\Garble, \Eval)$:
+  \begin{itemize}
+    \item
+      $\Garble(1^\Param, \Cir) \rightarrow \left(\GCir, \set{\Lab_{i, b_i}}_{i\in
+      [n], b_i \in \bits}\right)$. The circuit $\Cir$ has $n$ input wires and one
+      output wire.
+
+    \item $\Eval(1^\Param, \GCir, \set{\Lab_{i, x_i}}_{i \in [n]}) \rightarrow y$.
+  \end{itemize}
+  It satisfies the following two properties:
+  \begin{description}
+    \item[Correctness:] $\forall\ C, x$, we have that
+      \begin{equation*}\prob{(\GCir, \Lab_{i, b_i}) \gets \Garble(1^\Param, \Cir) \logAnd
+      y \gets \Eval(1^\Param, \GCir,\Lab_{i,x_i}) \logAnd
+      y = \Cir(x)} = 1\end{equation*}
+    \item[Security:]
+      $\exists$ simulator $\IdealAdv$ s.t.\ $\forall\ \Cir, x$, we have that
+      \begin{equation*}
+        (\GCir, \set{\Lab_{i, x_i}}) \indis \IdealAdv(1^\Param, C(x))
+      \end{equation*}
+  \end{description}
+\end{definition}
+
+\subsection{Construction:}
+  We construct a garbling scheme:
+  \begin{figure}[H]
+    \setlength{\parskip}{\baselineskip}%
+    \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt,leftmargin=*}
+    \begin{minipage}[t]{\textwidth}
+    $\Garble(1^\Param, \Cir)$:
+    \begin{enumerate}
+      \item
+        For each $w \in W$, sample $(k_w^0, k_w^1)$ as encryption keys.
+      \item
+        For each $g \in G$ with input wires $w_0, w_1$, and output wire $w_2$, set
+      \begin{equation*}e_g \Assign {(\Enc_{k_{w_0}^a}(\Enc_{k_{w_1}^b}(0^\Param || k_{w_2}^{g(a,b)})))}_{a,b \in \bits}\end{equation*}\vspace{-0.3cm}
+      \item
+        Set $\GCir \Assign ({(e_g)}_{g \in G}, k_{w_\out}^0 \rightarrow 0, k_{w_\out}^1 \rightarrow 1)$.
+      \item
+        Set $\Lab_{i, b_i} \Assign k_{w_i}^{b_i}$.
+      \item
+        Output $(\GCir, \Lab_{i, b_i})$.
+    \end{enumerate}
+    \end{minipage}
+
+    \begin{minipage}[t]{\textwidth}
+    $\Eval(1^\Param, \GCir, \set{\Lab_{i, x_i}}_{i \in [n]})$:
+    \begin{enumerate}
+      \item
+        For each gate $g \in G$, obtain $\Lab_{w_2} \gets \Dec_{\Lab_{w_0}}(\Dec_{\Lab_{w_1}}(e_g))$.
+    \end{enumerate}
+    \end{minipage}
+    \caption{Definition of a garbling scheme}
+    \label{alg:garbling-scheme}
+  \end{figure}
+
+\subsection{Proof of Security}
+\proof
+  We construct a ppt.\ simulator $\Sim$ such that $\forall x \in \bits^n$:
+  \begin{equation*}
+    \set{\GCir, \Lab_{i, x_i}} \indis \set{\Sim(1^\Param, \Cir(x))}
+  \end{equation*}
+
+  \begin{figure}[H]
+    \setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt,leftmargin=*}
+    \begin{minipage}[t]{\textwidth}
+      $\Sim(1^\Param, \Cir(x))$:
+      \begin{enumerate}
+        \item
+          Sample random $k_w, k_w'$ $\forall w \in W$.
+        \item
+          For each $g \in G$ with input wires $w_0, w_1$ and output wire $w_2$, set $e_g$ as
+          \begin{itemize}
+            \item
+              $\Enc_{k_{w_0}}(\Enc_{k_{w_1}}(0^\Param||k_{w_2}))$
+            \item
+              $\Enc_{k_{w_0}}(\Enc_{k_{w_1}'}(0^\Param||k_{w_2}))$
+            \item
+              $\Enc_{k_{w_0}'}(\Enc_{k_{w_1}}(0^\Param||k_{w_2}))$
+            \item
+              $\Enc_{k_{w_0}'}(\Enc_{k_{w_1}'}(0^\Param||k_{w_2}))$
+          \end{itemize}
+        \item
+          Output $\GCir \Assign ({(e_g)}_{g \in G}, k_{w_\out} \rightarrow \Cir(x), k_{w_\out}' \rightarrow 1-\Cir(x))$.
+      \end{enumerate}
+    \end{minipage}
+    \caption{Simulator for security of garbled circuits}
+    \label{alg:sim}
+  \end{figure}
+
+  We prove that the output of this simulator is indistinguishable from the actual
+  view of the circuit evaluator via a series of hybrids:
+  \begin{equation*}
+    H_0 = \set{\GCir, \Lab_{i, x_i} } \indis H_1 \indis \cdots \indis H_{T-1}
+    \indis \set{\Sim(1^\Param, \Cir(x))} = H_T
+  \end{equation*}
+  We proceed by replacing $e_g$'s gate by gate. The idea is to replace the three
+  non-opened entries with encryptions of the only wire which is correct. Say
+  the input labels are $k_{w_0}^0, k_{w_1}^1$. Originally, $e_g$ consists of
+  \begin{align*}
+    \Enc_{k_{w_0}^0}(\Enc_{k_{w_1}^0}&{}(0^\Param||k_{w_2}^{g(0,0)}))\\
+    \Enc_{k_{w_0}^0}(\Enc_{k_{w_1}^1}&{}(0^\Param||k_{w_2}^{g(0,1)}))\\
+                                     &{}\vdots
+  \end{align*}
+  For each $a,b \in \bits$, we replace the encrypted values with
+  $\Enc_{k_{w_0}^a}(\Enc_{k_{w_1}^b}(0^\Param||k_{w_2}^{g(0,1)}))$. By the semantic security
+  of the encryption scheme, this new $e_g'$ is indistinguishable from the original
+  $e_g$. Hence each hybrid is indistinguishable from the previous one.
+  \qed
+
+\section{GMW Protocol}
+  Yao's protocol is limited to two party computation. Goldreich, Micali and Wigderson
+  (GMW) created the first secure multiparty computation protocol. Here we give an
+  informal sketch of the protocol, limiting ourselves to two parties for simplicity
+  of exposition.
+
+  Let $\PartyA$'s input be $\InputA$, and $\PartyB$'s input be $\InputB$. Each
+  party creates a secret share of their input and sends it to the other party.
+  For example, $\PartyA$ samples a random $a$, and computes $b_1 = a_1 \xor \InputA$.
+  $\PartyB$ does the same for $\InputB$. $\PartyA$ gets the $a$ shares, and
+  $\PartyB$ gets the $b$ shares. Computing $\NOT,\allowbreak \XOR$, and $\AND$
+  gates is done as follows:
+  \begin{itemize}%[leftmargin=*,nolistsep]
+    \item $\NOT$ gates: Each party simply flips their share of the input bit.
+
+    \item $\XOR$ gates: Since $\InputA \xor \InputB = (a_1 \xor b_1) \xor (a_2
+      \xor b_2) = (a_1 \xor a_2) \xor (b_1 \xor b_2)$, each party can simply
+      XOR their shares separately.
+
+    \item $\AND$ gates: $(a_1 \xor b_1)\cdot (a_2 \xor b_2) = ((a_1 \cdot a_2) \xor (b_1 \cdot b_2))
+      \xor ((a_1\cdot b_2) \xor (a_2 \cdot b_1))$. We see that each party can
+      compute the first parts with the shares they possess. However, to get the remaining,
+      they need to know the other party's shares, which compromises security.
+      So instead, the parties utilize 1-out-of-4 oblivious transfer to compute the
+      $\AND$ gate.
+
+      The setup is as follows: $\PartyA$ samples a random bit $a$. This its share
+      of the result of the gate. It computes the following table:
+      \begin{center}
+        \begin{tabular}{lcc}
+          \hline
+          $b_1$ & $b_2$ & $b_3$\\
+          \hline
+          0   &   0   & $(a_1\cdot a_2)\xor a$\\
+          0   &   1   & $(a_1\cdot \neg a_2)\xor a$\\
+          1   &   0   & $(\neg a_1\cdot a_2)\xor a$\\
+          1   &   1   & $(\neg a_1\cdot \neg a_2)\xor a$\\
+          \hline
+        \end{tabular}
+      \end{center}
+      The intuition for the entries in the table is that when $b_1 = b_2 = 1$,
+      the $\AND$ gate becomes $(a_1 \xor b_1)\cdot (a_2 \xor b_2)  = (a_1 \xor 1) \cdot (a_2 \xor 1)
+      = (\neg a_1)\cdot (\neg a_2)$. The other entries are computed similarly.
+
+      $\PartyA$ computes each of the possible values of $b_3$, and feeds them as input
+      to the OT.\ $\PartyB$ feeds in $(b_1, b_2)$ to the OT, and gets some secret
+      share. Thus both parties possess a share of the correct output.
+  \end{itemize}

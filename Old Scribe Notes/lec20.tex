@@ -1,0 +1,271 @@
+% !TEX root = collection.tex
+
+%\section{Using Indistinguishability Obfuscation}
+
+
+\newcommand{\cO}{\ensuremath{\mathcal{O}}}
+\newcommand{\NC}[1]{\ensuremath{\mathbf{NC}^{#1}}}
+
+\section{$\iO$ for Polynomial-sized Circuits}
+
+
+\begin{definition}[Indistinguishability Obfuscator for $\NC{1}$]
+Let $\Ck$ be the collection of circuits of size $O(\kappa)$ and depth
+$O(\log{\kappa})$ with respect to gates of bounded fan-in.
+Then a uniform PPT machine $\iO_{\NC{1}}$ is an
+\emph{indistinguishability obfuscator} for circuit class $\NC{1}$ if it
+is an indistinguishability obfuscator for $\Ck$.
+\end{definition}
+
+Given an indistinguishability obfuscator $\iO_{\NC{1}}$ for circuit
+class $\NC{1}$, we shall demonstrate how to achieve an
+indistinguishability obfuscator $\iO$ for all polynomial-sized circuits.
+The amplification relies on fully homomorphic encryption (FHE).
+
+\newcommand{\GEN}{\ensuremath{\mathsf{Gen}}}
+%\newcommand{\Enc}{\ensuremath{\mathsf{Enc}}}
+%\newcommand{\Dec}{\ensuremath{\mathsf{Dec}}}
+%\newcommand{\Eval}{\ensuremath{\mathsf{Eval}}}
+%\newcommand{\pk}{\ensuremath{\mathsf{pk}}}
+%\newcommand{\sk}{\ensuremath{\mathsf{sk}}}
+
+\begin{definition}[Homomorphic Encryption]
+A \emph{homomorphic encryption scheme} is a tuple of PPT algorithms
+$(\GEN, \Enc, \Dec, \Eval)$ as follows:
+\begin{itemize}
+\item
+	$(\GEN, \Enc, \Dec)$ is a semantically-secure public-key
+	encryption scheme.
+\item
+	$\Eval(\pk, C, e)$ takes public key $\pk$, an arithmetic circuit
+	$C$, and ciphertext $e = \Enc(\pk, x)$ of some circuit input
+	$x$, and outputs $\Enc(\pk, C(x))$.
+\end{itemize}
+\end{definition}
+
+As an example, the ElGamal encryption scheme is homomorphic over the multiplication function.
+Consider a cyclic group $G$ of order $q$ and generator $g$, and let
+$\sk = a$ and $\pk = g^a$.
+For ciphertexts $\Enc(\pk, m_1) = (g^{r_1}, g^{a r_1} \cdot m_1)$
+and $\Enc(\pk, m_2) = (g^{r_2}, g^{a r_2} \cdot m_2)$, observe that
+\begin{equation*}
+\Enc(\pk, m_1) \cdot \Enc(\pk, m_2) = (g^{r_1 + r_2}, g^{a (r_1 + r_2)}
+\cdot m_1 \cdot m_2) = \Enc(\pk, m_1 \cdot m_2)
+\end{equation*}
+Note that this scheme becomes additively homomorphic by encrypting $g^m$
+instead of $m$.
+
+\begin{definition}[Fully Homomorphic Encryption]
+An encryption scheme is \emph{fully homomorphic} if it is both compact
+and homomorphic for the class of all arithmetic circuits.
+Compactness requires that the size of the output of $\Eval(\cdot, \cdot,
+\cdot)$ is at most polynomial in the security parameter $\kappa$.
+\end{definition}
+
+\subsection{Construction}
+
+%We first present a simpler construction under the virtual black box
+%model, assuming the existence of a circuit obfuscator $\cO_{\NC{1}}$ for
+%$\NC{1}$.
+
+\newcommand{\prog}[1]{\ensuremath{P_{\pk_1,\pk_2,\sk_{#1},e_1,e_2}}}
+
+Let $(\GEN, \Enc, \Dec, \Eval)$ be a fully homomorphic encryption
+scheme.
+We require that $\Dec$ be realizable by a circuit in $\NC{1}$.
+The obfuscation procedure accepts a security parameter $\kappa$ and
+a circuit $C$ whose size is at most polynomial in $\kappa$.
+\begin{enumerate}
+\item
+	Generate $(\pk_1, \sk_1) \gets \GEN(1^\kappa)$ and
+	$(\pk_2, \sk_2) \gets \GEN(1^\kappa)$.
+\item
+	Encrypt $C$, encoded in canonical form, as
+	$e_1 \gets \Enc(\pk_1, C)$ and $e_2 \gets \Enc(\pk_2, C)$.
+\item
+	Output an obfuscation
+	$\sigma = (\iO_{\NC{1}}(P), \pk_1, \pk_2, e_1, e_2)$
+	of program $\prog{1}$ as described below.
+\end{enumerate}
+
+The evaluation procedure accepts the obfuscation $\sigma$ and program
+input $x$.
+\begin{enumerate}
+\item
+	Let $U$ be a universal circuit that computes $C(x)$ given a
+	circuit description $C$ and input $x$, and denote by $U_x$ the
+	circuit $U(\cdot, x)$ where $x$ is hard-wired.
+	Let $R_1$ and $R_2$ be the circuits which compute
+	$f_1 \gets \Eval(U_x, e_1)$ and $f_2 \gets \Eval(U_x, e_2)$,
+	respectively.
+
+\item
+	Denote by $\omega_1$ and $\omega_2$ the set of all wires in $R_1$
+	and $R_2$, respectively.
+	Compute $\pi_1 : \omega_1 \to \{ 0, 1 \}$ and
+	$\pi_2 : \omega_2 \to \{ 0, 1 \}$, which yield the value of internal
+	wire $w \in \omega_1, \omega_2$ when applying $x$ as the input
+	to $R_1$ and $R_2$.
+
+\item
+	Output the result of running $\prog{1}(x, f_1, \pi_1, f_2, \pi_2)$.
+\end{enumerate}
+
+Program $\prog{1}$ has $\pk_1$, $\pk_2$, $\sk_1$, $e_1$, and $e_2$
+embedded.
+\begin{enumerate}
+\item
+	Check whether $R_1(x) = f_1 \land R_2(x) = f_2$.
+	$\pi_1$ and $\pi_2$ enable this check in logarithmic depth.
+\item
+	If the check succeeds, output $\Dec(\sk_1, f_1)$;
+	otherwise output $\bot$.
+\end{enumerate}
+
+The use of two key pairs and two encryptions of $C$, similar to
+CCA1-secure schemes seen previously, eliminates the virtual black-box
+requirement for concealing $\sk_1$ within $\iO_{\NC{1}}(\prog{1})$.
+
+\subsection{Proof of Security}
+
+We prove the indistinguishability property for this construction
+through a hybrid argument.
+
+\newcommand{\Hyb}[1]{\ensuremath{\mathsf{H_{#1}}}}
+\begin{proof}
+Through the sequence of hybrids, we gradually transform an obfuscation
+of circuit $C_1$ into an obfuscation of circuit $C_2$, with each
+successor being indistinguishable from its antecedent.
+\begin{description}
+\item[$\Hyb{0}$]:
+	This corresponds to an honest execution of $\iO(C_1)$.
+	Recall that $e_1 = \Enc(\pk_1, C_1)$, $e_2 = \Enc(\pk_2, C_1)$,
+	and $\sigma = (\iO_{\NC{1}}(\prog{1}), \ldots)$.
+
+\item[$\Hyb{1}$]:
+	We instead generate $e_2 = \Enc(\pk_2, C_2)$, relying on the
+	semantic security of the underlying fully homomorphic encryption
+	scheme.
+
+\item[$\Hyb{2}$]:
+	We alter program $\prog{2}$ such that it instead embeds $\sk_2$
+	and outputs $\Dec(\sk_2, f_2)$.
+	The output of the obfuscation procedure becomes
+	$\sigma = (\iO_{\NC{1}}(\prog{2}, \ldots)$;
+	we rely on the properties of functional equivalence and
+	indistinguishability of $\iO_{\NC{1}}$.
+
+\item[$\Hyb{3}$]:
+	We generate $e_1 = \Enc(\pk_1, C_1)$ since $\sk_1$ is now
+	unused, relying again on the semantic security of the fully
+	homomorphic encryption scheme.
+
+\item[$\Hyb{4}$]:
+	We revert to the original program $\prog{1}$ and arrive
+	at an honest execution of $\iO(C_1)$.
+
+\end{description}
+\end{proof}
+
+
+\section{Identity-Based Encryption}
+
+Another use of indistinguishability obfuscation is to realize
+identity-based encryption (IBE).
+
+\newcommand{\SETUP}{\ensuremath{\mathsf{Setup}}}
+\newcommand{\KEYGEN}{\ensuremath{\mathsf{KeyGen}}}
+\newcommand{\mpk}{\ensuremath{\mathsf{mpk}}}
+\newcommand{\msk}{\ensuremath{\mathsf{msk}}}
+\newcommand{\id}{\ensuremath{\mathsf{id}}}
+
+\begin{definition}[Identity-Based Encryption]
+An \emph{identity-based encryption scheme} is a tuple of PPT algorithms
+$(\SETUP, \KEYGEN, \Enc, \Dec)$ as follows:
+\begin{itemize}
+\item
+	$\SETUP(1^\kappa)$ generates and outputs a master public/private
+	key pair $(\mpk, \msk)$.
+\item
+	$\KEYGEN(\msk, \id)$ derives and outputs a secret key
+	$\sk_{\id}$ for identity $\id$.
+\item
+	$\Enc(\mpk, \id, m)$ encrypts message $m$ under identity $\id$
+	and outputs the ciphertext.
+\item
+	$\Dec(\sk_{\id}, c)$ decrypts ciphertext $c$ and outputs the
+	corresponding message if $c$ is a valid encryption under
+	identity $\id$, or $\bot$ otherwise.
+\end{itemize}
+\end{definition}
+
+\newcommand{\SIGN}{\ensuremath{\mathsf{Sign}}}
+\newcommand{\VERIFY}{\ensuremath{\mathsf{Verify}}}
+
+We combine an indistinguishability obfuscator $\iO$ with a digital
+signature scheme $(\GEN, \SIGN, \VERIFY)$.
+\begin{itemize}
+\item
+	Let $\SETUP \equiv \GEN$ and $\KEYGEN \equiv \SIGN$.
+\item
+	$\Enc$ outputs $\iO(P_m)$, where $P_m$ is a program that
+	outputs (embedded) message $m$ if input $\sk$ is a secret key for
+	the given $\id$, or $\bot$ otherwise.
+\item
+	$\Dec$ outputs the result of $c(\sk_{\id})$.
+\end{itemize}
+However, this requires that we have encryption scheme where the
+``signatures'' do not exist.
+We therefore investigate an alternative scheme.
+%
+%\newcommand{\Com}{\ensuremath{\mathsf{Com}}}
+%
+Let $(K, P, V)$ be a non-interactive zero-knowledge (NIZK) proof system.
+Denote by $\Com(\cdot ; r)$ the commitment algorithm of a non-interactive
+commitment scheme with explicit random coin $r$.
+
+\begin{itemize}
+\item
+	Let $\sigma$ be a common random string.
+	$\SETUP(1^\kappa)$ outputs $(\mpk = (\sigma, c_1, c_2), \msk =
+	r_1)$, where $c_1 = \Com(0 ; r_1)$ and
+	$c_2 = \Com(0^{|\id|} ; r_2)$.
+
+\item
+	$\KEYGEN(\msk, \id)$ produces a proof
+	$\pi = P(\sigma, x_{\id}, s)$ for the following language $L$:
+	$x \in L$ if there exists $s$ such that
+\begin{equation*}
+\underbrace{c_1 = \Com(0 ; s)}_{\text{Type I witness}} \lor
+\underbrace{\left( c_2 = \Com(\id^* ; s) \land \id^* \ne \id
+	\right)}_{\text{Type II witness}}
+\end{equation*}
+
+\item
+	Let $P_{\id,m}$ be a program which outputs $m$ if
+	$V(\sigma, x_{\id}, \pi_{\id}) = 1$ or outputs $\bot$ otherwise.
+
+	$\Enc(\mpk, \id, m)$ outputs $\iO(P_{\id,m})$.
+\end{itemize}
+
+We briefly sketch the hybrid argument:
+\begin{description}
+\item[$\Hyb{0}$]:
+	This corresponds to an honest execution as described above.
+\item[$\Hyb{1}$]:
+	We let $c_2 = \Com(\id^* ; r_2)$, relying on the hiding property
+	of the commitment scheme.
+\item[$\Hyb{2}$]:
+	We switch to the Type II witness using
+	$\pi_{\id_i} \forall i \in [q]$, corresponding to the queries
+	issued by the adversary during the first phase of the
+	selective-identity security game.
+\item[$\Hyb{3}$]:
+	We let $c_1 = \Com(1 ; r_1)$.
+\end{description}
+
+%\nocite{*}
+%\printbibliography
+
+
+

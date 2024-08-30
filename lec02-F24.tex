@@ -1,0 +1,291 @@
+\newcommand{\bin}{\{0,1\}}
+\newcommand{\adv}{\mathcal{A}}
+\newcommand{\advb}{\mathcal{B}}
+\newcommand{\advc}{\mathcal{C}}
+%\usepackage[utf8]{inputenc}
+%\usepackage{amsmath,amssymb,fullpage}
+
+
+\section{Examples}
+
+The goal of this section is to illustrate the general strategy for the problems of the form,
+\begin{center}
+\textit{``If $f$ is one-way function, then show that $f'$ (derived from $f$) is not a one-way function"}
+\end{center}
+Some of the examples include:
+\begin{itemize}
+\item If $f$ is a one-way function, prove that $f'$ defined as $f(f(\cdot))$ is not one-way.
+\item If $f$ is a one-way function, prove that $f'$ defined by dropping the first bit the output of $f$ is not one-way.
+\end{itemize}
+
+In order to give such a proof, we need to give an example of an one-way function $f$ and show that $f'$ (derived from $f$) is not one-way. The general strategy for these types of problems is the following:
+\begin{enumerate}
+\item Come up with a contrived function $g$ and show that $g$ is one-way. 
+\item Construct the new function $g'$ that is derived from $g$.
+\item Show that $g'$ can be inverted with non-negligible probability and thus show that $g'$ is not one-way.
+\end{enumerate}
+The reason why we need to come-up with a contrived function is that for specific one-way function $f$, $f'$ (derived from $f$) could be one-way. To see why this is the case, consider a one-way function $f: \bin^n \rightarrow \bin^n$ that is additionally injective. Then, one can show that $f^2(\cdot)$ is in fact a one-way function.\footnote{Try to prove this!} On the other hand, in the previous section, we showed that there exists a (contrived) function $g$ such that $g$ is one-way but $g^2$ is not one-way.
+Hence, we might not always be able to start from any one-way function $f$ and show that $f'$ (derived from $f$) is not one-way. The first step where we come up a suitable $g$ requires some ingenuity. Once that is done, the second and the third steps would generally be not so hard.
+
+To illustrate these three steps, let us consider a concrete example. We want to show that if $f$ is one-way then $f'$ that is defined by dropping the first bit of the output of $f$ is not one-way.
+
+
+\paragraph{Step-1: Designing the function $g$.} We want to come up with a (contrived) function $g$ and prove that it is one-way.
+Let us assume that there exists a one-way function $h : \bin^n \rightarrow \bin^n$. We define the function $g : \bin^{2n} \rightarrow \bin^{2n}$ as follows:
+$$
+g(x\|y) = \begin{cases}
+ 0^{n}\|y &\text{    if } x = 0^n\\
+1\|0^{n-1}\|g(y) &\text{    otherwise }
+\end{cases}
+$$
+\begin{claim}
+If $h$ is a one-way function, then so is $g$.
+\end{claim}
+\begin{proof}
+Assume for the sake of contradiction that $g$ is not one-way. Then there exists a polynomial time adversary $\adv$ and a non-negligible function $\mu(\cdot)$ such that:
+$$
+\Pr_{x,y}[\adv(1^n,g(x\|y)) \in g^{-1}(g(x\|y))] = \mu(n)
+$$
+We will use such an adversary $\adv$ to invert $h$ with some non-negligible probability. This contradicts the one-wayness of $h$ and thus our assumption that $g$ is not one-way function is false.
+
+Let us now construct an $\advb$ that uses $\adv$ and inverts $h$. $\advb$ is given $1^n,h(y)$ for a randomly chosen $y$ and its goal is to output $y' \in h^{-1}(h(y))$ with some non-negligible probability. $\advb$ works as follows:
+\begin{enumerate}
+\item It samples $x \gets \bin^n$ randomly.
+\item If $x = 0^n$, it samples a random $y' \gets \bin^n$ and outputs it.
+\item Otherwise, it runs $\adv(10^{n-1}\|h(y))$ and obtains $x' \| y'$. It outputs $y'$.
+\end{enumerate}
+
+Let us first analyze the running time of $\advb$. The first two steps are clearly polynomial (in $n$) time. In the third step, $\advb$ runs $\adv$ and uses its output. Note that the running time of since $\adv$ runs in polynomial (in $n$) time, this step also takes polynomial (in $n$) time. Thus, the overall running time of $\advb$ is polynomial (in $n$).
+
+Let us now calculate the probability that $\advb$ outputs the correct inverse. If $x = 0^n$, the probability that $y'$ is the correct inverse is at least $\frac{1}{2^n}$ (because it guesses $y'$ randomly and probability that a random $y'$ is the correct inverse is $\geq 1/2^n$). On the other hand, if $x \neq 0^n$, then the probability that $\advb$ outputs the correct inverse is $\mu(n)$. Thus,
+\begin{eqnarray*}
+\Pr[\advb(1^n,h(y)) \in h^{-1}(h(y))] & \geq & \Pr[x = 0^n](\frac{1}{2^n}) + \Pr[x \neq 0^n]\mu(n)\\
+& = & \frac{1}{2^{2n}} + (1 - \frac{1}{2^n}) \mu(n) \\
+& \geq & \mu(n) - (\frac{1}{2^{n}} - \frac{1}{2^{2n}})
+\end{eqnarray*}
+
+Since $\mu(n)$ is a non-negligible function and $(\frac{1}{2^{n}} - \frac{1}{2^{2n}})$ is a negligible function, their difference is non-negligible.\footnote{Exercise: Prove that if $\alpha(\cdot)$ is a non-negligible function and $\beta(\cdot)$ is a negligible function, then $(\alpha - \beta)(\cdot)$ is a non-negligible function.} This contradicts the one-wayness of $h$.
+
+\end{proof}
+
+\paragraph{Step-2: Constructing $g'$.} We construct the new function $g': \bin^{2n} \rightarrow \bin^{2n-1}$ by dropping the first bit of $g$. That is,
+$$
+g'(x\|y) = \begin{cases}
+ 0^{n-1}\|y &\text{    if } x = 0^n\\
+0^{n-1}\|g(y) &\text{    otherwise }
+\end{cases}
+$$
+
+\paragraph{Step-3: Inverting $g'$.} We now want to prove that $g'$ is not one-way. That is, we want to design an adversary $\advc$ such that given $1^{2n}$ and $g'(x \| y)$ for a randomly chosen $x,y$, it outputs an element in the set $g^{-1}(g(x \| y)$. The description of $\advc$ is as follows:
+
+\begin{itemize}
+\item On input $1^{2n}$ and $g'(x \| y)$, the adversary $\advc$ parses $g'(x \| y)$ as $0^{n-1} \| \overline{y}$.
+\item It outputs $0^{n} \| \overline{y}$ as the inverse.
+\end{itemize}
+Notice that $g'(0^{n} \| \overline{y}) = 0^{n-1} \| \overline{y}$. Thus, $\advc$ succeeds with probability $1$ and this breaks the one-wayness of $g'$.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hardness Amplification}
+\label{sec:owf:amplify}
+In this section, we show that even a very \emph{weak} form of one-way functions suffices from constructing one-way functions as defined previously. For this section, we refer to this previously defined notion as strong one-way functions.
+\begin{definition}[Weak One-Way Functions]
+A function $f : \binset{n} \rightarrow \binset{m}$ is said to be a weak one-way function if:
+\begin{itemize}
+\item[-] $f$ is computable by a polynomial time machine, and
+\item[-] There exists a noticeable function $\alpha_f(\cdot)$ such that $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+    $$
+    \mu_{\mathcal{A},f}(n) =
+    \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] \leq 1 - \alpha_{f}(n).
+    $$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}\label{theorem:weakstrongOWF}
+If there exists a weak one-way function, then there exists a (strong) one-way function.
+\end{theorem}
+
+\proof We prove the above theorem constructively. Suppose $f : \binset{n} \rightarrow \binset{m}$ is a weak one-way function, then we prove that the function $g: \binset{nq} \rightarrow \binset{mq}$ for $q = \lceil \frac{2n}{\alpha_{f}(n)} \rceil$ where 
+$$g(x_1, x_2, \cdots, x_q) = f(x_1) || f(x_2) || \cdots || f(x_q),$$
+ is a strong one-way function.
+
+Assume for the sake of contradiction that there exists an adversary $\mathcal{B}$ such that $\mu_{\mathcal{B},g}(nq) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x)) \in g^{-1}(g(x))]$ is non-negligible.
+%Suppose $\mu_{\mathcal{A},g}(nq) \geq \tilde \mu_{\mathcal{A},g}(nq)$ for arbitrarily large $n$, where $\tilde  \mu_{\mathcal{A},g}$ is a noticeable function.\peihan{to ensure that $T$ is poly}
+Then we use $\mathcal{B}$ to construct $\mathcal{A}$ (see Figure~\ref{fig:adv:weak}) that breaks $f$, namely $\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] > 1 - \alpha_f(n)$ for sufficiently large $n$.
+\begin{marginfigure}[-5cm]
+%\Loop { $T=\frac{4n^2}{\alpha_f(n) \mu_{\mathcal{B}, g}(nq)}$ times}
+\begin{enumerate}
+    \item $i \stackrel{\$}{\leftarrow} [q]$.
+    \item $x_1, \cdots, x_{i-1}, x_i, \cdots, x_q \stackrel{\$}{\leftarrow} \binset{n}$.
+    \item Set $y_j = f(x_j)$ for each $j \in [q]\backslash \{i\}$ and $y_i = y$.
+    \item $(x'_1, x'_2, \cdots, x'_q) := \mathcal{B} (f(x_1), f(x_2), \cdots, f(x_q))$.
+    \item {$f(x'_i) = y$} then output $x'_i$ else $\bot$.
+\end{enumerate}
+\caption{Construction of $\mathcal{A}(1^n, y)$}
+\label{fig:adv:weak}
+\end{marginfigure}
+
+Note that: (1) $\mathcal{A}(1^n, y)$ iterates at most $T = \frac{4n^2}{\alpha_f(n)\mu_{\mathcal{B},g}(nq)}$ times each call is polynomial time. (2) $\mu_{\mathcal{B},g}(nq)$ is a non-negligible function. This implies that for infinite choices of $n$ this value is greater than some noticeable function. Together these two facts imply that for infinite choices of $n$ the running time of $\mathcal{A}$ is bounded by a polynomial function in $n$.
+
+It remains to show that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) = \bot] < \alpha_f(n)$ for arbitrarily large $n$. A natural way to argue this is by showing that at least one execution of $\mathcal{B}$ should suffice for inverting $f(x)$. However, the technical challenge in proving this formally is that these calls to $\mathcal{B}$ aren't independent. Below we formalize this argument even when these calls aren't independent.\marginnote[-5cm]{\begin{lemma}
+Let $A$ be any an efficient algorithm such that $\Pr_{x,r}[A(x,r) =1] \geq \epsilon$. Additionally, let $G = \{x\mid \geq \Pr_{r}[A(x,r) =1] \geq \frac\epsilon2\}$. Then, we have $\Pr_x[x \in G] \geq \frac\epsilon2$.
+\end{lemma}
+\begin{proof}
+The proof of this lemma follows by a very simple counting argument. Let's start by assuming that $\Pr_x[x \in G] < \frac\epsilon2$. Next, observe that
+\begin{align*}
+\Pr_{x,r}&[A(x,r) =1]& \\&= \Pr_x[x \in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \in G] \\&+ \Pr_x[x \not\in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \not\in G]
+\\&< \frac\epsilon2\cdot 1 + 1\cdot\frac\epsilon2
+\\&< \epsilon,
+\end{align*}
+which is a contradiction.
+\end{proof}
+}
+
+Define the set $S$ of ``bad'' $x$'s, which are hard to invert:
+$$S := \left\{x \left| \Pr_\mathcal{B}\left[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} \right] \leq \frac{\alpha_f(n) \mu_{\mathcal{B},g}(nq)}{4n} \right. \right\}.$$
+We start by proving that the size of $S$ is small. More formally,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S] \leq \frac{\alpha_f(n)}{2}.$$
+Assume, for the sake of contradiction,\marginnote{\begin{lemma}
+Let $A$ be any an efficient algorithm such that $\Pr_{x,r}[A(x_1,\ldots x_n,r) =1] \geq \epsilon$. Additionally, let $G = \{x\mid \geq \Pr_{x_1,\ldots x_n,r}[A(x,r) =1\mid \exists i, x = x_i] \geq \frac\epsilon2\}$. Then, we have $\Pr_x[x \in G] \geq \frac\epsilon2$.
+\end{lemma}
+\begin{proof}
+The proof of this lemma follows by a very simple counting argument. Let's start by assuming that $\Pr_x[x \in G] < \frac\epsilon2$. Next, observe that
+\begin{align*}
+\Pr_{x,r}&[A(x,r) =1]& \\&= \Pr_x[x \in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \in G] \\&+ \Pr_x[x \not\in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \not\in G]
+\\&< \frac\epsilon2\cdot 1 + 1\cdot\frac\epsilon2
+\\&< \epsilon,
+\end{align*}
+which is a contradiction.
+\end{proof}
+}
+that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S]  > \frac{\alpha_f(n)}{2}$. Then we have that:
+\begin{align*}
+\mu_{\mathcal{B},g}(nq) =& \Pr_{(x_1, \cdots, x_q) \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q))]\\
+=&  \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \forall i: x_i \notin S]\\
+& + \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \exists i: x_i \in S]\\
+\leq& \Pr_{x_1, \cdots, x_q}[ \forall i: x_i \notin S]
++ \sum_{i=1}^q \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge  x_i \in S]\\
+\leq& \left( 1-\frac{\alpha_f(n)}{2}\right)^q
++ q \cdot \Pr_{x_1, \cdots, x_q,i}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge x_i \in S] \\
+=& \left( 1-\frac{\alpha_f(n)}{2}\right)^{\frac{2n}{\alpha_f(n)}}
++  q\cdot \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, \mathcal{B}}[\mathcal{A} \text{ inverts $f(x)$ in a single iteration}  \wedge x \in S]\\
+\leq& e^{-n} + q\cdot  \Pr_{x}[x \in S] \cdot \Pr[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} ~|~ x \in S]\\
+\leq& e^{-n} + \frac{2n}{\alpha_f(n)} \cdot  1 \cdot \frac{\mu_{\mathcal{B},g}(nq) \cdot \alpha_f(n)}{4n}\\
+\leq& e^{-n} + \frac{\mu_{\mathcal{B},g}(nq)}{2}.
+\end{align*}
+Hence $\mu_{\mathcal{B},g}(nq) \leq 2 e^{-n}$, contradicting with the fact that $\mu_{\mathcal{B},g}$ is non-negligible.
+Then we have
+\begin{align*}
+\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}&[ \mathcal{A}(1^n, f(x)) = \bot]\\
+=& \Pr_x[x \in S] + \Pr_x [x \notin S]\cdot\Pr[\mathcal{B} \text{ fails to invert $f(x)$ in every iteration} | x \notin S]\\
+\leq& \frac{\alpha_f(n)}{2}+ \left(\Pr[ \mathcal{B} \text{ fails to invert $f(x)$ a single iteration} | x \notin S] \right)^T\\
+\leq & \frac{\alpha_f(n)}{2}+ \left( 1-\frac{\mu_{\mathcal{A},g}(nq) \cdot \alpha_f(n)}{4n}\right)^T\\
+\leq& \frac{\alpha_f(n)}{2} + e^{-n} \leq \alpha_f(n)
+\end{align*}
+for sufficiently large $n$. This concludes the proof.
+\qed
+
+
+\section{Levin's One-Way Function}
+\begin{theorem}\label{thm:levin}
+If there exists a one-way function, then there exists an explicit function $f$ that is one-way  (constructively).
+\end{theorem}
+
+\begin{lemma}\label{lem:n2owf}
+If there exists a one-way function computable in time $n^c$ for a constant $c$, then there exists a one-way function computable in time $n^2$.
+\end{lemma}
+\proof
+Let $f: \binset{n} \rightarrow \binset{n}$ be a one-way function computable in time $n^c$.
+Construct $g: \binset{n+n^c} \rightarrow \binset{n+n^c}$ as follows:
+$$g(x,y) = f(x) || y$$
+where $x \in \binset{n}, y \in \binset{n^c}$.
+$g(x,y)$ takes time $2n^c$, which is linear in the input length.
+
+We next show that $g(\cdot)$ is one-way.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},g}(n+n^c) = \Pr_{(x,y) \stackrel{\$}{\leftarrow} \binset{n+n^c}}[ \mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))]$ is non-negligible. Then we use $\mathcal{A}$ to construct $\mathcal{B}$ such that $\mu_{\mathcal{B},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, f(x)) \in f^{-1}(f(x))]$ is also non-negligible.
+
+$\mathcal{B}$ on input $z \in\{0,1\}^n$, samples $y \stackrel{\$}{\leftarrow} \binset{n^c}$, and outputs the $n$ higher-order bits of  $\mathcal{A}(1^{n+n^c}, z||y)$. Then we have
+\begin{align*}
+\mu_{\mathcal{B},g}(n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, y \stackrel{\$}{\leftarrow} \binset{n^c}}\left[\mathcal{A}(1^{n+n^c}, f(x) || y) \in f^{-1}(f(x)) || \binset{n^c}\right]\\
+\geq&\Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in f^{-1}(f(x)) || y\right]\\
+=& \Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))\right]
+\end{align*}
+is non-negligible.
+\qed
+
+\bigskip
+\proof[of Theorem~\ref{thm:levin}]
+We first construct a weak one-way function $h: \binset{n} \rightarrow \binset{n}$ as follows:
+$$
+h(M,x) = \left\{
+\begin{array}{ll}
+M || M(x) & \text{if $M(x)$ takes no more than $|x|^2$ steps} \\
+M || 0 & \text{otherwise}
+\end{array}
+\right.
+$$
+where $|M| = \log n, |x| = n - \log n$ (interpreting $M$ as the code of a machine  and $x$ as its input).
+If $h$ is weak one-way, then we can construct a one-way function from $h$ as we discussed in Section~\ref{sec:owf:amplify}.
+
+It remains to show that if one-way functions exist, then $h$ is a weak one-way function, with $\alpha_h(n) = \frac{1}{n^2}$.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},h}(n) = \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))]\geq 1-\frac{1}{n^2}$ for all sufficiently large $n$.
+By the existence of one-way functions and Lemma~\ref{lem:n2owf}, there exists a one-way function $\tilde M$ that can be computed in time $n^2$. Let $\tilde M$ be the uniform machine that computes this one-way function.
+We will consider values $n$ such that $n > 2^{|\tilde M|}$. In other words for these choices of $n$, $\tilde M$ can be described using $\log n$ bits.
+We construct $\mathcal{B}$ to invert $\tilde M$: on input $y$ outputs the $(n-\log n)$ lower-order bits of $\mathcal{A}(1^n, \tilde M||y)$. Then
+\begin{align*}
+\mu_{\mathcal{B},\tilde M}(n-\log n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \binset{\log n} || \tilde M^{-1}(\tilde M((x))\right]\\
+\geq& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \tilde{M} || \tilde M^{-1}(\tilde M((x))\right].
+\end{align*}
+Observe that for sufficiently large $n$ it holds that
+\begin{align*}
+1-\frac{1}{n^2} \leq& \mu_{\mathcal{A},h}(n)\\
+=& \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))\right]\\
+\leq& \Pr_{M }[M = \tilde M] \cdot \Pr_{x }\left[ \mathcal{A}(1^{n}, \tilde M||\tilde M(x)) \in  \tilde{M} || \tilde M^{-1}(\tilde M((x))\right] + \Pr_{M }[M \neq \tilde M]  \\
+\leq&  \frac{1}{n} \cdot \mu_{\mathcal{B},\tilde M}(n-\log n) +\frac{n-1}{n}.
+\end{align*}
+Hence $\mu_{\mathcal{B},\tilde M}(n-\log n) \geq \frac{n-1}{n}$  for sufficiently large $n$ which is a contradiction.
+\qed
+
+\newpage
+\section*{Exercises}
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ and $\nu(\cdot)$ are negligible functions then show that $\mu(\cdot) \cdot \nu(\cdot)$ is a negligible function.
+\end{exercise}
+
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ is a negligible function and $f(\cdot)$ is a function polynomial in its input then show that $\mu(f(\cdot))$\footnote{Assume that $\mu$ and $f$ are such that $\mu(f(\cdot))$ takes inputs from $\mathbb{Z}^+$ and outputs values in $[0,1]$.} are negligible functions.
+\end{exercise}
+
+\begin{exercise}\label{ex:PNP} Prove that the existence of one-way functions implies $P \neq NP$.
+\end{exercise}
+
+\begin{exercise}
+Prove that there is no one-way function $f:\{0,1\}^n\to \{0,1\}^{\lfloor \log_2 n\rfloor}$.
+\end{exercise}
+
+
+\begin{exercise} Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be any one-way function then is $f'(x) \stackrel{def}{=} f(x)\oplus x$ necessarily one-way?
+\end{exercise}
+
+\begin{exercise}
+Prove or disprove: If $f: \{0,1\}^n\rightarrow \{0,1\}^n$ is a one-way function, then $g: \{0,1\}^n\rightarrow \{0,1\}^{n-\log n}$ is a one-way function, where $g(x)$ outputs the $n-\log n$ higher order bits of $f(x)$.
+\end{exercise}
+
+\begin{exercise}
+Explain why the proof of Theorem~\ref{theorem:weakstrongOWF} fails if the attacker $\mathcal{A}$ in Figure~\ref{fig:adv:weak} sets $i = 1$ and not $i \stackrel{\$}{\leftarrow} \{1, 2, \cdots, q\}$.
+\end{exercise}
+
+\begin{exercise}
+Given a (strong) one-way function construct a weak one-way function that is not a (strong) one-way function.
+\end{exercise}
+
+\begin{exercise}
+ Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be a weak one-way permutation (a weak one way function that is a bijection). More formally, $f$ is a PPT computable one-to-one function such that $\exists$ a constant $c >0$ such that $\forall$ non-uniform PPT machine $A$ and $\forall$ sufficiently large $n$ we have that:
+    \[\Pr_{x,A}[A(f(x)) \not\in f^{-1}(f(x))] > \frac{1}{n^c}\]
+
+     Show that $g(x) = f^T(x)$ is not a strong one way permutation. Here $f^T$ denotes the $T$ times self composition of $f$ and $T$ is a polynomial in $n$.
+
+     Interesting follow up reading if interested: With some tweaks the function above can be made a strong one-way permutation using explicit constructions of expander graphs. See Section 2.6 in \url{http://www.wisdom.weizmann.ac.il/~oded/PSBookFrag/part2N.ps}
+\end{exercise}
+

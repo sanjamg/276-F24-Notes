@@ -1,0 +1,214 @@
+% !TEX root = collection.tex
+
+\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\ABS}[1]{\left\vert#1\right\vert}
+\newcommand{\SET}[1]{\left\{#1\right\}}  
+\newcommand{\INP}[1]{\left(#1\right)}
+\newcommand{\POLY}[1]{\ensuremath{\mathop{\mathrm{poly}}\INP{#1}}}
+\newcommand{\IO}[1]{\ensuremath{\mathop{i\mathcal{O}}\INP{#1}}}
+\newcommand{\ENC}[1]{\ensuremath{\mathop{\mathrm{Enc}}\INP{#1}}}
+\newcommand{\DEC}[1]{\ensuremath{\mathop{\mathrm{Dec}}\INP{#1}}}
+%\bibliographystyle{plain}
+
+\chapter{Obfuscation}
+The problem of program obfuscation asks whether one can transform a program (e.g., circuits, Turing machines) to another semantically equivalent program (i.e., having the same input/output behavior), but is otherwise intelligible.
+It was originally formalized by Barak et al. who constructed a family of circuits that are non-obfuscatable under the most natural virtual black box (VBB) security.
+\section{VBB Obfuscation}
+As a motivation, recall that in a private-key encryption setting, we have a secret key $k$, encryption $E_k$ and decryption $D_k$.
+A natural candidate for public-key encryption would be to simply release an encryption $E'_k \equiv E_k$ (i.e. $E'_k$ semantically equivalent to $E_k$, but computationally bounded adversaries would have a hard time figuring out $k$ from $E'_k$.
+
+\begin{definition}[Obfuscator of circuits under VBB]
+	$O$ is an \emph{obfuscator} of circuits if %for every circuit $c$ we have,
+	\begin{enumerate}
+		\item
+			Correctness:
+	$\forall c, O(c) \equiv c$.
+	\item
+		Efficiency:
+		$\forall c, \ABS{O(c)} \le \POLY{\ABS{c}}$.
+	\item
+		VBB:
+		$\forall A, A$ is PPT bounded, $\exists$ S (also PPT) s.t. $\forall c$,
+		\[
+			\ABS{\Pr\left[ A\left( O(c) \right) = 1\right] - \Pr\left[ S^c(1^{\ABS{c}}) = 1 \right]} \le \mathrm{negl}(\ABS{c}).
+		\]
+	\end{enumerate}
+\end{definition}
+
+Similarly we can define it for Turing machines.
+\begin{definition}[Obfuscator of TMs under VBB]
+	$O$ is an \emph{obfuscator} of Turing machines if %for every circuit $c$ we have,
+	\begin{enumerate}
+		\item
+			Correctness:
+	$\forall M, O(M) \equiv M$.
+	\item
+		Efficiency:
+		$\exists q(\cdot) = \POLY{\cdot}, \forall M \left( M(x) \hbox{ halts in }t \hbox{ steps} \implies O(M)(x) \hbox{ halts in }q(t) \hbox{ steps}\right)$.
+	\item
+		VBB:
+		Let $M'(t,x)$ be a TM that runs $M(x)$ for $t$ steps.
+		$\forall A, A$ is PPT bounded, $\exists$ Sim (also PPT) s.t. $\forall c$,
+		\[
+			\ABS{\Pr\left[ A\left( O(M) \right) = 1\right] - \Pr\left[ S^{M'}(1^{\ABS{M'}}) = 1 \right]} \le \mathrm{negl}(\ABS{M'}).
+		\]
+	\end{enumerate}
+\end{definition}
+
+Let's show that our candidate PKE from VBB obfuscator $O$ is semantic secure, using a simple hybrid argument.
+
+\proof
+Recall the public key $PK=O(E_k)$.
+Let's assume $E_k$ is a circuit.
+\begin{align*}
+	H_0 :& A(\SET{(PK, E_k(m_0))}) & \\
+	H_1 :& S^c(\SET{E_k(m_0)}) & \hbox{ by VBB} \\
+	H_2 :& S^c(\SET{E_k(m_1)}) & \hbox{ by semantic security of private key encryption} \\
+	H_3 :& A(\SET{(PK, E_k(m_1))}) & \hbox{ by VBB}
+\end{align*}
+\qed
+
+Unfortunately VBB obfuscator for all circuits does not exist. Now we show the impossiblity result of VBB obfuscator.
+\begin{theorem}
+	Let $O$ be an obfuscator.
+	There exists PPT bounded $A$, and a family (ensemble) of functions $\SET{H_n}$, $\SET{Z_n}$ s.t.
+	for every PPT bounded simulator $S$,
+\begin{gather*}
+	A\left( O(H_n) \right) = 1 \ \ \& \ \ A\left( O(Z_n) \right) = 0\\
+	\ABS{\Pr\left[ S^{H_n} \left( 1^{\ABS{H_n}} \right) = 1 \right] - \Pr \left[ S^{Z_n} \left(1^{\ABS{Z_n}}\right) =1 \right]} \le\mathrm{negl}(n).
+\end{gather*}
+\end{theorem}
+
+\proof
+Let $\alpha, \beta \overset{\$}{\leftarrow} \SET{0,1}^n$.
+
+We start by constructing $A',C_{\alpha,\beta}, D_{\alpha,\beta}$ s.t.
+\begin{gather*}
+	A'\left( O(C_{\alpha,\beta}), O(D_{\alpha,\beta}) \right) = 1 \ \ \& \ \ A'\left( O(Z_n), O(D_{\alpha,\beta}) \right) = 0\\
+	\ABS{\Pr\left[ S^{C_{\alpha,\beta},D_{\alpha,\beta}} \left( \mathbf{1} \right) = 1 \right] - \Pr \left[ S^{Z_n,D_{\alpha,\beta}} \left(\mathbf{1}\right) =1 \right]} \le\mathrm{negl}(n).
+\end{gather*}
+
+\begin{gather*}
+C_{\alpha,\beta}(x) =
+\begin{cases}
+	\beta, & \hbox{if } x = \alpha,\\
+	0^n, & \hbox{o/w}
+\end{cases} \\
+D_{\alpha,\beta}(c)=
+\begin{cases}
+	1,& \hbox{if } c(\alpha) = \beta,\\
+	0, & \hbox{o/w}.
+\end{cases}
+\end{gather*}
+
+Clearly $A'(X,Y) = Y(X)$ works.
+Now notice that input length to $D$ grows as the size of $O(C)$.
+
+However for Turing machines which can have the same description length, one could combine the two in the following way:
+
+$F_{\alpha,\beta}(b, x) =
+\begin{cases}
+	C_{\alpha,\beta}(x), & b=0\\
+	D_{\alpha,\beta}(x), & b=1\\
+\end{cases}.$
+
+Let $OF= O(F_{\alpha,\beta})$, $OF_0(x) = OF(0,x)$, similarly for $OF_1$, then $A$ would be just $A(OF) = OF_1(OF_0)$.
+
+Now assuming OWF exists, specifically we already have priavte-key encryption, we modify $D$ as follows.
+\begin{gather*}
+	D_k^{\alpha,\beta}(1,i) = \mathrm{Enc}_k(\alpha_i) \\
+	D_k^{\alpha,\beta}(2,c,d,\odot) = \mathrm{Enc}_k(\mathrm{Dec}_k(c) \odot \mathrm{Dec}_k(d)), \hbox{where $\odot$ is a gate of AND, OR, NOT} \\
+	D_k^{\alpha,\beta}(3, \gamma_1,\cdots,\gamma_n) =
+	\begin{cases}
+		1,& \forall i, \mathrm{Dec}_k(\gamma_i) = \beta_i,\\
+		0, & \hbox{o/w}.
+	\end{cases}
+\end{gather*}
+
+Now the adversary $A$ just simulate $O(C)$ gate by gate with a much smaller $O(D)$, thus we can use the combining tricks as for the Turing machines.
+\qed
+
+\section{Indistinguishability Obfuscation}
+
+%\begin{definition}[Indistinguishability Obfuscation]
+%	$\IO{\cdot}$ is an \emph{indistinguishability obfuscation} if $\forall c_1, c_2$ such that $\ABS{c_1}= \ABS{c_2}$ and $c_1\equiv c_2$, we have
+%	\[
+%		\IO{c_1} \overset{c}{\approx} \IO{c_2}.
+%	\]
+%\end{definition}
+
+
+\newcommand{\iO}{\ensuremath{i\mathcal{O}}}
+\newcommand{\Ck}{\ensuremath{\mathcal{C}_\kappa}}
+
+\begin{definition}[Indistinguishability Obfuscator]
+A uniform PPT machine $\iO$ is an \emph{indistinguishability obfuscator}
+for a collection of circuits $\Ck$ if the following conditions hold:
+\begin{itemize}
+
+\item \emph{Correctness.}
+For every circuit $C \in \Ck$ and for all inputs $x$,
+$C(x) = \iO(C(x))$.
+
+\item \emph{Polynomial slowdown.}
+For every circuit $C \in \Ck$, $|\iO(C)| \leq p(|C|)$ for some
+polynomial $p$.
+
+\item \emph{Indistinguishability.}
+For all pairs of circuits $C_1, C_2 \in \Ck$, if $|C_1| = |C_2|$ and
+$C_1(x) = C_2(x)$ for all inputs $x$, then
+$\iO(C_1) \overset{c}{\simeq} \iO(C_2)$.
+More precisely, there is a negligible function $\nu(k)$ such that for
+any (possibly non-uniform) PPT $A$,
+\begin{equation*}
+\big| \Pr[A(\iO(C_1)) = 1] - \Pr[A(\iO(C_2)) = 1] \big| \leq \nu(k).
+\end{equation*}
+
+\end{itemize}
+\end{definition}
+
+
+\begin{proposition}
+	Indistinguishability obfuscation implies witness encryption.
+\end{proposition}
+\proof
+Recall the witness encryption scheme, with which one could encrypt a message $m$ to an instance $x$ of an NP language $L$, such that $\DEC{x,w,\ENC{x,m}}=
+\begin{cases}
+	m, \hbox{if} (x,w)\in L, \\
+	\bot, \hbox{o/w}
+\end{cases}$
+
+Let $C_{x,m}(w)$ be a circuit that on input $w$, outputs $m$ if and only if $(x,w) \in L$.
+Now we construct witness encryption as follows:
+$\ENC{x,m}=\IO{C_{x,m}}, \DEC{x,w,c}=c(w)$.
+
+Semantic security follows from the fact that, for $x\not\in L$, $C_{x,m}$ is just a circuit that always output $\bot$, and by indistinguishability obfuscation, we could replace it with a constant circuit (padding if necessary), and then change the message, and change the circuit back.
+\qed
+
+
+\begin{proposition}
+	Indistinguishability obfuscation and OWFs imply public key encryption.
+\end{proposition}
+\proof
+We'll use a length doubling PRG $F: \SET{0,1}^n \to \SET{0,1}^{2n}$, together with a witness encryption scheme $(E,D)$.
+The NP language for the encryption scheme would be the image of $F$.
+\begin{align*}
+	&\mathrm{Gen}(1^n) = (PK = F(s), SK=s), s\overset{\$}{\leftarrow} \SET{0,1}^n\\
+	&\ENC{PK,m} = E(x=PK,m)\\
+	&\DEC{e,SK=s} = D(x=PK,w=s,c=e).
+\end{align*}
+\qed
+
+\begin{proposition}
+	Every best possible obfuscator could be equivalently achieved with an indistinguishability obfuscation (up to padding and computationally bounded).
+\end{proposition}
+
+\proof
+Consider circuit $c$, the \emph{best possible obfuscated} $BPO(c)$, and $c'$ which is just padding $c$ to the same size of $BPO(c)$.
+Computationally bounded adversaries cannot distinguish between $\IO{c'}$ and $\IO{BPO(c)}$.
+
+Note that doing iO never decreases the ``entropy'' of a circuit, so $\IO{BPO(c)}$ is at least as secure as $BPO(c)$.
+\qed
+
+
+

@@ -1,0 +1,193 @@
+
+
+\chapter{Pseudorandomness}
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a PPT machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ accuracy.
+\qed
+
+\bigskip
+\noindent\textbf{Application: Coin tossing over the phone.}
+Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
+A hard core bit of a one-way permutation can resolve this issue.
+
+Let $f$ be a one-way permutation and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
+\item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
+\item[-] $P_1$ sends back $(x, B(x))$.  $B(x)$ serves as the outcome of the flipping.
+\end{itemize}
+On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
+On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
+
+\section{One-Way Permutations with Hard Core Bits}
+We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
+Before delving into important characteristics of hard core bits for one-way permutations, we consider an interesting application of hard core bits and one-way permutations.
+
+
+
+
+
+\bigskip
+Given a one-way permutation, we can construct a one-way permutation with a hard core bit:
+\begin{theorem}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
+Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$f'(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. It has the hard core bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\proof
+\peihan{TODO...}
+If $\exists$ non-uniform PPT adversary $\ma$ s.t. $\Pr_{x,r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-$neg$, then $\exists$ an adversary $R$ that inverts $f$
+
+	First, note that $f'$ is a OWF function (as per last lecture).  Let $e^i$ be the value/binary string $0\ldots1\ldots0$, where the $1$ is in the $i$th position.\\
+
+\textbf{Super simple case:}\\
+	Assume that $A$ breaks the $B$ with perfect probability/accuracy: $\Pr[A(f'(x,r)) = B(x,r)] = 1$\\
+	We will now construct an adversary $R(f(x))$ which yields $x$\\
+	To invert $f$, $R$:
+	\begin{enumerate}
+		\item For each $i$, $R$ executes $A(f(x) \circ e^i)$
+		\item Then $R$ XOR's (sums, modulo 2) the values from step $1$.  $A(f(x) \circ e^i) \rightarrow B(x, e^i) = \sum_{j=1}^n x_j e_j^i \mod 2  = x_i$
+		\item $R$ concatenates each $x_i$ and returns the value as $x$
+	\end{enumerate}
+	Since $A$ predicts $B(f'(x,r))$ with probability 1, the output of $R$ is produced with probability $1$.\\
+
+To begin with a more complicated case let us consider a set that gives us better probability than that in the theorem - a set that gives $\Pr[E] \ge \frac{1}{2} + \epsilon(n)$ (where $E$ is $A(f'(x,r)) = B(x,r)$ from the theorem statement).
+Let us define this set as $G$ (standing for $Good$):\\
+$\forall_{x \in G} \Pr_{r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \frac{\epsilon(n)}{2}$ with $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$ \\
+\\
+Assuming $\Pr[x \in G] \le \frac{\epsilon(n)}{2}$ implies a contradiction, so it is safe to conclude $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\begin{proof}
+Assume that $\Pr[x \in G] \le \epsilon(n)/2$\\
+$\frac{1}{2}+\epsilon(n) \le \Pr_{x,r,A}[E] = \Pr[E(x) | x \in G] \times \Pr[x \in G] + \Pr[E(x) | x \notin G] \times \Pr[x \notin G]$\\
+$< 1 \times \frac{\epsilon(n)}{2} + (\frac{1}{2}+\frac{\epsilon(n)}{2}) \times 1 \le \frac{\epsilon(n)}{2} + \frac{1}{2}+\frac{\epsilon(n)}{2} = \frac{1}{2}+ \epsilon(n) \not> \frac{1}{2}+ \epsilon(n) contradiction$\\
+$\implies \Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\end{proof}
+\\
+	Observe that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$\\
+	$= (\sum_j x_j r_j + \sum_j x_j r_j \oplus e^i_j) \mod 2$\\
+	$= (\sum_j^{j \not= i} (x_j r_j + x_j r_j)$  $+ x_i r_i + x_i (1-r_i)) \mod 2$\\
+	$= x_i r_i + x_i - x_i r_i = x_i$\\\\
+
+Let us work with the probability: $\Pr_{r}[A(f(x), r) \oplus A(f(x), r \oplus e^i) = x_i]$\\
+		Note that if both A's guess correctly, we get the right/intended answer.
+		The probability of this happening $=$ both A's are right $=$ 1- either one is wrong $\ge  1-\frac{\text{either one is wrong}}{2 (\frac{1}{2}-\epsilon(n))} = 1 - \frac{\text{either one is wrong}}{2 \epsilon(n)}$\\\\
+\textbf{The Simple Case:}\\
+	$\Pr[E(x)] \ge \frac{3}{4}+\frac{\epsilon(n)}{2}$\\
+	This probability, is bounded by $1-2(\frac{1}{4} - \frac{\epsilon(n)}{2}) = \frac{1}{2} + \epsilon(n)$ from the observation before (as $\text{one is wrong} = 1- (\frac{3}{4}+\frac{\epsilon(n)}{2}) = \frac{1}{4} - \frac{\epsilon(n)}{2}$)\\
+	$R$ then runs the two A's polynomial times and uses majority vote.\\
+	We use Chebyshev's inequality to justify the use of majority vote.
+	%read chernov and chebyshev bounds
+
+\subsection{Chebyshev's inequality} %TODO: should this be a subsection or should it be smaller?
+	Let $x_1,\ldots,x_m$ be independent and identical random variables assuming values 0 or 1.  Also, let $\Pr[x_i=1] = p$.\\
+		Then $\Pr[ \lvert \sum x_i - pm \rvert > \delta m] < 1/(4\delta^2 m)$\\
+
+	Let $b_1,\ldots,b_T$ be random bits.\\
+	Let $X_1$ be 1 when $A(r_1) \rightarrow b_1$,\\
+	$X_2$ be 1 when $A(r_2) \rightarrow b_2$,\\
+	$\ldots$\\
+	and let $X_T=1$ when $A(r_T) \rightarrow b_T$.\\
+	Let $T=\frac{2n}{\epsilon(n)^2}$\\\\
+
+The problematic case is:\\
+	$\Pr[ \sum_{i=1}^T X_i \le T/2]$\\
+	$= \Pr[ \sum_{i=1}^T X_i - (\frac{1}{2} + \epsilon(n)) T \le T/2 - (\frac{1}{2}+\epsilon(n))\times T]$\\
+	$< \Pr[ \lvert \sum_{i=1}^T X_i - (\frac{1}{2}+\epsilon(n) T)\rvert > \epsilon(n) \frac{T}{2} ]$\\
+	$< \frac{1}{4 (\epsilon(n)/2)^2 T} = \frac{1}{\epsilon(n)^2 T} = \frac{1}{2n}$ which is sufficient for the theorem\\\\
+
+In order to show that we can use Chebyshev's inequality, we need to show that the samples we are voting over are pairwise independent:\\
+For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in {0,1}} \Pr[x=a \text{and} y=b] = \Pr[x=a] \times \Pr[y=b]$\\
+
+	Imagine we have $(r_1, B(x, r_1)), \ldots, (r_T, B(x,r_T))$\\
+	Let $k = \log(T)$, $S_1, \ldots, S_k \in \{0,1\}^n$ be sampled uniformly, and $b_1 = B(x, S_1), b_2 = B(x, S_2), \ldots, b_k = B(x, S_k)$
+	$\forall_{Y \subseteq [k]}$, $R$ generates $(f(x, \bigoplus_{i \in Y} S_i), \bigoplus_{i \in Y} b_i)$\\
+	(note: $[k]$ is the set $\{1,\ldots, k\}$)\\
+	\\
+	This proof is finished in the next lecture, with some slight changes.
+
+\qed
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%

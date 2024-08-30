@@ -1,0 +1,552 @@
+\newcommand{\ma}{\mathcal{A}}
+\chapter{Pseudorandomness}
+
+\section{Distinguishability Between Two Distributions}
+\sanjam{add}
+\section{Computational Indistinguishability}
+
+Defining indistinguishability between two distributions by a computationally bounded adversary turns out be tricky. In particular, It is tricky to define for a single pair of distributions because the length of the output of a random variable is a constant. Therefore, in order for ``computationally bounded'' adversaries to make sense, we have to work with infinite families of probability distributions.
+
+\begin{definition}
+An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT machines $\ma$, the quantities
+$$p(n) := \Pr[\ma(1^n, X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
+and
+$$q(n) := \Pr[\ma(1^n,Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
+differ by a negligible amount; i.e. $|p(n) - q(n)|$ is negligible in $n$.    
+This equivalence is denoted by
+$$\{X_n\}_n\approx \{Y_n\}_n$$
+\end{definition}
+We now prove some properties of computationally indistinguishable ensembles that will be useful later on.
+
+\begin{lemma}[Sunglass Lemma]
+If $\{X_n\}_n\approx\{Y_n\}_n$ and $P$ is a PPT machine, then
+
+$$\{P(X_n)\}_n\approx \{P(Y_n)\}_n$$
+\end{lemma}
+
+\proof
+Consider an adversary $\ma$ that can distinguish $\{P(X_n)\}_n$ from $\{P(Y_n)\}_n$ with non-negligible probability. Then the adversary $\ma\circ P$ can distinguish $\{X_n\}_n$ from $\{Y_n\}_n$ with the same non-negligible probability. Since $P$ and $\ma$ are both PPT machines, the composition is also a PPT machine. This proves the contrapositive of the lemma.
+\qed
+
+
+\begin{lemma}[Hybrid Argument]
+For a polynomial $t:\mathbb{Z}^+\rightarrow\mathbb{Z}^+$ let the $t$-product of $\{Z_n\}_n$ be
+
+$$\{Z_n^{(1)}, Z_n^{(2)},\hdots, Z_n^{(t(n))}\}_n$$
+where the $Z_n^{(i)}$s are independent copies of $Z_n$. If
+$$\{X_n\}_n\approx\{Y_n\}_n$$
+then
+$$\{X_n^{(1)},\hdots,X_n^{(t)}\}_n\approx\{Y_n^{(1)},\hdots,Y_n^{(t)}\}_n$$
+as well.
+\end{lemma}
+
+\begin{proof}
+Consider the set of tuple random variables
+$$H^{(i,t)}_n = (Y_n^{(1)},\hdots,Y_n^{(i)},X_n^{(i+1)},X_n^{(i+2)},\hdots,X_n^{(t)})$$
+for integers $0\le i\le t$. Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference $r(n)$. Suppose that $\ma$ returns 1 with probability $\epsilon_i$ when it runs on samples from $H^{(i,t)}_n$. By definition, $|\epsilon_t - \epsilon_0|\ge r(n)$. By the Triangle Inequality and the Pigeonhole Principle, there is some index $k$ for which
+$|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. This is a contradiction. 
+\qed
+%This is equivalent to trying to distinguish the ensembles $\{(X_n,T_n)\}_n$ from $\{(Y_n,T_n)\}_n$, where $T_n$ is independent of $X_n$ and $Y_n$ ($T_n$ is the random variable representing all coordinates but the $k$-th coordinate). Note that
+%
+%\begin{align*}
+%r(n)/t&\le |Pr[A(Y_n,T_n) = 1] - Pr[A(X_n,T_n) = 1]|\\
+%&= |\sum_{x,t} (Pr[Y_n = x,T_n = t] - Pr[X_n = x,T_n = t])Pr[A(x,t) = 1]|\\
+%&= |\sum_t Pr[T_n = t]\sum_x (Pr[Y_n = x] - Pr[X_n = x])Pr[A(x,t) = 1]|\\
+%&\le \sum_t Pr[T_n = t]\sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t) = 1]\\
+%\end{align*}
+%
+%so by the probabilistic method there is a $t_0$ for which $r(n)/t\le \sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t_0) = 1]$. This means that $X_n$ can be distinguished from $Y_n$ with probability difference $r(n)/t$, which is non-negligible (a contradiction).
+\end{proof}
+
+
+\iffalse
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a PPT machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ accuracy.
+\qed
+
+\bigskip
+\noindent\textbf{Application: Coin tossing over the phone.}
+Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
+A hard core bit of a one-way permutation can resolve this issue.
+
+Let $f$ be a one-way permutation and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
+\item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
+\item[-] $P_1$ sends back $(x, B(x))$.  $B(x)$ serves as the outcome of the flipping.
+\end{itemize}
+On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
+On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
+
+\section{One-Way Permutations with Hard Core Bits}
+We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
+Before delving into important characteristics of hard core bits for one-way permutations, we consider an interesting application of hard core bits and one-way permutations.
+
+
+
+
+
+\bigskip
+Given a one-way permutation, we can construct a one-way permutation with a hard core bit:
+\begin{theorem}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
+Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$f'(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. It has the hard core bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\proof
+\peihan{TODO...}
+If $\exists$ non-uniform PPT adversary $\ma$ s.t. $\Pr_{x,r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-$neg$, then $\exists$ an adversary $R$ that inverts $f$
+
+	First, note that $f'$ is a OWF function (as per last lecture).  Let $e^i$ be the value/binary string $0\ldots1\ldots0$, where the $1$ is in the $i$th position.\\
+
+\textbf{Super simple case:}\\
+	Assume that $A$ breaks the $B$ with perfect probability/accuracy: $\Pr[A(f'(x,r)) = B(x,r)] = 1$\\
+	We will now construct an adversary $R(f(x))$ which yields $x$\\
+	To invert $f$, $R$:
+	\begin{enumerate}
+		\item For each $i$, $R$ executes $A(f(x) \circ e^i)$
+		\item Then $R$ XOR's (sums, modulo 2) the values from step $1$.  $A(f(x) \circ e^i) \rightarrow B(x, e^i) = \sum_{j=1}^n x_j e_j^i \mod 2  = x_i$
+		\item $R$ concatenates each $x_i$ and returns the value as $x$
+	\end{enumerate}
+	Since $A$ predicts $B(f'(x,r))$ with probability 1, the output of $R$ is produced with probability $1$.\\
+
+To begin with a more complicated case let us consider a set that gives us better probability than that in the theorem - a set that gives $\Pr[E] \ge \frac{1}{2} + \epsilon(n)$ (where $E$ is $A(f'(x,r)) = B(x,r)$ from the theorem statement).
+Let us define this set as $G$ (standing for $Good$):\\
+$\forall_{x \in G} \Pr_{r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \frac{\epsilon(n)}{2}$ with $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$ \\
+\\
+Assuming $\Pr[x \in G] \le \frac{\epsilon(n)}{2}$ implies a contradiction, so it is safe to conclude $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\begin{proof}
+Assume that $\Pr[x \in G] \le \epsilon(n)/2$\\
+$\frac{1}{2}+\epsilon(n) \le \Pr_{x,r,A}[E] = \Pr[E(x) | x \in G] \times \Pr[x \in G] + \Pr[E(x) | x \notin G] \times \Pr[x \notin G]$\\
+$< 1 \times \frac{\epsilon(n)}{2} + (\frac{1}{2}+\frac{\epsilon(n)}{2}) \times 1 \le \frac{\epsilon(n)}{2} + \frac{1}{2}+\frac{\epsilon(n)}{2} = \frac{1}{2}+ \epsilon(n) \not> \frac{1}{2}+ \epsilon(n) contradiction$\\
+$\implies \Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\end{proof}
+\\
+	Observe that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$\\
+	$= (\sum_j x_j r_j + \sum_j x_j r_j \oplus e^i_j) \mod 2$\\
+	$= (\sum_j^{j \not= i} (x_j r_j + x_j r_j)$  $+ x_i r_i + x_i (1-r_i)) \mod 2$\\
+	$= x_i r_i + x_i - x_i r_i = x_i$\\\\
+
+Let us work with the probability: $\Pr_{r}[A(f(x), r) \oplus A(f(x), r \oplus e^i) = x_i]$\\
+		Note that if both A's guess correctly, we get the right/intended answer.
+		The probability of this happening $=$ both A's are right $=$ 1- either one is wrong $\ge  1-\frac{\text{either one is wrong}}{2 (\frac{1}{2}-\epsilon(n))} = 1 - \frac{\text{either one is wrong}}{2 \epsilon(n)}$\\\\
+\textbf{The Simple Case:}\\
+	$\Pr[E(x)] \ge \frac{3}{4}+\frac{\epsilon(n)}{2}$\\
+	This probability, is bounded by $1-2(\frac{1}{4} - \frac{\epsilon(n)}{2}) = \frac{1}{2} + \epsilon(n)$ from the observation before (as $\text{one is wrong} = 1- (\frac{3}{4}+\frac{\epsilon(n)}{2}) = \frac{1}{4} - \frac{\epsilon(n)}{2}$)\\
+	$R$ then runs the two A's polynomial times and uses majority vote.\\
+	We use Chebyshev's inequality to justify the use of majority vote.
+	%read chernov and chebyshev bounds
+
+\subsection{Chebyshev's inequality} %TODO: should this be a subsection or should it be smaller?
+	Let $x_1,\ldots,x_m$ be independent and identical random variables assuming values 0 or 1.  Also, let $\Pr[x_i=1] = p$.\\
+		Then $\Pr[ \lvert \sum x_i - pm \rvert > \delta m] < 1/(4\delta^2 m)$\\
+
+	Let $b_1,\ldots,b_T$ be random bits.\\
+	Let $X_1$ be 1 when $A(r_1) \rightarrow b_1$,\\
+	$X_2$ be 1 when $A(r_2) \rightarrow b_2$,\\
+	$\ldots$\\
+	and let $X_T=1$ when $A(r_T) \rightarrow b_T$.\\
+	Let $T=\frac{2n}{\epsilon(n)^2}$\\\\
+
+The problematic case is:\\
+	$\Pr[ \sum_{i=1}^T X_i \le T/2]$\\
+	$= \Pr[ \sum_{i=1}^T X_i - (\frac{1}{2} + \epsilon(n)) T \le T/2 - (\frac{1}{2}+\epsilon(n))\times T]$\\
+	$< \Pr[ \lvert \sum_{i=1}^T X_i - (\frac{1}{2}+\epsilon(n) T)\rvert > \epsilon(n) \frac{T}{2} ]$\\
+	$< \frac{1}{4 (\epsilon(n)/2)^2 T} = \frac{1}{\epsilon(n)^2 T} = \frac{1}{2n}$ which is sufficient for the theorem\\\\
+
+In order to show that we can use Chebyshev's inequality, we need to show that the samples we are voting over are pairwise independent:\\
+For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in {0,1}} \Pr[x=a \text{and} y=b] = \Pr[x=a] \times \Pr[y=b]$\\
+
+	Imagine we have $(r_1, B(x, r_1)), \ldots, (r_T, B(x,r_T))$\\
+	Let $k = \log(T)$, $S_1, \ldots, S_k \in \{0,1\}^n$ be sampled uniformly, and $b_1 = B(x, S_1), b_2 = B(x, S_2), \ldots, b_k = B(x, S_k)$
+	$\forall_{Y \subseteq [k]}$, $R$ generates $(f(x, \bigoplus_{i \in Y} S_i), \bigoplus_{i \in Y} b_i)$\\
+	(note: $[k]$ is the set $\{1,\ldots, k\}$)\\
+	\\
+	This proof is finished in the next lecture, with some slight changes.
+
+\qed
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%
+\fi
+
+
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a polynomial time machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard core bit is hidden because of computational hardness and not information theoretic hardness.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. (We leave this as an exercise!)
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ probability.
+\qed
+
+
+
+\paragraph{Application: Coin tossing over the phone.} We next describe an application of hard core bits to coin tossing.
+Consider two parties trying to perform a coin tossing over the phone. In this setting the first party needs to declare its choice as the second one flips the coin. However, how can the first party trust the win/loss response from the second party?  In particular, if the first party calls out ``head'' and then the second party can just lie that it was ``tails.'' We can use hard core bit of a (one-to-one) one-way function to  enable this applications.
+
+Let $f$ be a (one-to-one) one-way function and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $y$, where $y = f(x)$, to party $P_2$.
+\item[-] $P_2$ sends back a random bit $b$ sampled from $\{0,1\}$.
+\item[-] $P_1$ sends back $(x, B(x))$ to $P_2$. $P_2$ aborts if $f(x) \neq y$.
+\item[-]  Both parties output $B(x)\oplus b$.
+\end{itemize}
+Note that $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$ as he sends back his $b$.
+On the other hand, $P_1$ cannot flip the value $B(x)$ once it has sent $f(x)$ to $P_2$ because $f$ is one-to-one.
+
+
+\section{Hard Core Bit of any One-Way Functions}
+We now show that a slight modification of every one-way function has a hard core bit. More formally,
+\begin{theorem}\label{thm:hard-core-bit}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+Define a function $g:\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$g(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard core bit, namely $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\begin{remark}
+If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard core bit $B(\cdot)$.
+\end{remark}
+\proof
+We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard core bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
+
+\medskip
+\noindent\textbf{\underline{Super simple case.}}
+Suppose that $\ma$ breaks the $B$ with perfect accuracy:
+$$\Pr_{x,r}[E] =1.$$
+We  now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
+Let $e^i$ be an $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
+On input $f(x)||R$, $\mathcal{B}$ does the following:
+
+\medskip
+\begin{algorithmic}
+\For {$i=1$ \textbf{to} $n$}
+    \State $x'_i \gets \ma(1^{2n}, f(x)||e^i)$
+\EndFor
+\State \Return $x'_1\cdots x'_n || R$
+\end{algorithmic}
+Observe that $B(x,e^i) = \sum_{j=1}^n x_je^i_j = x_i$. Therefore, the probability that $\mathcal{B}$ inverts a single bit successfully is,
+$$\Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=x_i\right] =  \Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=B(x,e^i)\right] = 1.$$
+Hence $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)] = 1$.
+
+
+\bigskip
+\noindent\textbf{\underline{Simple case.}}
+Next moving on to the following more demanding case.
+$$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$
+ where $\epsilon$ is non-negligible.
+Just like the super simple case, we describe our algorithm of $\mathcal{B}$ for inverting $g$.
+On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\For {$i = 1$ \textbf{to} $n$}
+	\For {$t = 1$ \textbf{to} $T = \frac{n}{2\epsilon(n)^2}$}
+		\State $r \stackrel{\$}{\leftarrow} \binset{n}$
+    	\State $x_i^t \leftarrow \ma(f(x)|| r) \oplus \ma(f(x) || r+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^1, \cdots, x_i^T\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+Correctness of $\mathcal{B}$ given that $\ma$ calls output the correct answer follows by observing that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$:
+\begin{align*}
+&B(x,r) \oplus B(x, r\oplus e^i)\\
+=& \sum_j x_j r_j + \sum_j x_j (r_j \oplus e^i_j) \mod 2\\
+=& \sum_{j \not= i} (x_j r_j + x_j r_j) + x_i r_i + x_i (r_i+1) \mod 2\\
+=& x_i.
+\end{align*}
+The key technical challenge in proving that $\mathcal{B}$ inverts $g$ with non-negligible probability arises from the fact that the calls to $\ma$ made during one execution of $\mathcal{B}$ are not independent. In particular, all calls to $\ma$ share the same $x$ and the class $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ use correlated randomness as well. We solve the first issue by showing that exists a large choices of values of $x$ for which $\ma$ still works with large probability. The later issue of lack of independent of $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ will be solved using a union bound.
+
+\noindent Formally, define the set $G$ of ``good'' $x$'s, which are easy for $\ma$  to predict:
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{3}{4} + \frac{\epsilon(n)}{2} \right. \right\}.$$
+We start by proving that the size of $G$ is not small. More formally we claim that,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$
+Assume, that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] < \frac{\epsilon(n)}{2}$. Then we have the following contradiction:
+\begin{align*}
+\frac{3}{4} + \epsilon(n) \leq& \Pr_{x,r}[E]\\
+=& \Pr_x [x \in G] \Pr_{r}[E| x\in G] + \Pr_x [x \notin G] \Pr_{r}[E | x\notin G]\\
+< & \frac{\epsilon(n)}{2} \cdot 1 + 1\cdot \left(\frac{3}{4}+\frac{\epsilon(n)}{2}\right)  = \frac{3}{4} + \epsilon(n).
+\end{align*}
+For and fixed $x \in G$:
+\begin{align*}
+&\Pr_{r} \left[ \ma(f(x), r) \oplus \ma(f(x), r+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right] + \Pr_{r} \left[ \text{Both $\ma$'s are wrong} \right]\\
+\geq& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right]\\
+\geq& 1-2 \cdot \Pr_{r} \left[ \text{Either $\ma$ is correct} \right]\\
+\geq& 1-2\left(\frac{1}{4} - \frac{\epsilon(n)}{2} \right)
+= \frac{1}{2} + \epsilon(n).
+\end{align*}
+Let $Y_i^t$ be the indicator random variable that $x_i^t = x_i$ (namely, $Y_i^t=1$ with probability  $\Pr[x_i^t = x_i]$ and $Y_i^t=0$ otherwise).
+Note that $Y_i^1, \cdots, Y_i^T$ are independent and identical random variables, and for all $t \in \{1,\ldots, T\}$ we have that $\Pr[Y_i^t=1] = \Pr[x_i^t = x_i] \geq \frac{1}{2} + \epsilon(n)$. Next we argue that majority of $x_i^1, \ldots x_i^T$ coincides with $x_i$ with high probability.
+\begin{align*}
+\Pr[x'_i \neq x_i]
+=& \Pr\left[\sum_{t=1}^T Y_i^t \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \leq \frac{T}{2} - \left(\frac{1}{2} + \epsilon(n) \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \right| \geq \epsilon(n)T \right]\\
+& \text{Let $X_1,\cdots,X_m$ be i.i.d. random variables taking values 0 or 1. Let $\Pr[X_i=1] = p$.}\\
+& \text{By Chebyshev's Inequality, $\Pr\left[ \left| \sum X_i - pm \right| \geq \delta m \right] \leq \frac{1}{4\delta^2 m}$.}\\
+\leq& \frac{1}{4\epsilon(n)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the argument,  we have
+\begin{align*}
+&\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq& \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | x \in G]\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | x \in G]\right)\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)}{4}.
+\end{align*}
+
+
+
+\bigskip
+\noindent\textbf{\underline{Real Case.}} Now, we describe the final case where $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n),$
+ where $\epsilon(\cdot)$ is a non-negligible function. The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above. However, just using one call to $\ma$ seems insufficient. The key idea is to just guess one of those values. Very surprisingly this idea along with careful analysis magically works out.
+Just like the previous two case we start by describing the algorithm $\mathcal{B}$. On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\State $T = \frac{2n}{\epsilon(n)^2}$
+	\For {$\ell = 1$ \textbf{to} $\log T$}
+		\State $s_\ell \stackrel{\$}{\leftarrow} \binset{n}$
+		\State $b_\ell \stackrel{\$}{\leftarrow} \{0,1\}$
+	\EndFor
+\For {$i = 1$ \textbf{to} $n$}
+	\ForAll {$L \subseteq \{1,2,\cdots, \log T\}$}
+		\State $S_L :=\bigoplus_{j \in L} s_j$
+		\State $B_L := \bigoplus_{j \in L} b_j$
+		\State $x_i^L \leftarrow B_L \oplus \ma(f(x) || S_L+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^\emptyset, \cdots, x_i^{[\log T]}\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+
+\medskip
+The idea is the following. Let $b_\ell$ guess the value of $B(x,s_\ell)$, and with probability $\frac{1}{T}$ all the $b_{\ell}$'s are correct. In that case, it is easy to see that $B_L = B(x, S_L)$ for every $L$. If we follow the same argument as above, then it remains to bound the probability that $\ma(f(x) || S_L+e^i)=B(x, S_L + e^i)$. However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are not independent any more. But we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof. \\
+Just as in the simple case, we define the set $G$ as
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{1}{2} + \frac{\epsilon(n)}{2} \right. \right\},$$
+and with an identical argument we obtain that
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$\\
+Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that (we use the notation $(s)_k$ to denote the $k^{th}$ bit of $s$)
+$$B(x,S_L) = \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k = \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L.$$
+Next given that $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$ we bound the probability,
+\begin{align*}
+\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L+e^i) = x_i \right]
+=& \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \ma(f(x) || S_L+e^i) =  B(x,S_L +e^i) \right]\\
+\geq& \frac{1}{2} + \frac{\epsilon(n)}{2}.
+\end{align*}
+For $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
+Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
+\begin{align*}
+\Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \leq \frac{T}{2} - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right| \geq \frac{\epsilon(n)}{2} T \right]\\
+& \text{(By Theorem~\ref{thm:Chebyshev})}\\
+\leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the proof, we have that
+\begin{align*}
+\Pr_{x,r}[&\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq&  \Pr\left[\forall \ell \in [\log T], b_\ell = B(x,s_\ell)\right] \\& \cdot  \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\\
+\geq& \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\right)\\
+\geq& \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}.
+\end{align*}
+\qed
+
+\marginnote[-12cm]{
+\noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} Here, for the sake of completeness, we prove the Chebyshev's Inequality.
+\begin{definition}[Pairwise Independence]
+A collection of random variables $\{X_1,\cdots,X_m\}$ is said to be \emph{pairwise independent} if for every pair of random variables $(X_i, X_j), i \neq j$  and every pair of values $(v_i,v_j)$, it holds that
+$$\Pr[X_i = v_i, X_j = v_j] = \Pr[X_i = v_i]\Pr[X_j = v_j].$$
+\end{definition}
+
+\begin{theorem}[Chebyshev's Inequality]\label{thm:Chebyshev}
+Let $X_1,\hdots,X_m$ be pairwise independent and identically distributed binary random variables. In particular, for every $i \in [m]$, $\Pr[X_i = 1] = p$ for some $p\in [0,1]$ and $\Pr[X_i=0]=1-p$. Then it holds that
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq \delta m\right] \leq \frac{1}{4\delta^2m}.$$
+\end{theorem}
+
+\proof
+Let $Y = \sum_i X_i$. Then
+\begin{align*}
+\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| > \delta m\right] &=
+\Pr\left[\left(\sum_{i=1}^m X_i - pm\right)^2> \delta^2 m^2\right]\\
+&\leq \frac{\mathbb{E}\left[\left|Y - pm\right|^2\right]}{\delta^2m^2}\\
+&= \frac{\text{Var}(Y)}{\delta^2m^2}\\
+\end{align*}
+Observe that
+\begin{align*}
+\text{Var}(Y) &= \mathbb{E}\left[Y^2\right] - \left(\mathbb{E}[Y]\right)^2\\
+&= \sum_{i=1}^m \sum_{j=1}^m \left( \mathbb{E}\left[X_iX_j\right] - \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]\right)\\
+& \text{By pairwise independence, for $i \neq j$,  
+$\mathbb{E}\left[X_iX_j\right] = \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]$.}\\
+&= \sum_{i=1}^m \mathbb{E}\left[X_i^2\right] - \mathbb{E}\left[X_i\right]^2\\
+&= mp(1-p).
+\end{align*}
+Hence
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq\delta m\right] \leq \frac{mp(1-p)}{\delta^2m^2} \leq \frac{1}{\delta^2m}.$$
+\qed
+}
+
+
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%

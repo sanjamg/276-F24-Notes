@@ -1,0 +1,513 @@
+% !TEX root = collection.tex
+
+%
+\newcommand{\KeyGen}{\ensuremath{KeyGen}\xspace}
+\newcommand{\Pk}{\ensuremath{Pk}\xspace}
+\newcommand{\Sk}{\ensuremath{Sk}\xspace}
+\newcommand{\Enc}{\ensuremath{Enc}\xspace}
+\newcommand{\Dec}{\ensuremath{Dec}\xspace}
+
+% CCA1
+\newcommand{\Gen}{\ensuremath{Gen}\xspace}
+
+
+% Sig
+\newcommand{\Setup}{\ensuremath{Setup}\xspace}
+\newcommand{\Sign}{\ensuremath{Sign}\xspace}
+\newcommand{\Verify}{\ensuremath{Verify}\xspace}
+\newcommand{\Vk}{\ensuremath{Vk}\xspace}
+
+% ZK
+\newcommand{\cP}{\ensuremath{\mathcal{P}}\xspace}  % proof -> \pi
+\newcommand{\cV}{\ensuremath{\mathcal{V}}\xspace}  % proof -> \pi
+
+\newcommand{\Forge}{\ensuremath{Forge}\xspace}
+\newcommand{\Fake}{\ensuremath{Fake}\xspace}
+\newcommand{\Prob}{\ensuremath{Pr}\xspace}
+
+
+
+%%%%%%% incomplete section
+\begin{comment}
+
+\section{A Problem with the CCA1 Proof}   % For Naor-Yung
+
+\subsection{Model}
+The scheme (\KeyGen, \Enc, \Dec) was constructed using the underlying scheme.
+KeyGen creates two public keys, a common random string for the non-interactive zero-knowledge (NIZK) proof system, and a secret key.
+\begin{align*}
+\KeyGen(1^k)  \rightarrow & \Pk = (\Pk_1, \Pk_2, \sigma)\\
+                                          & \Sk = \Sk_1
+\end{align*}
+
+% TODO description?
+
+\begin{align*}
+\Enc(\Pk, m)  \rightarrow & (C_1, C_2, \pi) \text{ where } \\
+                                        & C_1 = \Enc(\Pk_1, m) \\
+                                        &  C_2 = \Enc(\Pk_2, m) \\
+                                        & \pi = \cP(\sigma, x , w) \\
+   & x \text{ is the statement that } C_1, C_2  \\
+   & \text{ encrypt the same message. } \\
+\end{align*}
+
+% TODO description?
+
+ \begin{align*}
+\Dec(\Sk, (C_1, C_2, \pi))  \rightarrow
+  & \text{ If  } \cV(\sigma, x, \pi) = 1 \\
+  &  \text{ then  } \Dec(\Sk_1, C_1) \\
+  & \text{ else } \bot
+\end{align*}
+
+\subsection{Security}
+
+We use the following experiment between challenger and adversary.
+
+%\begin{table}[h]
+%\caption{CCA1 Indistinguishability Experiment}
+\begin{center}
+\begin{tabular}{rl}
+    \multicolumn{1}{r}{Challenger}   &  Adversary \\ \hline
+   $ \underrightarrow{\Pk}$ &   \\
+  &  $       \underleftarrow{ C_1}$   \\
+   \multicolumn{1}{l}{$m_1 = \Dec(\Sk, m_1)$} &  \\
+   $\underrightarrow{m_1}$ &  \\
+     $\cdots$  & $\cdots$ \\
+   &$       \underleftarrow{C_q}$   \\
+   $\underrightarrow{m_q}$&   \\
+    &$\underleftarrow{m_0, m_1}$  \\
+   \multicolumn{1}{l}{$b \xleftarrow{\$} \{0,1\}$}   &    \\
+   \multicolumn{1}{l}{$C^* = \Enc(\Pk,m_b)$} & \\
+      $C^* = (C_1, C_2, \pi^*) \rightarrow$ & \\
+      & $\underleftarrow{b'}$  \\
+  Output $1$ if $b = b'$ & \\
+  $0$ otherwise &  \\
+\end{tabular}
+\end{center}
+\label{default}
+%\end{table}%
+
+\paragraph{Hybrid Argument}
+The steps of the hybrid argument were as follows.
+
+
+$H_0$: $\Enc(\Pk, m_0)$
+
+$H_1$: Simulate $\sigma, \pi^*$
+
+$H_2$: Change $C_2^*$ to encrypt $m_1$, decrypt with $\Sk_1$.
+
+$H_3$: Use $\Sk_2$ to decrypt the ciphers $C_1, \cdots, C_q$, provided by the attacker.
+
+$H_4$: Change $C_1^*$ to encrypt $m_1$
+
+$H_5$: Use honest $\sigma, \pi$ to encrypt $m_1$.
+
+\paragraph{A problem}
+
+There is a problem with this proof approach. The construction is fine but it has a subtlety.
+
+We are changing from $\Sk_1$ to $\Sk_2$ after we switched to the simulated proof.
+
+
+Define event Fake to be the event such that $\exists i \in [q]$ such that
+$C_i = (C_{1,i}, C_{2,i}, \pi_i)$
+where
+$\pi$ is valid
+but
+$\Dec(\Sk_1, C_{1,i}) \neq \Dec(\Sk_2, C_{2,i})$
+
+At $H_0$, the changes of event fake are negligible as we are using the normal system with randomly generated random string.
+
+At $H_1$, fake must have the same probability as in $H_0$ otherwise. TODO
+
+argue changes of event fake are still negligible as otherwise we can distinguish between $H_0$ and  $H_1$.
+
+At $H_3$, they are still negligible so we can switch to $\Sk_2$.
+
+This argument will not hold for a CCA2 attack.
+
+
+\end{comment}
+
+
+\section{One Time Secure Signature Scheme}
+
+\paragraph{Model}
+The scheme consists of the three efficient algorithms (\Setup, \Sign, \Verify). \Setup creates verification and signing keys. \Verify returns $1$ if the signature verifies. The scheme is named  one time secure as the attacker is only allowed one query before they must produce a valid message and signature pair. The verification and signing keys are created with the message, the recipient does not know the verification key until they receive it with the message.
+
+\begin{align*}
+(\Vk, \Sk) \xleftarrow{\text{\$}} & \Setup(1^k) \\
+\alpha   \leftarrow & \Sign(\Sk, m)  \\
+\{1,0\}  \leftarrow & \Verify(\Vk, m, \alpha) \\
+\end{align*}
+
+\paragraph{Correctness}
+With honest \Setup and \Sign, $Pr[\Verify(\Vk, m, \Sign(\Sk, m)) = 1] =1$.
+
+\paragraph{Security}
+
+We base security on the following experiment between a challenger and a PPT adversary.
+
+
+%\begin{table}[h]
+\begin{center}
+\begin{tabular}{rl}
+    \multicolumn{1}{r}{Challenger}   &  Adversary  \\ \hline
+   \multicolumn{1}{l}{$(\Vk, \Sk) = \Setup(1^k)$}   &    \\
+   $ \underrightarrow{\Vk}$ &   \\
+  &  $ \underleftarrow{ m}$   \\
+   \multicolumn{1}{l}{$\alpha = \Sign(m)$}   &    \\
+   $\underrightarrow{\alpha}$ &  \\
+    &$\underleftarrow{m', \alpha'}$  \\
+   \multicolumn{1}{l}{Output $1$ if }   &    \\
+   \multicolumn{1}{l}{$\Verify(\Vk, m',\alpha') = 1$}   &    \\
+   \multicolumn{1}{l}{and $(m, \alpha) \neq (m', \alpha')$}   &    \\
+   \multicolumn{1}{l}{$0$ otherwise} &  \\
+\end{tabular}
+\end{center}
+\label{default}
+%\end{table}%
+
+We require that an adversary can not forge a signature for a different message.
+\[
+Pr [Output = 1]  = neg(k).
+\]
+
+
+\section{CCA2}
+
+We now use the one-time signature system $(\Setup_s, \Sign_s, \Verify_s)$,
+a CCA1 secure scheme ($\Gen_1$, $\Enc_1$, $\Dec_1$),
+and an adaptively secure NIZK proof system (\cP, \cV)
+to create a CCA2 secure scheme (\Setup, \Enc, \Dec)
+using the Dolev-Dwork-Naor (DDN) scheme \cite{dolev}.
+%Earlier once an attacker had a fake proof, they could modify to use as a new fake proof.
+%Now we want a non-malleability property.
+
+\subsection{Model}
+%
+\paragraph{\Setup}  $Setup(1^k)$ creates $2k$ public keys, random bits $\sigma$, and $2k$ private keys.
+
+\[
+ (\Pk, \Sk) \leftarrow \Setup(1^k)  \text{ where}
+\]
+\begin{align*}
+ (\Pk_{i,b}, \Sk_{i,b}) &\leftarrow \Gen_1(1^k) \quad \forall i \in [k], b \in \{0,1\} \\
+                     \sigma &\leftarrow \{0,1\}^{poly(k)}
+\end{align*}
+\[
+\Pk = \left(
+\begin{bmatrix}
+\Pk_{1,0}  & \Pk_{2,0}  & \Pk_{3,0}  & \cdots  & \Pk_{k,0}  \\
+\Pk_{1,1}  & \Pk_{2,1}  & \Pk_{3,1}  & \cdots  & \Pk_{k,1}  \\
+\end{bmatrix}, \sigma  \right),
+\Sk =
+\begin{bmatrix}
+\Sk_{1,0}  \\
+\Sk_{1,1} \\
+\end{bmatrix}.
+\]
+
+
+\paragraph{\Enc} $\Enc(\Pk, m)$ uses our one-time signature and CCA1 schemes to encrypt the message $k$ times.
+
+
+\begin{enumerate}
+\item Generate verification and signing keys
+\[
+(\Vk, \Sk) \leftarrow \Setup_s(1^k).
+\]
+
+\item Select one key from each of the $k$ columns of \Pk based on the bits of \Vk
+\[
+\Vk = \Vk_1 | \Vk_2  | \Vk_3 |  \cdots  | \Vk_k  \\
+\]
+\[
+\begin{bmatrix}
+\Pk_{1,\Vk_1}  & \Pk_{2,,\Vk_2}  & \Pk_{3,,\Vk_3}  & \cdots  & \Pk_{k,,\Vk_k}  \\
+\end{bmatrix}.
+\]
+
+\item Use the $k$ keys and a witness for each key to create $k$ CCA1 encryptions of $m$
+\begin{align*}
+w_i & \leftarrow \{0,1\}^* \\ %{poly(k)} \\
+C_i & \leftarrow \Enc_1(\Pk_{i,\Vk_i}, m; w_i).
+\end{align*}
+
+\item Sign the collection of $k$ encryptions  $C_i$ along with a proof, $\pi$, that each $C_i$ encrypts the same message under the corresponding $\Pk_{i,\Vk_i}$ public key
+\begin{align*}
+\pi   \leftarrow & \cP(\sigma, C_1, \cdots, C_k, m, w) \\
+\alpha \leftarrow & \Sign_s(\Sk, C_1, \cdots, C_k, \pi).
+\end{align*}
+
+
+\item Output
+\[
+  C = (\Vk, C_1, \cdots, C_k, \pi, \alpha).
+\]
+
+\end{enumerate}
+
+\paragraph{\Dec}
+If the signature and proof verify, decrypt $C_1$ using $\Sk_{1, \Vk_1}$
+\begin{align*}
+\Dec(\Vk, C_1, \cdots, C_k, \pi, \alpha) = \,
+&\bot \text{ if } \Verify_s(\Vk, (C_1, \cdots, C_k, \pi), \alpha) = 0 \text{, else} \\
+&\bot \text{ if } \cV(\sigma, C_1, \cdots, C_n, \pi) = 0 \text{, else} \\
+&\Dec_1(\Sk_{1,\Vk_1}, C_1). \\
+\end{align*}
+
+\subsection{Security}
+The proof is similar to that for CCA1.
+We start with encrypting $m_0$, simulate the proof, change all the $C_i^*$ from $m_0$ to $m_1$,
+then return to the honest proof. All while still answering before and after decryption oracle queries.
+We use the experiment in Table \ref{fig:cca2_game}.
+For the proof we define two events that might occur.
+
+\begin{table}[h]
+\caption{CCA2 Indistinguishability Experiment}
+\begin{center}
+\begin{tabular}{llrl}
+Phase &    \multicolumn{2}{r}{Challenger}   &  Adversary   $A^{\Dec_{\Sk}(\cdot), \Enc_{\Pk}(\cdot)} $ \\ \hline
+ {Setup} &  $(\Pk, \Sk) \leftarrow \Setup(1^k)$ &  $\underrightarrow{\Pk}$    & \\
+
+ & \\
+{Oracle Phase 1} & & &  $       \underleftarrow{ C_i}    \quad i \in [2,q]$   \\
+&  $m_i = \Dec(\Sk, C_i)$ &    $\underrightarrow{m_i}$ &  \\
+
+ & \\
+{Challenge} & &  &$\underleftarrow{m_0, m_1} \leftarrow A^{\Dec_{\Sk}(\cdot)}(\Pk) $  \\
+& $b \xleftarrow{\$} \{0,1\}$ &  &    \\
+& $C^* = \Enc(\Pk,m_b)$ &   $\underrightarrow{C^*}$ & \\
+%   $C^* = (\Vk, (C_1, \cdots, C_k, \pi), \alpha) \rightarrow$ & \\
+
+ & \\
+{Oracle Phase 2}  & &     &$       \underleftarrow{ C_{i}} \quad i \in [q+1,n]$   \\
+& $m_i = \Dec(\Sk, C_i)$ &  $\underrightarrow{m_{i} }$&   \\
+
+ & \\
+{Response} & &      & $\underleftarrow{b'}  \leftarrow A^{\Dec_{\Sk}(\cdot)}(\Pk, C^*) $  \\
+&  Output $1$ if $b = b'$, &  &\\
+ & $0$ otherwise. &  & \\
+\end{tabular}
+\end{center}
+\label{fig:cca2_game}
+\end{table}%
+
+\paragraph{\Forge} Event \Forge concerns the signature and
+is defined as the adversary submitting a decryption query $d_i$
+that uses our \Vk and $\Verify(d_i) = 1$, but is different from the cipher text we sent.
+\begin{align*}
+\exists i \in [q'] \, : \, d_i =& (\Vk_i', C_{1,i}', \cdots, C_{k,i}', \pi_i', \alpha_i')  \neq C^*\\
+\text{were } & \Vk_i' = \Vk \\
+                   & \Verify(d_i) = 1.
+\end{align*}
+
+\paragraph{\Fake} Event \Fake concerns the proof and
+is defined as the adversary submitting a decryption query $d_i : \cV(d_i) = 1$
+ but two of its cipher texts decrypt to different messages.
+\begin{align*}
+   \exists i \in [q'] \, : \, d_i = & (\Vk_i, C_{1,i}, \cdots, C_{k,i}, \pi_i, \alpha_i)  \\
+\text {where }  & \cV(\sigma, C_{1,i}, \cdots, C_{k,i}, \pi_i) = 1 \\
+\text {but }       & \exists j,l \in [k] \, :
+                         \Dec(\Sk_{Vk_{i,j}}, C_{j,i}) \neq  \Dec(\Sk_{Vk_{i,l}}, C_{l,i})
+\end{align*}
+
+We want to move from
+\[
+C^* = (\Vk^*, C_1^*, \cdots, C_k^*, \pi^*, \alpha^*)
+\]
+encrypting $m_0$ to encrypting $m_1$ in a manner undetectable to the adversary while continuing to be able to answer our adversaries decryption queries, $C_i$.
+We examine a series of experiments with the first encrypting $m_0$ to the last encrypting $m_1$
+showing that each successive pair is indistinguishable.
+
+\paragraph{H0} H0 is the normal experiment above that encrypts $m_0$.
+
+$\Prob[\Forge]$  is negligible in H0. If it were not,
+ we could use our adversary, $A$, to break the security guarantee of a challenger,
+$C_{1-time}$, for the one-time secure signature scheme.
+We construct a signature scheme adversary, $A'$, that receives \Vk from $C_{1-time}$ and passes it to $A$ who returns
+a forgery attempt, $C_i$.
+As $\Prob[\Forge]$ is non-negligible, by passing $C_i$ to $C_{1-time}$ we have a non-negligible chance of verification,
+thus breaking the security guarantee of $C_{1-time}$.
+
+$\Prob[\Fake]$ is negligible in H0. If it were not, we could with non-negligible probability cause the NIZK \Verify
+to falsely accept a cypher text, $C_i$, with proof that all $C_{j,i}$ encrypt the same message, when two of them did not.
+
+
+\paragraph{H1} H1 replaces $\sigma, \cP$ from the NIZK proof system with simulations
+\begin{align*}
+\sigma \leftarrow & Sim_1 \\
+\pi        \leftarrow & Sim_2.
+\end{align*}
+If H0, H1 could be distinguished by a CCA2 adversary $A$,
+we could construct an adversary, $A'$, of a NIZK system challenger $C'$.
+Sometimes $A'$ creates and sends to $A$ cipher text $C_i = (Vk, C_{1,i,}, \cdots, C_{k,i}, \pi = \cP(), \alpha)$, as in H0.
+Other times $A'$ creates and sends to $A$ cipher text $C_i = (Vk, C_{1,i}, \cdots, C_{k,i}, \pi = Sim_2, \alpha)$, as in H1.
+If the distribution of $A$'s responses $b$ differ between these two situations then $A'$
+has learned something extra from the NIZK challenger $C'$ thus breaking the NIZK system.
+
+$\Prob[\Forge]$ is negligible in H1. If it were not,
+we could break the signature scheme just as in H0.
+
+$\Prob[\Fake]$  is negligible in H1.
+On every query $C_i$ by $A$, we can check that each $C_{j,i}$ decrypts to the same message.
+If $\Prob[\Fake]$ increased between H0 and H1, we could use this to distinguish between $\cP$ and the simulator.
+As $\cP$ is a NIZK proof system, this is a contradiction, thus there is no detectable change in $\Prob[\Fake]$
+between H0 and H1, and so it is still negligible.
+
+
+\paragraph{H1.5}
+Samples $\Vk^*$ for the encryption challenge in the beginning as part of \Setup.
+Note that the $\Vk^*$ we create for $C^*$ is separate from the
+\Vk sampled by the adversary when they create $C_i$ decryption requests.
+$\Vk^*$ is generated randomly so generating it early or just before we need it will not affect the distribution of its values.
+$\Vk ^*$ is only used in creating our challenge cipher,
+so changing from creating it just prior to giving the challenge cipher to the adversary,
+to creating it as some point earlier has no effect on the interaction with the adversary.
+Thus the distribution the adversary sees is unchanged.
+
+$\Prob[\Forge]$ and $\Prob[\Fake]$ do not change as no change is visible to the adversary.
+Thus they are still negligible.
+
+\paragraph{H1.75}
+
+Changes which secret key components we keep
+so that we know none of the challenge cipher text's secret key components,
+while still having the secret key components to answer decryption oracle queries.
+%
+As we now know $\Vk^*$ from the start,
+ we can use the secret key components not used by $C^*$ to decrypt the decryption oracle queries.
+%
+%As $\Prob[\Forge]$ is negligible we will always have one component of \Sk that we can use for this.
+
+Consider the complement of $\Vk^*$, $\overline{\Vk}^*$, i.e.
+\begin{align*}
+\Vk^*                 = & 011 \cdots 1\\
+\overline{\Vk}^* = & 100 \cdots 0.
+\end{align*}
+
+Highlighting the corresponding parts of our existing public key and an expanded secret key, we have
+\[
+\Pk = \left(
+\begin{bmatrix}
+\Pk_{1,0}                  & \overline{\Pk_{2,0}}  & \overline{\Pk_{3,0}}  & \cdots  & \overline{\Pk_{k,0}}  \\
+\overline{\Pk_{1,1}}  & \Pk_{2,1}                  & \Pk_{3,1}                  & \cdots  & \Pk_{k,1}  \\
+\end{bmatrix}, \sigma  \right)
+\]
+\[
+\Sk =
+\begin{bmatrix}
+\Sk_{1,0}                  & \overline{\Sk_{2,0}}  & \overline{\Sk_{3,0}}  & \cdots  & \overline{\Sk_{k,0}}  \\
+\overline{\Sk_{1,1}}  & \Sk_{2,1}                  & \Sk_{3,1}                  & \cdots  & \Sk_{k,1}  \\
+\end{bmatrix}.
+\]
+
+For the challenge cipher, we will use only the $\Vk^*$ components of the \Pk and
+we do not need the $\Vk^*$ components of \Sk,
+as we know the value of $b$.
+If we were to construct and publish the \Pk as before,
+and change our private \Sk to keep only the $\overline{\Vk}^*$ components
+we can still provide and grade the challenge cipher. We now have
+\[
+\Pk = \left(
+\begin{bmatrix}
+\Pk_{1,0}  & \Pk_{2,0}  & \Pk_{3,0}  & \cdots  & \Pk_{k,0}  \\
+\Pk_{1,1}  & \Pk_{2,1}  & \Pk_{3,1}  & \cdots  & \Pk_{k,1}  \\
+\end{bmatrix}, \sigma  \right)
+\]
+\[
+\Sk =
+\begin{bmatrix}
+                                & \overline{\Sk_{2,0}}  & \overline{\Sk_{3,0}}  & \cdots  & \overline{\Sk_{k,0}}  \\
+\overline{\Sk_{1,1}}  &                                 &                                  & \cdots  &        \\
+\end{bmatrix}.
+\]
+
+The adversary queries to the decryption oracle will have a \Vk different from $\Vk^*$.
+As $\Prob[\Forge]$ is negligible,
+at least one bit of the adversaries \Vk will have the same value as the corresponding bit in $\overline{\Vk}^*$.
+Thus there is always one $\overline{\Vk}^*$ component of \Sk that we can use to decrypt the query.
+As $\Prob[\Fake]$ is negligible, this provides the same message as in H1.5.
+
+
+Thus the changes from H1.5 to H1.75 are undetectable to the adversary.
+With H1.75 we have ensured that when we create and present the challenge cipher we know none of the secret keys necessary to decrypt it.
+
+\paragraph{H2}
+Changes the challenge cipher from $m_0$ to $m_1$.
+As we do not know the secret keys to decrypt $m_0$, we can use semantic security to move from $m_0$ to $m_1$.
+
+\paragraph{H3}
+Returns to the real $\sigma, \pi$.
+As in changing from H0 to H1, if the adversary, $A$, could detect the change,
+we could use $A$ to break the underlying NIZK proof system.
+
+\subsection{Use and Efficiency}
+This is an example of non-malleable cryptography.
+An example of its use is in preventing one bidder in an auction from
+slightly increasing an opponents bid without knowledge of the opponent's unencrypted bid.
+It is not an efficient construction, but an efficient construction does exist in RSA.
+
+
+
+\section*{Exercises}
+\begin{exercise}
+Consider the execution of a two-party protocol in the presence of an adversary that has full control of the communication channel between the two parties, such as omitting, modifying or delaying messages at its choice. This kind of attack is often referred to as \emph{man-in-the-middle} attacks, and protocols that are secure against man-in-the-middle-attacks are said to be \emph{non-malleable}.
+
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ r c c c l}
+Alice &  & $\mathcal{A}$ &  & Bob\\
+& $\xrightarrow{\parbox{3cm}{\ }}$ \\
+&  & & $\xrightarrow{\parbox{3cm}{\ }}$ \\
+&  & & $\xleftarrow{\parbox{3cm}{\ }}$ \\
+&  & & $\xrightarrow{\parbox{3cm}{\ }}$ \\
+& $\xleftarrow{\parbox{3cm}{\ }}$ \\
+& $\xrightarrow{\parbox{3cm}{\ }}$
+\end{tabular}
+\end{table}
+
+\begin{enumerate}
+\item[(a)]
+\textbf{Non-Malleable Public-Key Encryption.}
+We consider a man-in-the-middle adversary that receives a public-key encryption of $m$ under public key $\pk$ and tries to ``malleate'' it into a new encryption also under $\pk$.
+The adversary is said to have succeeded if he outputs an encryption of a value $\tilde m$ such that $\mathcal{R}(m, \tilde m)=1$, where $\mathcal{R} \subseteq \{0,1\}^n \times \{0,1\}^n$ is a polynomial-time computable non-reflexive relation (i.e., $\mathcal{R}(m,m)=0$). $\mathcal{A}$ also receives an auxiliary input $z$. We define $\mathsf{min}^{\mathcal{A}}(\pk, \mathcal{R}, m,z)=1$ if and only if $\mathcal{A}(\pk,z,c^*)$ produces a valid encryption of $\tilde m$ such that $R(m, \tilde m) = 1$, where $c^*$ is an encryption of $m$ under $\pk$.
+
+To define security, we consider a stand-alone execution where a simulator $\mathcal{S}$ directly outputs an encryption. $\mathcal{S}(\pk,z)$ only receives $\pk$ and $z$ as input (and not $c^*$). We define $\mathsf{sta}^{\mathcal{S}}(\pk, \mathcal{R}, m, z) = 1$ if and only if $\mathcal{S}$ produces a valid encryption of $\tilde m$ under $\pk$ such that $\mathcal{R}(m, \tilde m) = 1$.
+
+\begin{definition}[Non-Malleable Public-Key Encryption]
+A public-key encryption scheme $(\gen, \enc,\dec)$ is said to be non-malleable if for every PPT man-in-the-middle adversary $\mathcal{A}$, there exists a PPT stand-alone simulator $\mathcal{S}$ such that for every non-reflexive polynomial-time computable relation $\mathcal{R}$,  every $m\in \{0,1\}^n$, and every $z\in \{0,1\}^*$, it holds that
+\[\left|\Pr[\mathsf{min}^{\mathcal{A}} (\pk, \mathcal{R}, m, z)=1] - \Pr[\mathsf{sta}^{\mathcal{S}} (\pk, \mathcal{R}, m, z)=1]\right| \leq \mathsf{negl}(n)\]
+where $(\pk, \sk) \gets \gen(1^n)$.
+\end{definition}
+Prove that a CCA2 secure public-key encryption scheme is also non-malleable.\\
+
+
+
+\item[(b)]
+\textbf{Non-Malleable Commitment.}
+We define non-malleable commitment in a similar way.
+The man-in-the-middle adversary $\mathcal{A}$ receives a commitment to a value $v$ and attempts to commit to a related value $\tilde v$.
+$\mathcal{A}$ succeeds if $\mathcal{R}(v, \tilde v)=1$. Define $\mathsf{min}^{\mathcal{A}}(\mathcal{R}, v,z)=1$ if and only if $\mathcal{A}(c^*, z)$ produces a valid commitment to $\tilde v$ such that $R(v, \tilde v) = 1$, where $c^*$ is a commitment of $v$.
+In the stand-alone execution $\mathcal{S}$ commits to $\tilde v$ directly. Define $\mathsf{sta}^{\mathcal{S}}(\mathcal{R}, v, z) = 1$ if and only if $\mathcal{S}(z)$ produces a valid commitment to $\tilde v$ such that $\mathcal{R}(v, \tilde v) = 1$.
+
+
+\begin{definition}[Non-Malleable Commitment]
+A commitment scheme is said to be non-malleable if for every PPT man-in-the-middle adversary $\mathcal{A}$, there exists a PPT stand-alone simulator $\mathcal{S}$ such that for every non-reflexive polynomial-time computable relation $\mathcal{R} \subseteq \{0,1\}^n \times \{0,1\}^n$,  every $v\in \{0,1\}^n$, and every $z\in \{0,1\}^*$, the following holds.
+\[\left| \Pr[\mathsf{min}^{\mathcal{A}} (\mathcal{R}, v, z)=1] - \Pr[\mathsf{sta}^{\mathcal{S}} (\mathcal{R}, v, z)=1] \right| \leq \mathsf{negl}(n).\]
+\end{definition}
+
+Given a CCA2 secure public-key encryption scheme $(\gen, \enc, \dec)$, define the commitment scheme as 
+\[C(v) := \left(\pk, \enc(\pk, v)\right)\]
+where $(\pk, \sk)\gets \gen(1^n)$.
+Show that such a commitment scheme is not necessarily  non-malleable.
+
+%\textbf{Hint:} Given $(\gen, \enc, \dec)$, construct $(\gen', \enc', \dec')$ as follows: $\gen'(1^n)$ outputs $\pk' = (\pk, r), \sk' = (\sk,r)$ where $(\pk, \sk) \gets \gen(1^n)$ and $r \xleftarrow{\$}\{0,1\}^n$. $\enc'(\pk', v)=\enc(\pk, v\oplus r)$, $\dec'(\sk', c) = \dec(\sk, c)\oplus r$.
+	
+\end{enumerate}
+
+\end{exercise}

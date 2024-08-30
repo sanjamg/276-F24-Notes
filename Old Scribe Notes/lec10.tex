@@ -1,0 +1,371 @@
+% !TEX root = collection.tex
+
+\newcommand{\st}{~\text{s.t.}~}
+\newcommand{\rgets}{\overset{\$}{\gets}}
+\newcommand{\ind}{\overset{c}{\approx}}
+\chapter{NIZK Proof Systems}
+We now consider a different class of Zero-Knowledge proof systems, where no
+interaction is required: The Prover simply sends one message to the Verifier,
+and the Verifier either accepts or rejects. Clearly for this class to be
+interesting, we must have some additional structure:
+both the Prover and Verifier additionally have access to a common random public string
+$\sigma$ (trusted to be random by both). For example, they could derive $\sigma$
+by looking at sunspot patterns. 
+
+\section{Definitions}
+
+\begin{definition}[NIZK Proof System]
+    A \emph{NIZK proof system} for input $x$ in language $L$, with witness $\omega$, is a set of
+efficient (PPT) algorithms $(K, P, V)$ such that:
+\begin{enumerate}
+    \item Key Generation: $\sigma \gets K(1^k)$ generates the random public string.
+    \item Prover: $\pi \gets P(\sigma, x, \omega)$ produces the proof.
+    \item Verifier: $V(\sigma, x, \pi)$ outputs $\{0, 1\}$ to accept/reject the proof.
+\end{enumerate}
+Which satisfies the completeness, soundness, and zero-knowledge properties below.
+\end{definition}
+Note: We will assume throughout that $x$ is of polynomially-bounded length, i.e., we are
+considering the language $L \cap \{0, 1\}^{P(k)}$.
+
+
+\medskip
+\noindent\textbf{Completeness.} $\forall x \in L, \forall \omega \in R_L(x)$:
+    $$\Pr[\sigma \gets K(1^k), \pi \gets P(\sigma, x, \omega) : V(\sigma, x,
+    \pi) = 1] = 1.$$
+
+\medskip
+\noindent\textbf{Non-Adaptive Soundness.} $\forall x \not\in L$:
+    $$\Pr[\sigma \gets K(1^k): \exists~\pi \st V(\sigma, x, \pi)
+    = 1] = \mathsf{negl}(k).$$
+The above definition is ``non-adaptive", because it does not allow a cheating
+prover to decide which statement to prove after seeing the randomness $\sigma$.
+We may also consider the stronger notion of ``adaptive soundness", where the
+prover is allowed to decide $x$ after seeing $\sigma$:
+
+\medskip
+\noindent\textbf{Adaptive Soundness.}
+    $$\Pr[\sigma \gets K(1^k): \exists~ (x, \pi) \st  x \not\in L, V(\sigma, x, \pi)
+    = 1] = \mathsf{negl}(k).$$
+    
+\medskip
+\noindent\textbf{(Non-Adaptive) Zero-Knowledge.}
+    The exists a PPT simulator $S$ such that $\forall x \in L, \omega \in
+    R_L(x)$, the two distributions are computationally indistinguishable:
+
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=-3pt]
+        \item $\sigma \gets K(1^k)$
+        \item $\pi \gets P(\sigma, x, \omega)$
+        \item Output $(\sigma, \pi)$
+    \end{enumerate}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}
+        \item $(\sigma, \pi) \gets S(1^k, x)$
+        \item Output $(\sigma, \pi)$
+    \end{enumerate}
+\end{minipage}
+
+\medskip
+That is, the simulator is allowed to generate the distribution of randomness
+$\sigma$ together with $\pi$. Note that if we did not allow $S$ to produce
+$\sigma$, this definition would be trivial (a verifier could convince himself by
+running the simulator, instead of interacting with $P$). Allowing $S$ to
+generate $\sigma$ still keeps the definition zero-knowledge (since a verifier sees both $(\sigma,
+\pi)$ together), but puts $P$ and $S$ on unequal footing.
+
+We could also consider the adaptive counterpart, where a cheating verifier can
+choose $x$ after seeing $\sigma$:
+
+\medskip
+\noindent\textbf{(Adaptive) Zero-Knowledge.}
+    The exists a PPT simulator split into two stages $S_1, S_2$ such that
+    for all PPT attackers $\ma$,
+    the two distributions are computationally indistinguishable:
+
+\medskip
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=0pt]
+        \item $\sigma \gets K(1^k)$
+        \item $(x, \omega) \gets \ma(\sigma)$, s.t. $(x, \omega) \in R_L$
+        \item $\pi \gets P(\sigma, x, \omega)$
+        \item Output $(\sigma, x, \pi)$
+    \end{enumerate}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=0pt]
+        \item $(\sigma, \tau) \gets S_1(1^k)$
+        \item $(x, \omega) \gets \ma(\sigma)$
+        \item $\pi \gets S_2(\sigma, x, \tau)$
+        \item Output $(\sigma, x, \pi)$
+    \end{enumerate}
+\end{minipage}
+
+\medskip
+\noindent where $\tau$ should be thought of as local state stored by the simulator (passed
+    between stages).
+
+\bigskip
+Now we show that adaptive soundness is not harder to achieve than non-adaptive soundness.
+\begin{theorem}\label{thm:amplify-soundness}
+    Given a NIZK $(K, P, V)$ that is \emph{non-adaptively sound}, we can
+    construct a NIZK that is \emph{adaptively sound}.
+\end{theorem}
+\proof
+For $x_0 \not\in L$, let us call a particular $\sigma$ ``bad for $x_0$" if 
+there exists a false proof for $x_0$ using randomness $\sigma$:
+$\exists~ \pi \st V(\sigma, x_0, \pi) = 1$.
+By non-adaptive soundness of $(K, P, V)$, we have
+$\Pr_\sigma[\sigma \text{ bad for } x_0] = \mathsf{negl}(k)$.
+
+Now we construct a new NIZK $(K',P',V')$ by repeating $(K,P,V)$ polynomially-many times
+(using fresh randomness, and $V'$ accepts if and only if $V$ accepts in each iteration).
+We can ensure that $\mathsf{negl}(k) \leq 2^{-2P(k)}$.
+Now by  union bound:
+$$
+\Pr[\sigma \gets K'(1^k): \exists~ (x, \pi) \st V'(\sigma, x, \pi) = 1] \leq
+2^{P(k)}\cdot \Pr_\sigma[\sigma \text{ bad for } x_0] \leq 2^{-P(k)}.$$
+So this new NIZK is adaptively-sound. \qed
+
+\section{Trapdoor One-Way Permutation}
+
+\begin{definition}[Trapdoor One-Way Permutation]
+A trapdoor one-way permutation is a collection of one-way permutations $\{f_i : D_i \rightarrow D_i\}_{i \in I}$ where $D_i \subset \{0,1\}^{|i|}$ with
+five properties.
+
+\begin{enumerate}
+\item $\exists$ PPT $G$ such that $G(1^k)$ outputs $(i,t_i)$ where $i \in I\cap \binset{k}$
+\item It is easy to sample from $D_i$ given $i$ 
+\item $f_i$ is easy to compute but hard to invert
+\item  $f_i$ is a permutation
+\item $\exists$ PPT $A$ such that $A(i, y, t_i)\in f_i^{-1}(y)$
+\end{enumerate}
+\end{definition}
+
+When $f_i$ is a one-way trapdoor permutation, it is a one-way permutation with
+the property that it is easy to compute $f_i^{-1}$ only if given access to trapdoor
+information $t_i$. The function $G$ is PPT and computes this trapdoor information.
+The function $A$ is PPT and inverts $f_i$ using this trapdoor information.
+
+\subsection{RSA}
+
+RSA is the only known example of a trapdoor one-way permutation.
+It relies on the assumption that factoring numbers is hard,
+but testing primality is easy. (It is known that testing primality can be done
+deterministically in polynomial time. It is believed that factoring can not be done in
+polynomial time, however this has not been proven. The best factoring algorithms
+are sub-exponential though.)
+
+\begin{definition}
+RSA defines the functions $(G, F, A)$ as follows.
+\begin{align*}
+G(1^k) = ((N, e), d) \,\,\text{where} \,\,& N=pq, \,\, \text{for primes $p,q$},  \\
+& \gcd(e,\phi(N))=1 \\
+& d = e^{-1} \pmod{\phi(N)} \\
+F_{N,e}(x) = x^e \pmod{N} & \\
+A((N,e),y, d) = y^d \pmod{N} &
+\end{align*}
+\end{definition}
+
+The function $G$ randomly selects the values of $(p, q, e)$ to satisfy the desired properties. We note that if  $e$ were not coprime to $\phi(N)$, then the function would
+not be a permutation.
+
+The function $\phi$ is Euler's Totient, and when $p,q$ are primes,
+$\phi(pq) = (p-1)(q-1)$.
+(That is, $\phi$ is the order of the multiplicative group $\mathbb{Z}_N$.)
+
+The trapdoor piece of information is the multiplicative inverse of $e$ modulo the order of the
+group. It is believed hard to compute this information given only the integer $N$.
+
+It is easy to show correctness of this scheme:
+\begin{align*}
+A(i, F_i(x), t_i) &= (x^e)^d = x \pmod{N}
+\end{align*}
+
+We leave it as an exercise that RSA is semantically
+secure with no additional assumptions.
+
+\section{NIZK in the Hidden-Bit Model}
+The hidden-bit model is a variant of the common-reference-string NIZK,
+where the prover can selectively reveal only parts of the random string to the
+verifier. (Imagine clouds obscuring the random string in the sky from the
+verifier, and the prover can choose which clouds to clear.)
+
+\newcommand{\setI}[1]{\{#1\}_{i \in I}}
+\begin{definition}[NIZK in the Hidden-Bit Model]
+    A NIZK in the hidden-bit model for statement $x$ (with witness $\omega$)
+    is efficient algorithms $(K_H, P_H, V_H)$
+    such that:
+\begin{enumerate}
+    \item $r \gets K_H(1^k)$ generates the hidden random string ($\ell$-bits).
+    \item $(I, \phi) \gets P_H(r, x, \omega)$ generates the indices $I \subseteq
+        [\ell]$ to reveal, and the proof $\phi$.
+    \item $V_H(I, \setI{r_i}, x, \phi)$ accepts or rejects, given the indices $I$,
+        the random string $r$ at indices $I$, statement $x$, and proof $\phi$.
+\end{enumerate}
+Which satisfies the completeness, soundness, and zero-knowledge properties as
+previously defined.
+\end{definition}
+
+
+\begin{theorem}\label{thm:NIZK-amplify}
+    Given a NIZK $(P_H, V_H)$ in the hidden-bit model, we can construct a NIZK
+    $(P, V)$ in the normal model using trapdoor one-way permutations.
+\end{theorem}
+\begin{proof}
+    Let the common-reference-string $\sigma$ in the normal model be of length $k\ell$ and  partition it
+    into $\ell$ blocks of $k$-bits each: $\sigma = \sigma_1\hdots\sigma_\ell$.
+    Let $\mathcal{F}$ be a family of $2^k$ trapdoor OWPs, and let $B(\cdot)$
+    be the corresponding hard-core bit. We may assume the soundness error
+    of $(P_H, V_H)$
+    (that is, the probability of $r$ allowing a fake proof)
+    is at most $2^{-2k}$, by the same repetition argument as in Theorem~\ref{thm:amplify-soundness}.
+    The protocol for the normal $(P, V)$ is:
+
+\medskip
+\noindent \textbf{Prover $P(\sigma, x, \omega)$:}
+\begin{enumerate}
+    \item Sample trapdoor OWP: $(f, f^{-1}) \gets \mathcal{F}(1^k)$.
+    \item Let $\alpha_i = f^{-1}(\sigma_i)$ for $\forall i \in [\ell]$.
+    \item Compute hidden-bit $r_i = B(\alpha_i)$ for $\forall i \in [\ell]$. Let $r := r_1 \cdots r_\ell$.
+    \item Run the HBM prover: $(I, \phi) \gets P_H(r, x, \omega)$.
+    \item Send $(f, I, \setI{\alpha_i}, \phi)$ to verifier.
+\end{enumerate}
+
+\noindent \textbf{Verifier $V(\sigma, x, f, I, \setI{\alpha_i}, \phi)$:}
+\begin{enumerate}
+    \item Confirm $f \in \mathcal{F}$, and $f(\alpha_i) = \sigma_i ~\forall i \in I$.
+    \item Compute the revealed bits $r_i = B(\alpha_i) ~\forall i \in I$.
+    \item Output $V_H(I, \setI{r_i}, x, \phi)$.
+\end{enumerate}
+
+Intuitively, $\sigma_i$ hides $r_i$ because $\sigma_i \overset{f}{\gets} \alpha_i
+\overset{B}{\to} r_i$, so by security of the hard-core bit, the verifier cannot
+find $r_i = B(\alpha_i)$ from $\sigma_i = f(\alpha_i)$.
+
+Notice that if the prover is honest, then $\alpha_i$ will be distributed
+uniformly random as well (since $f^{-1}$ is a permutation), and $r_i$ will be
+unbiased as well (since $B(\cdot)$ is a hard-core bit). So this reduces exactly
+to the HBM distributions, and completeness of this protocol is clear (from completeness of
+$(P_H, V_H)$).
+
+For soundness: for a fixed $f = f_0$, the distribution of $r_i$ is
+uniformly random, so by the soundness of $(P_H, V_H)$ we have
+$$\Pr_\sigma[\text{$P^*$ can cheat using $f_0$}] \leq 2^{-2k}$$
+However, a cheating $P^*$ may be able to cleverly pick $f$ to influence $r_i$,
+allowing him to cheat. Since we know there are only $2^k$ possible choices of
+$f$ (the verifier confirms $f$ is properly sampled), we can use the union bound
+to prove soundness:
+$$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2^{-k}.$$
+
+Note that more serious problems can occur if $V$ does not confirm $f\in \mathcal{F}$. For example, if $f$ is not a permutation, then
+$f^{-1}(\sigma_i)$ can be multi-valued, and the prover can choose to ``explain"
+$\sigma_i$ using either $\alpha_i$ or $\alpha_i'$ -- which is a problem if
+$B(\alpha_i) \neq B(\alpha_i')$.
+
+To prove zero-knowledge, we construct a sequence of prover-hybrids.
+Differences from the previous hybrid are in red:
+
+%\newcommand{\htitle}[1]{#1\\
+%\rule{0.2\textwidth}{0.4pt}}
+
+\newcommand{\htitle}[1]{\vspace{0.3cm}$\overset{#1}{\underline{\hspace{5cm}}}$}
+\newcommand{\diff}[1]{{\color{red} #1}}
+
+\htitle{H_0 \text{ (normal model)}}
+\begin{enumerate}
+    \item $\sigma_1\hdots\sigma_\ell = \sigma \xleftarrow{\$} \{0,1\}^{k\ell}$
+    \item $(f, f^{-1}) \gets \mathcal{F}$
+    \item $\alpha_i = f^{-1}(\sigma_i) ~\forall i \in [\ell]$
+    \item $r_i = B(\alpha_i) ~\forall i \in [\ell]$
+    \item $(I, \phi) \gets P_H(r, x, \omega)$
+    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+\end{enumerate}
+
+\htitle{H_1}
+\begin{enumerate}
+    \item $(f, f^{-1}) \gets \mathcal{F}$
+    \item \diff{$\alpha_i \rgets \{0, 1\}^k ~\forall i \in [\ell]$}
+    \item \diff{$\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$}
+    \item $r_i = B(\alpha_i) ~\forall i \in [\ell]$
+    \item $(I, \phi) \gets P_H(r, x, \omega)$
+    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+\end{enumerate}
+In $H_1$, we sample $\alpha_i$ uniformly at random and then generate $\sigma_i$ (instead of
+sampling $\sigma_i$ and then generating $\alpha_i$). This induces an exactly identical distribution, since $f$
+is a permutation.
+
+\htitle{H_2}
+\begin{enumerate}
+    \item $(f, f^{-1}) \gets \mathcal{F}$
+    \item \diff{$r_i \rgets \{0, 1\} ~\forall i \in [\ell]$}
+    \item \diff{$\alpha_i \rgets B^{-1}(r_i) ~\forall i \in [\ell]$}
+    \item $\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$
+    \item $(I, \phi) \gets P_H(r, x, \omega)$
+    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+\end{enumerate}
+In $H_2$, we again switch the sampling order: first sample the (unbiased) bit
+$r_i$, then sample $\alpha_i$ from the pre-image of $r_i$ (which can be done efficiently
+by simply trying random $\alpha_i$'s until $B(\alpha_i) = r_i$).
+This distribution is exactly identical to $H_1$.
+(The sampling order can be thought of as factoring the joint distribution:
+$\Pr(\alpha_i, r_i) = \Pr(r_i)\Pr(\alpha_i | r_i)$)
+
+\htitle{H_3}
+\begin{enumerate}
+    \item $(f, f^{-1}) \gets \mathcal{F}$
+    \item $r_i \rgets \{0, 1\} ~\forall i \in [\ell]$
+    \item $\alpha_i \rgets B^{-1}(r_i) ~\forall i \in [\ell]$
+    \item \diff{$\sigma_i = f(\alpha_i) ~\forall i \in I$}
+    \item \diff{$\sigma_i \rgets \{0, 1\}^k ~\forall i \not\in I$}
+    \item $(I, \phi) \gets P_H(r, x, \omega)$
+    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+\end{enumerate}
+In $H_3$, we only generate $\sigma_i$ honestly for $i \in I$, and output random
+$\sigma_i$ for $i \not\in I$.
+To argue that this is computational
+indistinguishable from $H_2$, first notice that for a fixed (known) bit $r$,
+\begin{equation}
+\label{eqn:bit-ind}
+\{f(B^{-1}(r)\} \ind \{f(B^{-1}(\overline r)\}
+\end{equation}
+where the randomness is over sampling the pre-image $B^{-1}$.
+Distinguishing the above distributions is by definition equivalent to guessing the
+hard-core bit, so they are indistinguishable.
+Given the above, we can further argue that
+\begin{equation}
+\label{eqn:rand-ind}
+\{f(B^{-1}(r)\} \ind \mathcal{U}_k
+\end{equation}
+where $\mathcal{U}_k$ is uniform over $\{0, 1\}^k$. To see this, notice
+that $\mathcal{U}_k$ can be equivalently generated by first sampling a random
+bit $b$, then outputting $f(B^{-1}(b))$, since $f$ is a permutation.
+Therefore, any distinguisher for \eqref{eqn:rand-ind} can also be used to distinguish
+\eqref{eqn:bit-ind} with at least as much distinguishing-advantage (in fact,
+twice as much).
+Finally, \eqref{eqn:rand-ind} justifies swapping $\sigma_i = f(\alpha_i) =
+f(B^{-1}(r_i))$ with random for $i \not\in I$ in hybrid $H_3$.
+
+
+
+
+
+\htitle{H_4}
+\begin{enumerate}
+    \item $(f, f^{-1}) \gets \mathcal{F}$
+    \item \diff{$(I, \setI{r_i}, \phi) \gets S_H(1^k, x)$}
+    \item \diff{$\alpha_i \rgets B^{-1}(r_i) ~\forall i \in I$}
+    \item $\sigma_i = f(\alpha_i) ~\forall i \in I$
+    \item $\sigma_i \rgets \{0, 1\}^k ~\forall i \not\in I$
+    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+\end{enumerate}
+Finally, $H_4$ simply swaps the hidden-bit prover $P_H$ for the hidden-bit simulator $S_H$,
+which is indistinguishable by the zero-knowledge property of $(P_H, V_H)$.
+So $(P, V)$ is a NIZK system in the normal model.
+\qed
+
+\end{proof}
+
+
+
+

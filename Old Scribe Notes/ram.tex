@@ -1,0 +1,91 @@
+% !TEX root = collection.tex
+
+\section{Introduction to Secure RAM Computation}
+The goal of secure RAM Computation is to run a program $P$ which accesses a shared database $D$ without revealing its access patterns. We can leverage Oblivious RAM to do this, since ORAM allows us to compile $P$ into $\widetilde{P}$ and $D$ into $\widetilde{D}$ and have $\widetilde{P}$ accesses to $\widetilde{D}$ not reveal $P$'s accesses to $D$. Given, this we can construct a solution that doesn't hide access patterns, and let ORAM handle hiding access patterns. 
+
+We want to avoid direct circuit conversion of the RAM program, since this greatly increases complexity. If a RAM program runs in time $O(T)$, then its circuit runs in $O(T^{3})$. If its database accesses are $O(D)$, then the circuit's accesses scale with $T$ and $D$, because the circuit needs to take $D$ as input. Our goal is to do this in polylog time.
+
+An important thing to keep in mind is that we don't know what has to be read beforehand when working with a RAM program. If we did, then the circuit complexity wouldn't be bad, and we could just use that. The motivating example for the notes can be a binary search on $D$ shared between two parties, where we want to find the solution in polylog time without revealing the query.
+
+\paragraph{RAM Program.}
+A RAM program can be looked at as a series of CPU steps, each which accesses the database (either a read or write). Each CPU step changes the state for the subsequent step.
+%\begin{center}
+%\includegraphics[width=5in,height=2.5in,keepaspectratio]{ram_program.png}
+%\end{center}
+
+\subsection{Secret-Shared Database Construction}
+One way we can do this is by secret sharing each bit of the database $D$. A simple way to do this by defining the database as such:
+\begin{definition}
+$D = \{(i, b_{i})\}_{i \in |D|}$
+\end{definition}
+
+Both parties receive $\{x_{i}\}$ and $\{y_{i}\}$ respectively, where $\forall i, x_{i} \oplus y_{i} = b_{i}$. 
+
+%\begin{center}
+%\includegraphics[width=5in,height=3in,keepaspectratio]{secret_sharing_exchange.png}
+%\end{center}
+
+This construction has high round complexity. From an information theoretic perspective, to have small round complexity, one person must have all data. This is because of the reason mentioned above: we don't know what value to read (we don't know what's in memory to be able to read the next value at a specific CPU step). We'll discuss how to improve this in the next section.
+
+\subsection{Encrypted Database Construction}
+To give one person the data, we can have one person own the the encrypted version of the database. The other person can have the key to the database. Formally:
+\begin{definition}
+$D_{i} = Enc_{K}(b_{i})$ given to one user as $y_{i} $, and $K$ given as $x_{i}$.
+\end{definition}
+They can still only access the database together. The same protocol as the secret-sharing case applies, just replacing $x_{i}$ and $y_{i}$ as mentioned in the definition. However, this doesn't quite work, since we don't really have security here ($y_{i}$'s owner can figure out $D_{i}$ since $K$ is sent over by the other person).\\ \\
+Goal: We want to implicitly decrypt without the encrypted database's owner finding out about $D_{i}$.\\
+We can garble each CPU step separately:
+\begin{definition}
+$Garble(CPU_{i}) = \widetilde{CPU_{i}}$
+\end{definition}
+$\widetilde{CPU_{i}}$ will output labels for $\widetilde{CPU_{i+1}}$. We create a $\kappa$-bit key sampled randomly.
+\begin{definition}
+$S = \{0,1\}^{\kappa}$ randomly sampled.
+\end{definition}
+
+In the database, $\forall i$, we define $e_{i} = PRF_{S}(i || b_{i})$, and store $e_{i}$s in the database. This PRF is hardcoded into each of the $\widetilde{CPU_{i}}$s, so each garbled circuit can use it.\\
+
+%\begin{center}
+%\includegraphics[width=5in,height=3in,keepaspectratio]{complex_ram_program.png}
+%\end{center}
+
+Focusing on just $\widetilde{CPU_{1}}$ and $\widetilde{CPU_{2}}$, we can how the labels for the circuits are transmitted forward. State labels are known, so $\widetilde{CPU_{1}}$ can easily provide those to $\widetilde{CPU_{2}}$. However, $l_{0}$ and $l_{1}$ need to be emitted based on what $b_{i}$ is (emit $l_{b_{i}}$). To do this, $\widetilde{CPU_{1}}$ can emit $Enc_{PRF_{S}(i || 0)}(l_{0})$ and $Enc_{PRF_{S}(i || 1)}(l_{1})$ for $l_{0}$ and $l_{1}$ respectively.\\
+
+We can then simulate these garbled circuits to evaluate security. Since garbled circuits require an output value for simulation, and only the last CPU step has an output, we can essentially replace each middle garbled circuit with "garbage" until the last circuit emits. However, a problem is that in garbled circuit simulation, only one label can be known (the one corresponding to $l_{b_{i}}$). The other should be indistinguishable from a random string. While this is trivially true for $\widetilde{CPU_{1}}$, for subsequent steps (say $\widetilde{CPU_{2}}$), it is not. $PRF_{S} (i || 0)$ and $PRF_{S} (i || 1)$ are known to all circuits, since $S$ is harcoded into each circuit, as mentioned before. We need to expunge one label to be able to simulate.\\
+
+\textbf{Note}: This is actually a circular argument at the moment. The garbled circuit depends on $PRF_{S}$ to be random, and $PRF_{S}$ requires the GC to be secure, since $S$ is hardcoded into the circuit.
+
+\subsection{Fixed Construction}
+To fix the problem that everyone knows $S$, we can have more than one key $S$. Let's make a tree of keys, where keys are denoted $S_{i,j}$ with $i$ as depth and $j$ as their index within the depth.\\
+
+%\begin{center}
+%\includegraphics[width=7in,height=3in,keepaspectratio]{key_tree.png}
+%\end{center}
+
+In this tree, each child key is encrypted with its parent key (eg. $S_{1,0}$ is encrypted with $S_{0,0}$). If you know a key, you can decrypt its immediate children. The leaf nodes, $S_{d,i}$ for $i \in {0,|D|-1}$, encrypt the bits of the database $D$. With the root key, you can follow the path down to any leaf and read its corresponding $b_{i} \in D$.\\
+Now, for every $\widetilde{CPU_{i}}$ we had before, we create $lg(|D|)$s (we have logarithmically more CPU steps). Each of these logarithmically many CPU steps (shown below) will recreate this path through the key tree.\\ 
+
+%\begin{center}
+%\includegraphics[width=7in,height=3in,keepaspectratio]{logarithmic_cpus.png}
+%\end{center}
+
+Each circuit will also replace the key it used with a fresh key (a new randomly sampled key) after it uses it once, and recreate the corresponding ciphertexts. This means that all siblings along the path (in addition to the path) will need to be recreated. Fixing these siblings is logarithmic time. This fixing step maintains the invariant that after each step, the subsequent step has a fresh copy of $D$ as if it was never read.
+
+\subsubsection{More Details on Key Generation}
+The key tree requires that each node encrypt its children under itself. There are two definitions that will help us explain the key tree usage.
+\begin{definition}
+$e_{i,j} = \{PRF_{S_{i,j}} (k || (S_{i+1,2j} || S_{i+1,2j+1})_{k})\}_{k\in2\kappa}$, where $k$ is the current key (of length $\kappa$) and $e_{i,j}$ is the encryption of the children under $k$.
+\end{definition}
+
+\begin{definition}
+$CPU_{i,j}$ ($i \in \{1...T\}, j \in \{1...d\}$) is a CPU step from the logarithmically expanded CPU step garbled circuits we mentioned before. $CPU_{i,j}$ sends labels to $CPU_{i,j+1}$, unless $j=T$, in which case, it sends labels to $CPU_{i+1,0}$.
+\end{definition}
+
+With this in mind, we can pre-generate some keys that we know we will need. Every $CPU_{t,1}$ and $CPU_{t,2}$, $t \in {1...T}$ requires a fresh $S_{0,0}$ key, so we can hardcode these into those CPU step circuits beforehand. Similarly, each circuit has two fresh keys encoded, one to encrypt the labels it must pass on to the next circuit and one for which is the fresh encryption key used by its predecessor to encrypt the labels given to it. Now, to understand the process, we'll focus on 2 CPU steps: $CPU_{1,2}$ and $CPU_{1,3}$.\\
+%
+%\begin{center}
+%\includegraphics[width=7in,height=1.5in,keepaspectratio]{two_cpus.png}
+%\end{center}
+
+For simplicity, let's assume $S_{1,0}$ encrypts the correct label to send. Then, $CPU_{1,2}$ outputs $c = \{PRF_{S_{0,0}^{new}} (k || (S_{1,0}^{new} || S_{1,1}))_{k}\}_{k \in 2\kappa}$. For the case where $S_{1,1}$ is the correct key, simply swap $S_{1,0}$ and $S_{1,1}$. Note that in the figure above, $CPU_{1,2}$ has the $S_{1}^{new}$ key. This key will become $S_{1,0}^{new}$ or $S_{1,1}^{new}$, depending on which one to send. Similarly, $CPU_{1,3}$ has $S_{2}^{new}$ to use to encrypt the labels it sends. It also has $S_{1}^{new}$ to decrypt what $CPU_{1,2}$ sends it.
+

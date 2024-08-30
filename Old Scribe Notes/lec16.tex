@@ -1,0 +1,80 @@
+% !TEX root = collection.tex
+
+\section{Malicious attacker intead of semi-honest attacker}
+
+The assumption we had before consisted of a semi-honest attacker instead of a malicious attacker. A malicious attacker does not have to follow the protocol, and may instead alter the original protocol. The main idea here is that we can convert a protocol aimed at semi-honest attackers into one that will work with malicious attackers.
+
+At the beginning of the protocol, we have each party commit to its inputs:
+Given a commitment protocol $com$, Party 1 produces
+\begin{center}
+$c_1 = com(x_1; w_1)$ \\
+$d_1 = com(r_1; \phi_1)$ \\
+\end{center}
+Party 2 produces
+\begin{center}
+$c_2 = com(x_2; w_2)$\\
+$d_2 = com(r_2; \phi_2)$
+\end{center}
+
+We have the following guarantee: $\exists x_i, r_i, w_i, \phi_i$ such that $c_i = com(x_i; w_i) \wedge d_i = com(r_i; \phi_i) \wedge t = \pi(i,\text{transcript}, x_i, r_i)$, where transcript is the set of messages sent in the protocol so far.
+
+Here we have a potential problem. Since both parties are choosing their own random coins, we have to be able to enforce that the coins are \emph{indeed} random. We can solve this by using the following protocol:
+
+\begin{center}
+  \begin{picture}(200,100)(10,20)
+    \put(20, 90){$d_1 = com(s_1; \phi_1)$}
+    \put(20,80){\vector(1,0){50}}
+    \put(150, 90){$d_2 = com(s_2; \phi_2)$}
+    \put(200, 80){\vector(-1,0){50}}
+
+    \put(20, 60){$s_2^{'}$}
+    \put(20,50){\vector(1,0){50}}
+    \put(200, 60){$s_1^{'}$}
+    \put(200, 50){\vector(-1,0){50}}
+  \end{picture}
+\end{center}
+
+We calculate $r_1 = s_1 \oplus s_1^{'}$, and $r_2 = s_2 \oplus s_2^{'}$. As long as one party is picking the random coins honestly, both parties would have truly random coins.
+
+Furthermore, during the first commitment phase, we want to make sure that the committing party actually knows the value that is being committed to. Thus, we also attach along with the commitment a zero-knowledge proof of knowledge (ZK-PoK) to prove that the committing party knows the value that is being committed to.
+
+\subsection{Zero-knowledge proof of knowledge (ZK-PoK)}
+
+\begin{definition}[ZK-PoK] Zero-knowlwedge proof of knowledge (ZK-PoK) is a zero-knowledge proof system $(P,V)$ with the property proof of knowledge with knowledge error $\kappa$:
+
+$\exists$ a PPT $E$ (knowledge extractor) such that $\forall x \in L$ and $\forall P^{*}$ (possibly unbounded), it holds that if $\Pr[Out_V(P^{*}(x,w) \leftrightarrow V(x))]> \kappa(x)$, then 
+\[ \Pr[E^{P^*}(x) \in R(x)] \geq \Pr[Out_V(P^{*} \leftrightarrow V(x))] = 1]- \kappa(x).\]
+Here we have $L$ be the language, $R$ be the relation, and $R(x)$ is the set such that $\forall w \in R(x)$, $(x, w) \in R$.
+\end{definition}
+
+Given a zero-knowledge proof system, we can construct a ZK-PoK system for statement $x\in L$ with witness $w$ as follows:
+\begin{center}
+  \begin{picture}(300,300)(10,20)
+
+    \put(10, 290){$P$}
+    \put(290, 290){$V$}
+
+    \put(10, 270){$r \leftarrow \{0, 1\}^{|w|}$}
+
+    \put(100, 260){$c_1 = com(r; \omega)$}
+    \put(100, 250){$c_2 = com(r \oplus w; \phi)$}
+    \put(100, 240){\vector(1,0){100}}
+
+    \put(150, 210){$b$}
+    \put(200, 200){\vector(-1,0){100}}
+
+    \put(120, 160){if $b = 0$, open $c_1$ to reveal $r$}
+    \put(120, 150){else open $c_2$ to reveal $r \oplus w$}
+    \put(100, 140){\vector(1,0){100}}
+
+    \put(120, 60){\framebox(50,50)[c]{ZK Proof}}
+  \end{picture}
+\end{center}
+
+The last ZK proof proves that $\exists r, w, \omega, \phi$ such that $(x, w) \in R$ and $c_1 = com(r; \omega)$, $c_2 = com(r \oplus w; \phi)$.
+
+
+\section*{Exercises}
+\begin{exercise}
+Given a (secure against malicious adversaries) two-party secure computation protocol (and nothing else) construct a (secure against malicious adversaries) three-party secure computation protocol.
+\end{exercise}

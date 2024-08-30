@@ -1,0 +1,170 @@
+% !TEX root = collection.tex
+
+\newcommand{\extline}{$\scriptsize$-$\normalsize$\!}
+\newcommand{\lextlineend}{$\scriptsize$\lhd\!$\normalsize$}
+\newcommand{\rextlineend}{$\scriptsize\rule{.1ex}{0ex}$\rhd$\normalsize$}
+
+\newcounter{index}
+
+\newcommand\extlines[1]{%
+  \setcounter{index}{0}%
+  \whiledo {\value{index}< #1}
+  {\addtocounter{index}{1}\extline}
+}
+
+\newcommand\rextlinearrow[2]{$
+  \setbox0\hbox{$\extlines{#2}\rextlineend$}%
+  \tiny$%
+  \!\!\!\!\begin{array}{c}%
+  \mathrm{#1}\\%
+  \usebox0%
+  \end{array}%
+  $\normalsize$\!\!%
+}
+
+\newcommand\lextlinearrow[2]{$
+  \setbox0\hbox{$\lextlineend\extlines{#2}$}%
+  \tiny%
+  $%
+  \!\!\!\!\begin{array}{c}%
+  \mathrm{#1}\\%
+  \usebox0%
+  \end{array}%
+  $\normalsize$\!\!%
+}
+
+\renewcommand\lextlinearrow[2]{%
+}
+
+\renewcommand\rextlinearrow[2]{%
+}
+\renewcommand\lextlinearrow[2]{%
+%  \setbox0\hbox{$\lextlineend\extlines{#2}$}%
+   $\stackrel{\mathrm{#1}}{\leftarrow}$%
+}
+
+\renewcommand\rextlinearrow[2]{%
+  %\setbox0\hbox{$\extlines{#2}\rextlineend$}%
+  $\stackrel{\mathrm{#1}}{\rightarrow}$%
+}
+
+
+
+%\section{Indistinguishable Obfuscation Constructions using Puncturing}
+\section{Digital Signature Scheme via Indistinguishable Obfuscation}
+A digital signature scheme can be constructed via indistinguishable obfuscation (iO).  A digital signature scheme is made up of $(\SETUP, \SIGN, \VERIFY)$.\\
+
+\newcommand{\vk}{\mathsf{vk}}
+
+\noindent $(\vk, \sk) \leftarrow \SETUP(1^k)$:\\
+\indent $\sk$ = key of puncturable function and the seed of the PRF $F_k$\\
+\indent $\vk = iO(P_k)$ where $P_k$ is the program:\\
+\indent \indent $P_k(m, \sigma)$:\\
+\indent \indent \indent for some OWF function $f$\\
+\indent \indent \indent \indent return 1 if $f(\sigma) = f(F_k(m))$\\
+\indent \indent \indent \indent return 0 otherwise\\
+
+\noindent $\sigma \leftarrow \SIGN(\sk, m)$: Output $F_k(m)$.\\
+
+\noindent $\VERIFY(\vk, m, \sigma)$: Output $P_k(m, \sigma)$.\\
+
+\noindent Our security requirements will be that the adversary does wins the following game negligibly:\\
+
+\begin{tabular}{llc}
+{\large Challenger} & & {\large Adversary}\\
+$(\vk, \sk) = \SETUP(1^k)$ and&&\\
+picks random $m$&&\\
+& \rextlinearrow{P_{k},m}{46} &\\
+& \lextlinearrow{\sigma, m^*}{46} &\\
+& Adversary wins game if $\VERIFY(\vk, m^*, \sigma) = 1$&
+\end{tabular}\\\\
+
+\noindent To prove the security of this system, we use a hybrid argument.  $H_0$ is as above.
+
+\noindent $H_1$: Adjust $\vk$ so that $\vk = iO(P_{k, m, \alpha})$ where $\alpha = F_k(m)$ and $P_{k, m, \alpha}$ is the program such that:\\
+\indent $P_{k,m, \alpha}(m^*, \sigma)$:\\
+\indent \indent for some OWF $f$\\
+\indent \indent \indent if $m = m^*$:\\
+\indent \indent \indent \indent if $f(\sigma) = f(\alpha)$ return 1\\
+\indent \indent \indent \indent otherwise return 0\\
+\indent \indent \indent else proceed as $P_{k}$ from before\\
+\indent \indent \indent \indent if $f(\sigma) = f(F_k(m^*))$ return 1\\
+\indent \indent \indent \indent otherwise return 0\\
+\noindent Note that this program does not change its output for any value. This is indistinguishable from $H_0$  by indistinguishability obfuscation.\\
+
+\noindent $H_2$: Adjust $\alpha$ so that it is a randomly sampled value. The indistinguishability of $H_2$ and $H_1$ follows from the security of PRG.  \\
+\noindent $H_3$: Adjust the program such that instead of $\alpha$ it relies on some $\beta$ that is compared instead $f(\alpha)$ in the third line.\\
+
+Any adversary that can break $H_3$ non-negligibly can break the OWF $f$ with at the value $\beta$.
+
+\section{Public Key Encryption via Indistinguishable Obfuscation}
+A public key encryption scheme can be constructed via indistinguishable obfuscation.  A public key encryption scheme is made up of $(Gen, Enc, Dec)$.  The PRG used below is a length doubling PRG.\\
+
+\noindent $(\pk, \sk) \leftarrow Gen(1^k)$\\
+\indent $\sk$ = key of puncturable function and the seed of the PRF $F_k$\\
+\indent $\pk = iO(P_k)$ where $P_k$ is the program:\\
+\indent \indent $P_k(m, r)$:\\
+\indent \indent \indent $t = PRG(r)$\\
+\indent \indent \indent Output $c = (t, F_k(t) \oplus m)$\\
+
+\noindent $Enc(\pk, m)$: Sample $r$ and output $(\pk(m,r))$.\\
+
+\noindent $Dec(\sk = k, c = (c_1, c_2))$: Output $F_k(\sk,c_1) \oplus c_2$.\\
+
+\noindent Our security requirements will be that the adversary does wins the following game negligibly:\\
+
+\begin{tabular}{llc}
+{\large Challenger} & & {\large Adversary}\\
+$(\pk, \sk) = Gen(1^k)$ and&&\\
+Randomly sample $b$ from $\{0,1\}$ and&&\\
+$c^* = Enc(\pk, b)$ and&&\\
+& \rextlinearrow{P_{k},c^*}{26} &\\
+& \lextlinearrow{b^*}{26} &\\
+& Adversary wins game if $b=b^*$&
+\end{tabular}\\\\
+
+\noindent To prove the security of this system, we use a hybrid argument.  $H_0$ is as above.
+
+\noindent $H_1$: Adjust $\pk$ so that $\pk = iO(P_{k, \alpha, t})$ where $\alpha = F_k(t)$ and $P_{k, \alpha, t}$ is the program such that:\\
+\indent $P_{k, \alpha, t}(m, r)$:\\
+\indent \indent $t^* = PRG(r)$\\
+\indent \indent if $t^* = t$, output $(t^*, \alpha \oplus m)$\\
+\indent \indent else output $(t^*, F_k(t^*) \oplus m)$\\
+
+\noindent Note that this program does not change its output for any value. This is indistinguishable from $H_0$  by indistinguishability obfuscation.\\
+
+\noindent $H_2$: Adjust $\alpha$ so that it is a randomly sampled value.\\
+\noindent $H_3$: Adjust the program such that $t^*$ is randomly sampled and is not in the range of the PRG.\\
+
+Any adversary that can win $H_3$ can guess a random value non-negligibly.\\
+
+\section{Indistinguishable Obfuscation Construction from $NC^1$ $iO$}
+A construction of indistinguishable obfuscation from $iO$ for circuits in $NC^1$ is as follows:\\
+Let $P_{k,C}(x)$ be the circuit that outputs the garbled circuit $\widetilde{UC(C,x)}$ with randomness $F_k(x)$ which is a punctured (at $k$) PRF in $NC^1$\\
+\indent Note that $UC(C,x)$ outputs $C(x)$ ($UC$ is the ``universal'' circuit)\\
+$iO(C) \rightarrow $ sample $k$ randomly from $\{0,1\}^{|x|}$ and output $iO_{NC^1}(P_{k,C})$ padded to a length $l$\\
+
+As before, we use a hybrid argument to show the security for $iO$.\\
+\noindent $H_0$: $iO(C) = iO_{NC^1}(P_{k,C})$ as above.\\
+\noindent $H_{final} = H_{2^n}$: $iO(\pk, c_2)$\\
+\noindent $H_1 \cdots H_i$: Create a program $Q_{k, c_1, c_2, i}(x)$ and obfuscate it.\\
+$Q_{k,c_1,c_2,i}(x)$:\\
+\indent Sample $k$ randomly\\
+\indent if $x \ge i$, return $P_{k,c_1}(x)$\\
+\indent else , return $P_{k,c_2}(x)$\\\\
+\noindent Note that $H_i$ and $H_{i+1}$ are indistinguishable for any value other than $x=i$.\\
+\noindent $H_{i,1}$ (between $H_i$ and $H_{i+1}$): Create a program $Q_{k, c_1, c_2, i, \alpha}(x)$, where $\alpha = Q_{k, c_1, c_2, i}(x)$ and obfuscate it.\\
+$Q_{k, c_1, c_2, i, \alpha}(x)$:\\
+\indent Sample $k$ randomly\\
+\indent if $x = i$, return $\alpha$\\
+\indent else , return $Q_{k,c_1,c_2, i}(x)$\\
+
+\noindent $H_{i,2}$: Replace $\alpha$ with a random $\beta$ using fresh coins\\
+\noindent $H_{i,3}$: Create the $c_2(x)$ value using fresh coins\\
+\noindent $H_{i,4}$: Create the $c_2(x)$ value using $F_k(x)$\\
+\noindent $H_{i,5}$: Finish the migration to $Q_{k,c_1,c_2,i+1}$\\
+
+Note that at $H_{final}$, the circuit being obfuscated is completely changed from $c_1$ to $c_2$.
+
+
+

@@ -1,0 +1,684 @@
+% !TEX root = collection.tex
+
+\chapter{One-Way Functions}
+\label{sec:owf}
+%Cryptography enables many paradoxical objects such as public key encryption, verifiable electronic signatures, zero-knowledge protocols and fully homomorphic encryption.  The two main steps in the development of such seemingly impossible primitives are: (i) defining the desired security properties formally, and (ii) obtaining a construction satisfying the security property provably. The second step assumes (unproven) computational assumptions which are believed to be hard. In this course we will define several cryptographic primitives and argue their security based on well-defined computational hardness assumption. However, we will largely ignore the mathematics underlying the assumed computational intractability assumptions.
+
+Information-theoretic cryptography, however desirable, is often not achievable or unsuitable for practical scenarios. For example, one-time pad --- an information-theoretically secure cipher --- is not very useful because it requires very large keys. Thus, in modern cryptography, we often need to limit attackers' ability. Specifically, (i) we limit security to settings where the attacker can only run in a ``reasonable'' amount of time, and (ii) the scheme is allowed to fail with some ``very small'' probability. Furthermore, to leverage the reduced adversarial capabilities, we must make certain computational intractability assumptions.
+
+The existence of one-way functions is one of the weakest computational hardness assumptions (and also the simplest) of interest in cryptography. In this chapter, we study these objects.
+To define one-way functions, we need new formal vocabulary that we describe in Sections~\ref{ssec:ppt} and~\ref{ssec:nnf}. Finally, we define one-way functions in Section~\ref{ssec:owf}.
+
+\section{Probabilistic Polynomial Time}
+\label{ssec:ppt}
+A polynomial time Turing Machine is one which halts in time polynomial in its input length.  A probabilistic Turing Machine is allowed to make random choices in its execution. More formally:
+\begin{tcolorbox}[colback=red!5!white]
+\begin{definition}[Probabilistic Polynomial Time (PPT)]
+A Turing Machine $M$ is said to be a PPT Turing Machine if $\exists c \in \mathbb{Z}^+$ such that $\forall x \in\{0,1\}^*$, $M(x)$ halts in $|x|^c$ steps.
+\end{definition}\end{tcolorbox}
+A {\em non-uniform} PPT Turing Machine is a collection of machines one for each input length, as opposed to a single machine that must work for all input lengths.
+\begin{tcolorbox}[colback=red!5!white]
+\begin{definition}[Non-uniform PPT]
+A non-uniform PPT machine is a sequence of Turing Machines $\{ M_1, M_2, \cdots \}$ such that $\exists c \in \mathbb{Z}^+$ such that $\forall x \in\{0,1\}^*$, $M_{|x|}(x)$ halts in $|x|^c$ steps.
+\end{definition}
+\end{tcolorbox}
+
+\section{Noticeable and Negligible Functions}
+\label{ssec:nnf}
+Noticeable and negligible functions are used to characterize the ``largeness'' or ``smallness'' of a function describing the probability of some event.  Intuitively, a noticeable function is required to be larger than some inverse-polynomially function in the input parameter. On the other hand, a negligible function must be smaller than any inverse-polynomial function of the input parameter. More formally:
+
+
+\begin{definition}[Noticeable Function]
+A function $\mu(\cdot): \mathbb{Z}^+ \rightarrow [0,1]$ is noticeable iff $\exists c, n_0 \in \mathbb{Z}^+$ such that $\forall n \geq n_0 , \; \mu(n) \geq n^{-c}$.
+\end{definition}
+
+\paragraph{Example.} Observe that $\mu(n) = n^{-3}$ is a noticeable function.  (Notice that the above definition is satisfied for $c = 3$ and $n_0 = 1$.)
+
+\begin{tcolorbox}[colback=red!5!white]
+\begin{definition}[Negligible Function]
+A function $\mu(\cdot): \mathbb{Z}^+ \rightarrow [0,1]$ is negligible iff $\forall c \in \mathbb{Z}^+ \; \exists n_0 \in \mathbb{Z}^+$ such that $\forall n \geq n_0 , \; \mu(n) < n^{-c}$.
+\end{definition}
+\end{tcolorbox}
+
+\paragraph{Example.} $\mu(n) = 2^{-n}$ is an example of a negligible function. This can be observed as follows.
+Consider an arbitrary $c \in \mathbb{Z}^+$ and set $n_0 = c^2$. Now, observe that for all $n \geq n_0$, we have that $\frac{n}{\log_2 n} \geq \frac{n_0}{\log_2 n_0} \geq \frac{n_0}{\sqrt{n_0}} = \sqrt{n_0} = c$. This allows us to conclude that $$\mu(n) = 2^{-n} = n^{-\frac{n}{\log_2 n}} \leq n^{-c}.$$
+
+Thus, we have proved that for any $c \in \mathbb{Z}^+$, there exists $n_0 \in \mathbb{Z}^+$ such that for any $n \geq n_0$, $\mu(n) \leq n^{-c}$.
+
+\begin{remark}{Gap between Noticeable and Negligible Functions.}
+At first thought it might seem that a function that is {not} negligible (or, a non-negligible function) must be a noticeable. This is not true! Negating the definition of a negligible function, we obtain that a non-negligible function $\mu(\cdot)$ is such that $\exists c \in \mathbb{Z}^+$ such that $\forall n_0 \in \mathbb{Z}^+$, $\exists n \geq n_0$ such that $\mu(n) \geq n^{-c}$.
+Note that this requirement is satisfied as long as $\mu(n) \geq n^{-c}$ for infinitely many choices of $n \in \mathbb{Z}^+$. However, a noticeable function requires this condition to be true for every $n \geq n_0$.
+
+Below we give example of a function $\mu(\cdot)$ that is neither negligible nor noticeable.
+$$\mu(n) = \Big\{
+\begin{array}{ll}
+  2^{-n} & : x \mod 2 = 0\\
+  n^{-3} & : x \mod 2 \neq 0
+\end{array}
+$$
+This function is obtained by interleaving negligible and  noticeable functions. It cannot be negligible (resp., noticeable) because it is greater (resp., less) than an inverse-polynomially function for infinitely many input choices.
+\end{remark}
+
+\paragraph{Properties of Negligible Functions.} Sum and product of two negligible functions is still a negligible function. We argue this for the sum function below and defer the problem for products to Exercise~\ref{ex:product}.
+
+\begin{lemma}
+If $\mu(n)$ and $\nu(n)$ are negligible functions then\begin{enumerate}
+\item $\psi(n) = \min\{\mu(n) + \nu(n),1\}$ is a negligible function,
+\item $\psi(n) = \mu(n) \cdot \nu(n)$ is a negligible function, and
+\item $\psi(n) = \mathsf{poly}(\mu(n))$ is\footnote{Where $\mathsf{ploy}(n)$ is an unspecified polynomial function.} a negligible function.
+\end{enumerate}
+\end{lemma}
+
+\proof of (i) We need to show that for any $c \in \mathbb{Z}^+$, we can find $n_0$ such that $\forall n \geq n_0$, $\psi(n) \leq n^{-c}$. Our argument proceeds as follows. Given the fact that $\mu$ and $\nu$ are negligible we can conclude that there exist $n_1$ and $n_2$ such that $\forall n \geq n_1$, $\mu(n) \leq n^{-(c+1)}$ and $\forall n \geq n_2$, $g(n) \leq n^{-(c+1)}$. Combining the above two fact and setting $n_0 = \max(n_1, n_2, 2)$ we have that for every $n \geq n_0$,
+$\psi(n) = \mu(n) + \nu(n) \leq n^{-(c+1)} + n^{-(c+1)} = 2 n^{-(c+1)} \leq n \cdot n^{-(c+1)}$ (since, $2 \leq n_0 \leq n$).
+Thus, $\psi(n) \leq n^{-c}$ and hence is negligible.  \qed
+
+%\begin{corollary}
+%If $f(n)$ is non-negligible and $g(n)$ is negligible, then $h(n) = f(n) - g(n)$ is non-negligible.
+%\end{corollary}
+%
+%\proof If $h(n)$ was negligible, then $f(n) = g(n) + h(n)$ would be the sum of two negligible functions, but would be non-negligible, which is a contradiction.  \qed
+
+
+
+\section{One-Way Functions}
+\label{ssec:owf}
+A one-way function $f: \{0,1\}^n \rightarrow \{0,1\}^m$ is a function that is easy to compute (computable by a polynomial time machine) but hard to invert.  We formalize this by saying that there {\em cannot} exist a machine that can invert $f$ in polynomial time. 
+
+\begin{tcolorbox}[colback=red!5!white]
+\begin{definition}[One-Way Functions]
+A function $f : \binset{*} \rightarrow \binset{*}$ is said to be one-way function if:
+\begin{itemize}
+\item[-] \textbf{Easy to Compute:} $\exists$ a (deterministic) polynomial time machine $M$ such that $\forall x \in \binset{*}$ we have that \[M(x) = f(x)\]
+\item[-] \textbf{Hard to Invert:} $\forall$ non-uniform PPT adversary $\mathcal{A}$ we have that
+    \begin{equation}\label{eq:owf}
+    \mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ f(\mathcal{A}(1^n, f(x))) = f(x)]
+     \end{equation}
+     is a negligible function,  $x \overset{\$}{\leftarrow} \binset{n}$ denotes that $x$ is drawn uniformly at random from the set $\binset{n}$ and the probability if over the random choices of $x$ and the random coins of $\mathcal{A}$.
+\end{itemize}
+\end{definition}
+\end{tcolorbox}
+
+The above definition is rather delicate. We next describe problems in the slight variants of this definition that are insecure.
+
+\begin{enumerate}
+\item What if we require that
+    $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] = 0$ instead of being negligible?
+
+This condition is false for every function $f$. An adversary $\mathcal{A}$ that outputs an arbitrarily fixed value $x_0$  succeed in outputting a value in $f^{-1}(f(x))$ with probability at least $1/2^{n}$.
+
+\item  What if we drop the input $1^n$ to $\mathcal{A}$ in Equation~\ref{eq:owf}?
+
+Consider the function $f(x) = |x|$.  In this case, we have that $m = \log_2 n$, or $n = 2^m$.  Intuitively, $f$ should not be considered a one-way function, because it is easy to invert $f$. Namely, given a value $y$ any $x$ such that $|x| = y$ is such that $x \in f^{-1}(y)$.  However, according to this definition the adversary gets an $m$ bit string as input, and hence is restricted to running in time polynomial in $m$. Since each possible $x$ is of size $n = 2^m$, the adversary doesn't even have enough time to write down the answer!  Thus, according to the flawed definition above, $f$ would be a one-way function.
+
+Providing the attacker with $1^n$ ($n$ repetitions of the $1$ bit) as additional input avoids this issue.  In particular, it allows the attacker to run in time polynomial in $m$ and $n$.
+\end{enumerate}
+
+\paragraph{A Candidate One-way Function.}
+It is not known whether one-way functions exist.  The existence of one-way functions would imply that $P \neq NP$ (see Exercise~\ref{ex:PNP}), and so of course we do not know of any concrete functions that have been proved to be one-way.
+
+However, there are candidates of functions that could be one-way functions.  One example is based on the hardness of factoring.  Multiplication can be done easily in $O(n^2)$ time, but so far no polynomial time algorithm is known for factoring.
+
+One candidate might be to say that given an input $x$, split $x$ into its left and right halves $x_1$ and $x_2$, and then output $x_1 \times x_2$.  However, this is not a one-way function, because with probability $\frac{3}{4}$, $2$ will be a factor of $x_1 \times x_2$, and in general the factors are small often enough that a non-negligible number of the outputs could be factored in polynomial time.
+
+To improve this, we again split $x$ into $x_1$ and $x_2$, and use $x_1$ and $x_2$ as seeds in order to generate large primes $p$ and $q$, and then output $pq$.  Since $p$ and $q$ are primes, it is hard to factor $pq$, and so it is hard to retrieve $x_1$ and $x_2$.  This function is believed to be one-way.
+
+
+%\section{Modifying One-way Functions}
+%
+%\subsection{Fixing Certain Values of a One-way Function}
+%
+%Consider having a one-way function $f$.  Can we use this function $f$ in order to make a one-way function $g$ such that $g(x_0) = y_0$ for some constants $x_0, y_0$, or would this make the function no longer be one-way?\\
+%
+%Intuitively, the answer is yes - we can specially set $g(x_0) = y_0$, and otherwise have $g(x) = f(x)$.  In this case, the adversary gains the knowledge of how to invert $y_0$, but that will only happen with negligible probability, and so the function is still one-way.
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.
+%\end{theorem}
+%
+%The proof is given in the appendix.\\
+%
+%However, this raises an apparent contradiction - according to this theorem, given a one-way function $f$, we could keep fixing each of its values to $0$, and it would continue to be a one-way function.  If we kept doing this, we would eventually end up with a function which outputs 0 for {\em all} of the possible values of $x$.  How could this still be one-way?\\
+%
+%The resolution of this apparent paradox is by noticing that a one-way function is only required to be one-way in the limit where $n$ grows very large.  So, no matter how many times we fix the values of $f$ to be 0, we are still only setting a finite number of $x$ values to 0.  However, this will still satisfy the definition of a one-way function - it is just that we will have to use larger and larger values of $n_0$ in order to prove that the probability of breaking the one-way function is negligible.
+
+\section{Composability of One-Way Functions}
+Given a one-way function $f : \binfunc{n}{n}$, is the function $f^2(x) = f(f(x))$ also a one-way function?  Intuitively, it seems that if it is hard to invert $f(x)$, then it would be just as hard to invert $f(f(x))$. \sanjam{Explain the intuitive reduction that doesn't work.}  However, this intuition is incorrect and highlights the delicacy when working with cryptographic assumptions and primitives. In particular, assuming one-way functions exists we describe a one-way function $f: \{0,1\}^{n/2}\times \{0,1\}^{n/2} \rightarrow \{0,1\}^{n}$ such that $f^2$ can be efficiently inverted.
+Let $g: \{0,1\}^n \rightarrow \{0,1\}^n$ be a one-way function then we set $f$ as follows:
+$$f(x_1,x_2) = \left\{
+\begin{array}{ll}
+  0^{n} & : \text{if } x_1 = 0^{n/2} \\
+  0^{n/2}\|g(x_2) & : \text{otherwise}
+\end{array}
+\right.$$
+Two observations follow:
+\begin{enumerate}
+  \item $f^2$ is not one-way. This follows from the fact that for all inputs $x_1, x_2$ we have that $f^2(x_1,x_2) = 0^n$. This function is clearly not one-way!
+  \item $f$ is one-way. This can be argued as follows. Assume that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))]$ is non-negligible. Using such an $\mathcal{A}$ we will describe a construction of adversary $\mathcal{B}$ such that $\mu_{\mathcal{B},g}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, g(x)) \in g^{-1}(g(x))]$ is also non-negligible. This would be a contradiction thus proving our claim.
+
+      \textbf{Description of $\mathcal{B}$}: $\mathcal{B}$ on input $y \in\{0,1\}^n$ outputs the $n$ lower-order bits of  $\mathcal{A}(1^{2n}, 0^{n}\|y)$.
+
+      Observe that if $\mathcal{A}$ successfully inverts $f$ then we have that $\mathcal{B}$ successfully inverts $g$. More formally, we have that:
+      $$\mu_{\mathcal{B},g}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{2n}, 0^n || g(x)) \in \{0,1\}^n || g^{-1}(g(x))\right].$$
+      Note that
+      \begin{align*}
+      \mu_{\mathcal{A},f}(2n) =& \Pr_{x_1, x_2 \stackrel{\$}{\leftarrow} \binset{2n}}[ \mathcal{A}(1^{2n}, f(x_1, x_2)) \in f^{-1}(f(\tilde x))]\\
+      \leq & \Pr_{x_1 \stackrel{\$}{\leftarrow} \binset{n}}[x_1 = 0^n] +  \Pr_{x_1 \stackrel{\$}{\leftarrow} \binset{n}}[x_1 \neq 0^n] \Pr_{x_2 \stackrel{\$}{\leftarrow} \binset{n}} [ \mathcal{A}(1^{2n}, 0^n || g(x_2)) \in \{0,1\}^n || g^{-1}(g(x_2))]\\
+      = & \frac{1}{2^n} + \left( 1-\frac{1}{2^n}\right)\cdot\Pr_{x_2 \stackrel{\$}{\leftarrow} \binset{n}} [ \mathcal{A}(1^{2n}, 0^n || g(x_2)) \in \{0,1\}^n || g^{-1}(g(x_2))]\\
+      = & \frac{1}{2^n} + \left( 1-\frac{1}{2^n}\right)\cdot\mu_{\mathcal{B},g}(n).
+      \end{align*}
+      Rewriting the above expression, we have that $\mu_{\mathcal{B},g}(n) = \frac{\mu_{\mathcal{A},f}(2n) - \frac{1}{2^n}}{1- \frac{1}{2^n}}$ which is non-negligible as long as $\mu_{\mathcal{A},f}(2n)$  is non-negligible.
+\end{enumerate}
+
+
+%\begin{lemma}
+%If $f : \binfunc{n}{n}$ is a one-way function, then $g : \binfunc{2n}{2n}$ defined as $g(x) = 0^n \concat f(x_{[1:n]})$ is also one-way.\\
+%\end{lemma}
+%\proof
+%Assume towards contradiction that $g$ is not one-way, and so there is an adversary $A_g$ that inverts $g$ with probability $\mu(2n)$ that is non-negligible.\\
+%
+%Note that $\mu(2n)$ is also non-negligible with respect to inputs of size $n$.\\
+
+%Then we can define an adversary $A_f$ such that $A_f(y) = (A_g(0^n \concat y))_{[1:n]}$.  Note that $A_g$ breaks $g$ on input $0^n \concat y$ $\implies$ $A_f$ breaks $f$ on input $y$, and so $A_f$ breaks $f$ with at least non-negligible probability $\mu(2n)$.  Contradiction.\\
+%
+%Thus, $g$ is also one-way.  \qed\\
+%
+%Now, given a function $f : \binfunc{n}{n}$, we can construct a new one-way function $g : \binfunc{2n}{2n}$.  From $g$, we can construct another one-way function $h : \binfunc{2n}{2n}$ defined by:
+%
+%$h(x) = \left\{
+%\begin{array}{lr}
+%  0^{2n} & : x_{[1:n]} = 0^n \\
+%  g(x) & : otherwise
+%\end{array}
+%\right.$
+
+%A generalization of the previous theorem (fixing values in a one-way function) shows that $h$ is also a one-way function.  (In short, we are only fixing the values of $\frac{2^n}{2^{2n}} = \frac{1}{2^n}$ of all of the possible values of $x$.  Since we are only fixing a negligible fraction of the possible values of $x$, the same proof with slight modifications still applies.)\\
+%
+%So, $h$ is a one-way function.  However, $h^2(x) = h(h(x)) = 0^{2n}$, and so $h^2$ is clearly not a one-way function.  Thus, composing one-way functions is not guaranteed to give another one-way function. \qed
+
+\input{supplementary.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hardness Amplification}
+\label{sec:owf:amplify}
+In this section, we show that even a very \emph{weak} form of one-way functions suffices from constructing one-way functions as defined previously. For this section, we refer to this previously defined notion as strong one-way functions.
+
+\begin{tcolorbox}[colback=red!5!white]
+\begin{definition}[Weak One-Way Functions]
+A function $f : \binset{n} \rightarrow \binset{m}$ is said to be a weak one-way function if:
+\begin{itemize}
+\item[-] $f$ is computable by a polynomial time machine, and
+\item[-] There exists a noticeable function $\alpha_f(\cdot)$ such that $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+    $$
+    \mu_{\mathcal{A},f}(n) =
+    \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] \leq 1 - \alpha_{f}(n).
+    $$
+\end{itemize}
+\end{definition}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5!white]
+\begin{theorem}\label{theorem:weakstrongOWF}
+If there exists a weak one-way function, then there exists a (strong) one-way function.
+\end{theorem}
+\end{tcolorbox}
+
+\proof We prove the above theorem constructively. Suppose $f : \binset{n} \rightarrow \binset{m}$ is a weak one-way function, then we prove that the function $g: \binset{nq} \rightarrow \binset{mq}$ for $q = \lceil \frac{2n}{\alpha_{f}(n)} \rceil$
+$$g(x_1, x_2, \cdots, x_q) = f(x_1) || f(x_2) || \cdots || f(x_q),$$
+ is a strong one-way function.
+
+Assume for the sake of contradiction that there exists an adversary $\mathcal{B}$ such that $\mu_{\mathcal{B},g}(nq) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x)) \in g^{-1}(g(x))]$ is non-negligible.
+%Suppose $\mu_{\mathcal{A},g}(nq) \geq \tilde \mu_{\mathcal{A},g}(nq)$ for arbitrarily large $n$, where $\tilde  \mu_{\mathcal{A},g}$ is a noticeable function.\peihan{to ensure that $T$ is poly}
+Then we use $\mathcal{B}$ to construct $\mathcal{A}$ (see Figure~\ref{fig:adv:weak}) that breaks $f$, namely $\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] > 1 - \alpha_f(n)$ for sufficiently large $n$.
+\begin{figure}[h]
+\begin{algorithmic}[1]
+\Loop { $T=\frac{4n^2}{\alpha_f(n) \mu_{\mathcal{B}, g}(nq)}$ times}
+    \State $i \stackrel{\$}{\leftarrow} \{1, 2, \cdots, q\}$
+    \State $x_1, \cdots, x_{i-1}, x_i, \cdots, x_q \stackrel{\$}{\leftarrow} \binset{n}$
+    \State $(x'_1, x'_2, \cdots, x'_q) := \mathcal{B} (f(x_1), f(x_2), \cdots, f(x_q))$
+    \If {$f(x'_i) = y$}
+    	\State \Return $x'_i$
+    \EndIf
+\EndLoop
+\State \Return $\bot$
+\end{algorithmic}
+\caption{Construction of $\mathcal{A}(1^n, y)$}
+\label{fig:adv:weak}
+\end{figure}
+
+Note that: (1) $\mathcal{A}(1^n, y)$ iterates at most $T = \frac{4n^2}{\alpha_f(n)\mu_{\mathcal{B},g}(nq)}$ times each call is polynomial time. (2) $\mu_{\mathcal{B},g}(nq)$ is a non-negligible function. This implies that for infinite choices of $n$ this value is greater than some noticeable function. Together these two facts imply that for infinite choices of $n$ the running time of $\mathcal{A}$ is bounded by a polynomial function in $n$.
+
+It remains to show that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) = \bot] < \alpha_f(n)$ for arbitrarily large $n$. A natural way to argue this is by showing that at least one execution of $\mathcal{B}$ should suffice for inverting $f(x)$. However, the technical challenge in proving this formally is that these calls to $\mathcal{B}$ aren't independent. Below we formalize this argument even when these calls aren't independent.
+
+Define the set $S$ of ``bad'' $x$'s, which are hard to invert:
+$$S := \left\{x \left| \Pr_\mathcal{B}\left[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} \right] \leq \frac{\alpha_f(n) \mu_{\mathcal{B},g}(nq)}{4n} \right. \right\}.$$
+We start by proving that the size of $S$ is small. More formally,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S] \leq \frac{\alpha_f(n)}{2}.$$
+Assume, for the sake of contradiction, that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S]  > \frac{\alpha_f(n)}{2}$. Then we have that:
+\begin{align*}
+\mu_{\mathcal{B},g}(nq) =& \Pr_{(x_1, \cdots, x_q) \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q))]\\
+=&  \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \forall i: x_i \notin S]\\
+& + \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \exists i: x_i \in S]\\
+\leq& \Pr_{x_1, \cdots, x_q}[ \forall i: x_i \notin S]
++ \sum_{i=1}^q \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge  x_i \in S]\\
+\leq& \left( 1-\frac{\alpha_f(n)}{2}\right)^q
++ q \cdot \Pr_{x_1, \cdots, x_q,i}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge x_i \in S] \\
+=& \left( 1-\frac{\alpha_f(n)}{2}\right)^{\frac{2n}{\alpha_f(n)}}
++  q\cdot \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, \mathcal{B}}[\mathcal{A} \text{ inverts $f(x)$ in a single iteration}  \wedge x \in S]\\
+\leq& e^{-n} + q\cdot  \Pr_{x}[x \in S] \cdot \Pr[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} ~|~ x \in S]\\
+\leq& e^{-n} + \frac{2n}{\alpha_f(n)} \cdot  1 \cdot \frac{\mu_{\mathcal{B},g}(nq) \cdot \alpha_f(n)}{4n}\\
+\leq& e^{-n} + \frac{\mu_{\mathcal{B},g}(nq)}{2}.
+\end{align*}
+Hence $\mu_{\mathcal{B},g}(nq) \leq 2 e^{-n}$, contradicting with the fact that $\mu_{\mathcal{B},g}$ is non-negligible.
+Then we have
+\begin{align*}
+\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}&[ \mathcal{A}(1^n, f(x)) = \bot]\\
+=& \Pr_x[x \in S] + \Pr_x [x \notin S]\cdot\Pr[\mathcal{B} \text{ fails to invert $f(x)$ in every iteration} | x \notin S]\\
+\leq& \frac{\alpha_f(n)}{2}+ \left(\Pr[ \mathcal{B} \text{ fails to invert $f(x)$ a single iteration} | x \notin S] \right)^T\\
+\leq & \frac{\alpha_f(n)}{2}+ \left( 1-\frac{\mu_{\mathcal{A},g}(nq) \cdot \alpha_f(n)}{4n}\right)^T\\
+\leq& \frac{\alpha_f(n)}{2} + e^{-n} \leq \alpha_f(n)
+\end{align*}
+for sufficiently large $n$. This concludes the proof.
+\qed
+
+
+\section{Levin's One-Way Function}
+\begin{tcolorbox}[colback=green!5!white]
+\begin{theorem}\label{thm:levin}
+If there exists a one-way function, then there exists an explicit function $f$ that is one-way  (constructively).
+\end{theorem}
+\end{tcolorbox}
+
+\begin{lemma}\label{lem:n2owf}
+If there exists a one-way function computable in time $n^c$ for a constant $c$, then there exists a one-way function computable in time $n^2$.
+\end{lemma}
+\proof
+Let $f: \binset{n} \rightarrow \binset{n}$ be a one-way function computable in time $n^c$.
+Construct $g: \binset{n+n^c} \rightarrow \binset{n+n^c}$ as follows:
+$$g(x,y) = f(x) || y$$
+where $x \in \binset{n}, y \in \binset{n^c}$.
+$g(x,y)$ takes time $2n^c$, which is linear in the input length.
+
+We next show that $g(\cdot)$ is one-way.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},g}(n+n^c) = \Pr_{(x,y) \stackrel{\$}{\leftarrow} \binset{n+n^c}}[ \mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))]$ is non-negligible. Then we use $\mathcal{A}$ to construct $\mathcal{B}$ such that $\mu_{\mathcal{B},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, f(x)) \in f^{-1}(f(x))]$ is also non-negligible.
+
+$\mathcal{B}$ on input $z \in\{0,1\}^n$, samples $y \stackrel{\$}{\leftarrow} \binset{n^c}$, and outputs the $n$ higher-order bits of  $\mathcal{A}(1^{n+n^c}, z||y)$. Then we have
+\begin{align*}
+\mu_{\mathcal{B},g}(n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, y \stackrel{\$}{\leftarrow} \binset{n^c}}\left[\mathcal{A}(1^{n+n^c}, f(x) || y) \in f^{-1}(f(x)) || \binset{n^c}\right]\\
+\geq&\Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in f^{-1}(f(x)) || y\right]\\
+=& \Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))\right]
+\end{align*}
+is non-negligible.
+\qed
+
+\bigskip
+\proof[of Theorem~\ref{thm:levin}]
+We first construct a weak one-way function $h: \binset{n} \rightarrow \binset{n}$ as follows:
+$$
+h(M,x) = \left\{
+\begin{array}{ll}
+M || M(x) & \text{if $M(x)$ takes no more than $|x|^2$ steps} \\
+M || 0 & \text{otherwise}
+\end{array}
+\right.
+$$
+where $|M| = \log n, |x| = n - \log n$ (interpreting $M$ as the code of a machine  and $x$ as its input).
+If $h$ is weak one-way, then we can construct a one-way function from $h$ as we discussed in Section~\ref{sec:owf:amplify}.
+
+It remains to show that if one-way functions exist, then $h$ is a weak one-way function, with $\alpha_h(n) = \frac{1}{n^2}$.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},h}(n) = \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))]\geq 1-\frac{1}{n^2}$ for all sufficiently large $n$.
+By the existence of one-way functions and Lemma~\ref{lem:n2owf}, there exists a one-way function $\tilde M$ that can be computed in time $n^2$. Let $\tilde M$ be the uniform machine that computes this one-way function.
+We will consider values $n$ such that $n > 2^{|\tilde M|}$. In other words for these choices of $n$, $\tilde M$ can be described using $\log n$ bits.
+We construct $\mathcal{B}$ to invert $\tilde M$: on input $y$ outputs the $(n-\log n)$ lower-order bits of $\mathcal{A}(1^n, \tilde M||y)$. Then
+\begin{align*}
+\mu_{\mathcal{B},\tilde M}(n-\log n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \binset{\log n} || \tilde M^{-1}(\tilde M((x))\right]\\
+\geq& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \tilde{M} || \tilde M^{-1}(\tilde M((x))\right].
+\end{align*}
+Observe that for sufficiently large $n$ it holds that
+\begin{align*}
+1-\frac{1}{n^2} \leq& \mu_{\mathcal{A},h}(n)\\
+=& \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))\right]\\
+\leq& \Pr_{M }[M = \tilde M] \cdot \Pr_{x }\left[ \mathcal{A}(1^{n}, \tilde M||\tilde M(x)) \in  \tilde{M} || \tilde M^{-1}(\tilde M((x))\right] + \Pr_{M }[M \neq \tilde M]  \\
+\leq&  \frac{1}{n} \cdot \mu_{\mathcal{B},\tilde M}(n-\log n) +\frac{n-1}{n}.
+\end{align*}
+Hence $\mu_{\mathcal{B},\tilde M}(n-\log n) \geq \frac{n-1}{n}$  for sufficiently large $n$ which is a contradiction.
+\qed
+
+\newpage
+\section*{Exercises}
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ and $\nu(\cdot)$ are negligible functions then show that $\mu(\cdot) \cdot \nu(\cdot)$ is a negligible function.
+\end{exercise}
+
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ is a negligible function and $f(\cdot)$ is a function polynomial in its input then show that $\mu(f(\cdot))$\footnote{Assume that $\mu$ and $f$ are such that $\mu(f(\cdot))$ takes inputs from $\mathbb{Z}^+$ and outputs values in $[0,1]$.} are negligible functions.
+\end{exercise}
+
+\begin{exercise}\label{ex:PNP} Prove that the existence of one-way functions implies $P \neq NP$.
+\end{exercise}
+
+\begin{exercise}
+Prove that there is no one-way function $f:\{0,1\}^n\to \{0,1\}^{\lfloor \log_2 n\rfloor}$.
+\end{exercise}
+
+
+\begin{exercise} Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be any one-way function then is $f'(x) \stackrel{def}{=} f(x)\oplus x$ necessarily one-way?
+\end{exercise}
+
+\begin{exercise}
+Prove or disprove: If $f: \{0,1\}^n\rightarrow \{0,1\}^n$ is a one-way function, then $g: \{0,1\}^n\rightarrow \{0,1\}^{n-\log n}$ is a one-way function, where $g(x)$ outputs the $n-\log n$ higher order bits of $f(x)$.
+\end{exercise}
+
+\begin{exercise}
+Explain why the proof of Theorem~\ref{theorem:weakstrongOWF} fails if the attacker $\mathcal{A}$ in Figure~\ref{fig:adv:weak} sets $i = 1$ and not $i \stackrel{\$}{\leftarrow} \{1, 2, \cdots, q\}$.
+\end{exercise}
+
+\begin{exercise}
+Given a (strong) one-way function construct a weak one-way function that is not a (strong) one-way function.
+\end{exercise}
+
+\begin{exercise}
+ Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be a weak one-way permutation (a weak one way function that is a bijection). More formally, $f$ is a PPT computable one-to-one function such that $\exists$ a constant $c >0$ such that $\forall$ non-uniform PPT machine $A$ and $\forall$ sufficiently large $n$ we have that:
+    \[\Pr_{x,A}[A(f(x)) \not\in f^{-1}(f(x))] > \frac{1}{n^c}\]
+
+     Show that $g(x) = f^T(x)$ is not a strong one way permutation. Here $f^T$ denotes the $T$ times self composition of $f$ and $T$ is a polynomial in $n$.
+
+     Interesting follow up reading if interested: With some tweaks the function above can be made a strong one-way permutation using explicit constructions of expander graphs. See Section 2.6 in \url{http://www.wisdom.weizmann.ac.il/~oded/PSBookFrag/part2N.ps}
+\end{exercise}
+
+\chapter{Pseudorandomness}
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a polynomial time machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard core bit is hidden because of computational hardness and not information theoretic hardness.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. (We leave this as an exercise!)
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ probability.
+\qed
+
+
+
+\paragraph{Application: Coin tossing over the phone.} We next describe an application of hard core bits to coin tossing.
+Consider two parties trying to perform a coin tossing over the phone. In this setting the first party needs to declare its choice as the second one flips the coin. However, how can the first party trust the win/loss response from the second party?  In particular, if the first party calls out ``head'' and then the second party can just lie that it was ``tails.'' We can use hard core bit of a (one-to-one) one-way function to  enable this applications.
+
+Let $f$ be a (one-to-one) one-way function and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $y$, where $y = f(x)$, to party $P_2$.
+\item[-] $P_2$ sends back a random bit $b$ sampled from $\{0,1\}$.
+\item[-] $P_1$ sends back $(x, B(x))$ to $P_2$. $P_2$ aborts if $f(x) \neq y$.
+\item[-]  Both parties output $B(x)\oplus b$.
+\end{itemize}
+Note that $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$ as he sends back his $b$.
+On the other hand, $P_1$ cannot flip the value $B(x)$ once it has sent $f(x)$ to $P_2$ because $f$ is one-to-one.
+
+
+\section{Hard Core Bit of any One-Way Functions}
+We now show that a slight modification of every one-way function has a hard core bit. More formally,
+\begin{theorem}\label{thm:hard-core-bit}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+Define a function $g:\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$g(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard core bit, namely $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\begin{remark}
+If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard core bit $B(\cdot)$.
+\end{remark}
+\proof
+We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard core bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
+
+\medskip
+\noindent\textbf{\underline{Super simple case.}}
+Suppose that $\ma$ breaks the $B$ with perfect accuracy:
+$$\Pr_{x,r}[E] =1.$$
+We  now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
+Let $e^i$ be an $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
+On input $f(x)||R$, $\mathcal{B}$ does the following:
+
+\medskip
+\begin{algorithmic}
+\For {$i=1$ \textbf{to} $n$}
+    \State $x'_i \gets \ma(1^{2n}, f(x)||e^i)$
+\EndFor
+\State \Return $x'_1\cdots x'_n || R$
+\end{algorithmic}
+Observe that $B(x,e^i) = \sum_{j=1}^n x_je^i_j = x_i$. Therefore, the probability that $\mathcal{B}$ inverts a single bit successfully is,
+$$\Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=x_i\right] =  \Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=B(x,e^i)\right] = 1.$$
+Hence $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)] = 1$.
+
+
+\bigskip
+\noindent\textbf{\underline{Simple case.}}
+Next moving on to the following more demanding case.
+$$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$
+ where $\epsilon$ is non-negligible.
+Just like the super simple case, we describe our algorithm of $\mathcal{B}$ for inverting $g$.
+On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\For {$i = 1$ \textbf{to} $n$}
+	\For {$t = 1$ \textbf{to} $T = \frac{n}{2\epsilon(n)^2}$}
+		\State $r \stackrel{\$}{\leftarrow} \binset{n}$
+    	\State $x_i^t \leftarrow \ma(f(x)|| r) \oplus \ma(f(x) || r+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^1, \cdots, x_i^T\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+Correctness of $\mathcal{B}$ given that $\ma$ calls output the correct answer follows by observing that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$:
+\begin{align*}
+&B(x,r) \oplus B(x, r\oplus e^i)\\
+=& \sum_j x_j r_j + \sum_j x_j (r_j \oplus e^i_j) \mod 2\\
+=& \sum_{j \not= i} (x_j r_j + x_j r_j) + x_i r_i + x_i (r_i+1) \mod 2\\
+=& x_i.
+\end{align*}
+The key technical challenge in proving that $\mathcal{B}$ inverts $g$ with non-negligible probability arises from the fact that the calls to $\ma$ made during one execution of $\mathcal{B}$ are not independent. In particular, all calls to $\ma$ share the same $x$ and the class $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ use correlated randomness as well. We solve the first issue by showing that exists a large choices of values of $x$ for which $\ma$ still works with large probability. The later issue of lack of independent of $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ will be solved using a union bound.
+
+\noindent Formally, define the set $G$ of ``good'' $x$'s, which are easy for $\ma$  to predict:
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{3}{4} + \frac{\epsilon(n)}{2} \right. \right\}.$$
+We start by proving that the size of $G$ is not small. More formally we claim that,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$
+Assume, that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] < \frac{\epsilon(n)}{2}$. Then we have the following contradiction:
+\begin{align*}
+\frac{3}{4} + \epsilon(n) \leq& \Pr_{x,r}[E]\\
+=& \Pr_x [x \in G] \Pr_{r}[E| x\in G] + \Pr_x [x \notin G] \Pr_{r}[E | x\notin G]\\
+< & \frac{\epsilon(n)}{2} \cdot 1 + 1\cdot \left(\frac{3}{4}+\frac{\epsilon(n)}{2}\right)  = \frac{3}{4} + \epsilon(n).
+\end{align*}
+For and fixed $x \in G$:
+\begin{align*}
+&\Pr_{r} \left[ \ma(f(x), r) \oplus \ma(f(x), r+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right] + \Pr_{r} \left[ \text{Both $\ma$'s are wrong} \right]\\
+\geq& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right]\\
+\geq& 1-2 \cdot \Pr_{r} \left[ \text{Either $\ma$ is correct} \right]\\
+\geq& 1-2\left(\frac{1}{4} - \frac{\epsilon(n)}{2} \right)
+= \frac{1}{2} + \epsilon(n).
+\end{align*}
+Let $Y_i^t$ be the indicator random variable that $x_i^t = x_i$ (namely, $Y_i^t=1$ with probability  $\Pr[x_i^t = x_i]$ and $Y_i^t=0$ otherwise).
+Note that $Y_i^1, \cdots, Y_i^T$ are independent and identical random variables, and for all $t \in \{1,\ldots, T\}$ we have that $\Pr[Y_i^t=1] = \Pr[x_i^t = x_i] \geq \frac{1}{2} + \epsilon(n)$. Next we argue that majority of $x_i^1, \ldots x_i^T$ coincides with $x_i$ with high probability.
+\begin{align*}
+\Pr[x'_i \neq x_i]
+=& \Pr\left[\sum_{t=1}^T Y_i^t \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \leq \frac{T}{2} - \left(\frac{1}{2} + \epsilon(n) \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \right| \geq \epsilon(n)T \right]\\
+& \text{Let $X_1,\cdots,X_m$ be i.i.d. random variables taking values 0 or 1. Let $\Pr[X_i=1] = p$.}\\
+& \text{By Chebyshev's Inequality, $\Pr\left[ \left| \sum X_i - pm \right| \geq \delta m \right] \leq \frac{1}{4\delta^2 m}$.}\\
+\leq& \frac{1}{4\epsilon(n)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the argument,  we have
+\begin{align*}
+&\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq& \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | x \in G]\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | x \in G]\right)\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)}{4}.
+\end{align*}
+
+
+
+\bigskip
+\noindent\textbf{\underline{Real Case.}} Now, we describe the final case where $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n),$
+ where $\epsilon(\cdot)$ is a non-negligible function. The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above. However, just using one call to $\ma$ seems insufficient. The key idea is to just guess one of those values. Very surprisingly this idea along with careful analysis magically works out.
+Just like the previous two case we start by describing the algorithm $\mathcal{B}$. On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\State $T = \frac{2n}{\epsilon(n)^2}$
+	\For {$\ell = 1$ \textbf{to} $\log T$}
+		\State $s_\ell \stackrel{\$}{\leftarrow} \binset{n}$
+		\State $b_\ell \stackrel{\$}{\leftarrow} \{0,1\}$
+	\EndFor
+\For {$i = 1$ \textbf{to} $n$}
+	\ForAll {$L \subseteq \{1,2,\cdots, \log T\}$}
+		\State $S_L :=\bigoplus_{j \in L} s_j$
+		\State $B_L := \bigoplus_{j \in L} b_j$
+		\State $x_i^L \leftarrow B_L \oplus \ma(f(x) || S_L+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^\emptyset, \cdots, x_i^{[\log T]}\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+
+\medskip
+The idea is the following. Let $b_\ell$ guess the value of $B(x,s_\ell)$, and with probability $\frac{1}{T}$ all the $b_{\ell}$'s are correct. In that case, it is easy to see that $B_L = B(x, S_L)$ for every $L$. If we follow the same argument as above, then it remains to bound the probability that $\ma(f(x) || S_L+e^i)=B(x, S_L + e^i)$. However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are not independent any more. But we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof. \\
+Just as in the simple case, we define the set $G$ as
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{1}{2} + \frac{\epsilon(n)}{2} \right. \right\},$$
+and with an identical argument we obtain that
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$\\
+Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that (we use the notation $(s)_k$ to denote the $k^{th}$ bit of $s$)
+$$B(x,S_L) = \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k = \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L.$$
+Next given that $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$ we bound the probability,
+\begin{align*}
+\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L+e^i) = x_i \right]
+=& \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \ma(f(x) || S_L+e^i) =  B(x,S_L +e^i) \right]\\
+\geq& \frac{1}{2} + \frac{\epsilon(n)}{2}.
+\end{align*}
+For $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
+Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
+\begin{align*}
+\Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \leq \frac{T}{2} - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right| \geq \frac{\epsilon(n)}{2} T \right]\\
+& \text{(By Theorem~\ref{thm:Chebyshev})}\\
+\leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the proof, we have that
+\begin{align*}
+\Pr_{x,r}[&\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq&  \Pr\left[\forall \ell \in [\log T], b_\ell = B(x,s_\ell)\right] \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\\
+\geq& \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\right)\\
+\geq& \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}.
+\end{align*}
+\qed
+
+\bigskip
+\noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} Here, for the sake of completeness, we prove the Chebyshev's Inequality.
+\begin{definition}[Pairwise Independence]
+A collection of random variables $\{X_1,\cdots,X_m\}$ is said to be \emph{pairwise independent} if for every pair of random variables $(X_i, X_j), i \neq j$  and every pair of values $(v_i,v_j)$, it holds that
+$$\Pr[X_i = v_i, X_j = v_j] = \Pr[X_i = v_i]\Pr[X_j = v_j].$$
+\end{definition}
+
+\begin{theorem}[Chebyshev's Inequality]\label{thm:Chebyshev}
+Let $X_1,\hdots,X_m$ be pairwise independent and identically distributed binary random variables. In particular, for every $i \in [m]$, $\Pr[X_i = 1] = p$ for some $p\in [0,1]$ and $\Pr[X_i=0]=1-p$. Then it holds that
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq \delta m\right] \leq \frac{1}{4\delta^2m}.$$
+\end{theorem}
+
+\proof
+Let $Y = \sum_i X_i$. Then
+\begin{align*}
+\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| > \delta m\right] &=
+\Pr\left[\left(\sum_{i=1}^m X_i - pm\right)^2> \delta^2 m^2\right]\\
+&\leq \frac{\mathbb{E}\left[\left|Y - pm\right|^2\right]}{\delta^2m^2}\\
+&= \frac{\text{Var}(Y)}{\delta^2m^2}\\
+\end{align*}
+Observe that
+\begin{align*}
+\text{Var}(Y) &= \mathbb{E}\left[Y^2\right] - \left(\mathbb{E}[Y]\right)^2\\
+&= \sum_{i=1}^m \sum_{j=1}^m \left( \mathbb{E}\left[X_iX_j\right] - \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]\right)\\
+& \text{By pairwise independence, for $i \neq j$,  $\mathbb{E}\left[X_iX_j\right] = \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]$.}\\
+&= \sum_{i=1}^m \mathbb{E}\left[X_i^2\right] - \mathbb{E}\left[X_i\right]^2\\
+&= mp(1-p).
+\end{align*}
+Hence
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq\delta m\right] \leq \frac{mp(1-p)}{\delta^2m^2} \leq \frac{1}{\delta^2m}.$$
+\qed
+
+
+
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%
