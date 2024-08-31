@@ -1,11 +1,11 @@
 \chapter{Mathematical Background}
 \label{sec:mb}
 
-In modern cryptography, we typically assume that our attackers cannot run in unreasonably large amounts of time, and we allow security to be broken with a \emph{very small}, but non-zero, probability.
+In modern cryptography, we typically make two key design choices: (1) we assume that our attackers cannot run in unreasonably large amounts of time, and (2) we allow security to be broken with a \emph{very small}, but non-zero, probability.
 
-Without these assumptions, we must work in the realm of information-theoretic cryptography, which is often unachievable or impractical for many applications. For example, the one-time pad --- an information-theoretically secure cipher --- is not very useful because it requires very large keys.
+Without these assumptions, we must work in the realm of information-theoretic cryptography, which is often unachievable or impractical for many applications. For example, the one-time pad --- an information-theoretically secure cipher --- is not practically useful because it requires large keys that are as long as the message being encrypted.
 
-In this chapter, we define items (1) and (2) more formally. We require our adversaries to run in polynomial time, which captures the idea that their runtime is not unreasonably large (sections~\ref{ssec:ppt}). We also allow security to be broken with negligible -- very small -- probability (section ~\ref{ssec:nnf}). 
+In this chapter, we define items (1) and (2) more formally. We require our adversaries to run in polynomial time, which captures the idea that their runtime is not unreasonably large (section~\ref{ssec:ppt}). We also allow security to be broken with negligible probability, which is a formal notion of a very small probability (section~\ref{ssec:nnf}). 
 
 
 \section{Probabilistic Polynomial Time}
