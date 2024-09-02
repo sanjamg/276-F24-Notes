@@ -19,3 +19,4 @@
 **/*.lb
 **/*.fdb_latexmk
 **/*.pdf
+**/*.synctex.gz
