@@ -1,0 +1,1992 @@
+\documentclass[12pt]{tufte-book}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL ../../../tmp/276-F24-Notes/notes-F24.tex   Fri Aug 30 14:47:37 2024
+%DIF ADD notes-F24.tex                              Fri Aug 30 14:20:31 2024
+%DIF 2c2
+%DIF < \usepackage{amsthm,amssymb,amsmath,thmtools,datetime}
+%DIF -------
+\usepackage{amsthm,amssymb,amsmath,thmtools,datetime,tikz} %DIF > 
+%DIF -------
+\setcounter{secnumdepth}{3}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Lavender}]{definition}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{lemma}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{claim}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Apricot}]{theorem}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=yellow}]{remark}
+\declaretheorem[numberwithin=chapter]{exercise}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=pink}]{construction}
+\usepackage[
+    type={CC},
+    modifier={by-nc-nd},
+    version={4.0},
+]{doclicense}
+
+\usepackage{graphicx,xcolor,mdframed}
+%\usepackage[version=0.96]{pgf}
+
+
+\def\chpcolor{blue!45}
+\def\chpcolortxt{blue!60}
+
+\iffalse
+\titleformat{\chapter}%
+  {\huge\rmfamily\itshape\color{red}}% format applied to label+text
+  {\llap{\colorbox{red}{\parbox{1.5cm}{\hfill\itshape\huge\color{white}\thechapter}}}}% label
+  {2pt}% horizontal separation between label and title body
+  {}% before the title body
+  []% after the title body
+\fi
+
+\hypersetup{colorlinks}% uncomment this line if you prefer colored hyperlinks (e.g., for onscreen viewing)
+
+%%
+% Book metadata
+\title{A Course in Theory of Cryptography}
+\author[Sanjam Garg]{Sanjam Garg}
+%\publisher{Publisher of This Book}
+
+%%
+% If they're installed, use Bergamo and Chantilly from www.fontsite.com.
+% They're clones of Bembo and Gill Sans, respectively.
+%\IfFileExists{bergamo.sty}{\usepackage[osf]{bergamo}}{}% Bembo
+%\IfFileExists{chantill.sty}{\usepackage{chantill}}{}% Gill Sans
+
+%\usepackage{microtype}
+
+%%
+% Just some sample text
+\usepackage{lipsum}
+
+%%
+% For nicely typeset tabular material
+\usepackage{booktabs}
+
+%%
+% For graphics / images
+\usepackage{graphicx,algpseudocode}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\graphicspath{{graphics/}}
+
+% The fancyvrb package lets us customize the formatting of verbatim
+% environments.  We use a slightly smaller font.
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+%%
+% Prints argument within hanging parentheses (i.e., parentheses that take
+% up no horizontal space).  Useful in tabular environments.
+\newcommand{\hangp}[1]{\makebox[0pt][r]{(}#1\makebox[0pt][l]{)}}
+
+%%
+% Prints an asterisk that takes up no horizontal space.
+% Useful in tabular environments.
+\newcommand{\hangstar}{\makebox[0pt][l]{*}}
+
+%%
+% Prints a trailing space in a smart way.
+\usepackage{xspace}
+
+%%
+% Some shortcuts for Tufte's book titles.  The lowercase commands will
+% produce the initials of the book title in italics.  The all-caps commands
+% will print out the full title of the book in italics.
+\newcommand{\vdqi}{\textit{VDQI}\xspace}
+\newcommand{\ei}{\textit{EI}\xspace}
+\newcommand{\ve}{\textit{VE}\xspace}
+\newcommand{\be}{\textit{BE}\xspace}
+\newcommand{\VDQI}{\textit{The Visual Display of Quantitative Information}\xspace}
+\newcommand{\EI}{\textit{Envisioning Information}\xspace}
+\newcommand{\VE}{\textit{Visual Explanations}\xspace}
+\newcommand{\BE}{\textit{Beautiful Evidence}\xspace}
+
+\newcommand{\TL}{Tufte-\LaTeX\xspace}
+
+% Prints the month name (e.g., January) and the year (e.g., 2008)
+\newcommand{\monthyear}{%
+  \ifcase\month\or January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or
+  December\fi\space\number\year
+}
+
+
+% Prints an epigraph and speaker in sans serif, all-caps type.
+\newcommand{\openepigraph}[2]{%
+  %\sffamily\fontsize{14}{16}\selectfont
+  \begin{fullwidth}
+  \sffamily\large
+  \begin{doublespace}
+  \noindent\allcaps{#1}\\% epigraph
+  \noindent\allcaps{#2}% author
+  \end{doublespace}
+  \end{fullwidth}
+}
+
+% Inserts a blank page
+\newcommand{\blankpage}{\newpage\hbox{}\thispagestyle{empty}\newpage}
+
+\usepackage{units}
+
+% Typesets the font size, leading, and measure in the form of 10/12x26 pc.
+\newcommand{\measure}[3]{#1/#2$\times$\unit[#3]{pc}}
+
+% Macros for typesetting the documentation
+\newcommand{\hlred}[1]{\textcolor{Maroon}{#1}}% prints in red
+\newcommand{\hangleft}[1]{\makebox[0pt][r]{#1}}
+\newcommand{\hairsp}{\hspace{1pt}}% hair space
+\newcommand{\hquad}{\hskip0.5em\relax}% half quad space
+\newcommand{\TODO}{\textcolor{red}{\bf TODO!}\xspace}
+\newcommand{\ie}{\textit{i.\hairsp{}e.}\xspace}
+\newcommand{\eg}{\textit{e.\hairsp{}g.}\xspace}
+\newcommand{\na}{\quad--}% used in tables for N/A cells
+\providecommand{\XeLaTeX}{X\lower.5ex\hbox{\kern-0.15em\reflectbox{E}}\kern-0.1em\LaTeX}
+\newcommand{\tXeLaTeX}{\XeLaTeX\index{XeLaTeX@\protect\XeLaTeX}}
+% \index{\texttt{\textbackslash xyz}@\hangleft{\texttt{\textbackslash}}\texttt{xyz}}
+\newcommand{\tuftebs}{\symbol{'134}}% a backslash in tt type in OT1/T1
+\newcommand{\doccmdnoindex}[2][]{\texttt{\tuftebs#2}}% command name -- adds backslash automatically (and doesn't add cmd to the index)
+\newcommand{\doccmddef}[2][]{%
+  \hlred{\texttt{\tuftebs#2}}\label{cmd:#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\doccmd}[2][]{%
+  \texttt{\tuftebs#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\docopt}[1]{\ensuremath{\langle}\textrm{\textit{#1}}\ensuremath{\rangle}}% optional command argument
+\newcommand{\docarg}[1]{\textrm{\textit{#1}}}% (required) command argument
+\newenvironment{docspec}{\begin{quotation}\ttfamily\parskip0pt\parindent0pt\ignorespaces}{\end{quotation}}% command specification environment
+\newcommand{\docenv}[1]{\texttt{#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docenvdef}[1]{\hlred{\texttt{#1}}\label{env:#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docpkg}[1]{\texttt{#1}\index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}}% package name
+\newcommand{\doccls}[1]{\texttt{#1}}% document class name
+\newcommand{\docclsopt}[1]{\texttt{#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name
+\newcommand{\docclsoptdef}[1]{\hlred{\texttt{#1}}\label{clsopt:#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name defined
+\newcommand{\docmsg}[2]{\bigskip\begin{fullwidth}\noindent\ttfamily#1\end{fullwidth}\medskip\par\noindent#2}
+\newcommand{\docfilehook}[2]{\texttt{#1}\index{file hooks!#2}\index{#1@\texttt{#1}}}
+\newcommand{\doccounter}[1]{\texttt{#1}\index{#1 counter@\texttt{#1} counter}}
+
+% Generates the index
+\usepackage{makeidx}
+\makeindex
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF COLORLISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+\iffalse
+% Front matter
+\frontmatter
+
+% r.1 blank page
+\blankpage
+
+
+% v.2 epigraphs
+\newpage\thispagestyle{empty}
+\openepigraph{%
+The public is more familiar with bad design than good design.
+It is, in effect, conditioned to prefer bad design, 
+because that is what it lives with. 
+The new becomes threatening, the old reassuring.
+}{Paul Rand%, {\itshape Design, Form, and Chaos}
+}
+\vfill
+\openepigraph{%
+A designer knows that he has achieved perfection 
+not when there is nothing left to add, 
+but when there is nothing left to take away.
+}{Antoine de Saint-Exup\'{e}ry}
+\vfill
+\openepigraph{%
+\ldots the designer of a new system must not only be the implementor and the first 
+large-scale user; the designer should also write the first user manual\ldots 
+If I had not participated fully in all these activities, 
+literally hundreds of improvements would never have been made, 
+because I would never have thought of them or perceived 
+why they were important.
+}{Donald E. Knuth}
+\fi
+
+% r.3 full title page
+\maketitle
+
+
+% v.4 copyright page
+%\newpage
+\begin{fullwidth}
+~\vfill
+\thispagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+Copyright \copyright\ \the\year\ \thanklessauthor
+
+%\par\smallcaps{Published by \thanklesspublisher}
+
+\par\smallcaps{This document is continually being updated. Please send us your feedback.}
+
+
+\par \doclicenseThis
+ \index{license}
+
+\par\textit{This draft was compiled on \today.}
+\end{fullwidth}
+
+% r.5 contents
+\tableofcontents
+
+%\listoffigures
+
+%\listoftables
+
+% r.7 dedication
+\iffalse
+\cleardoublepage
+~\vfill
+
+\begin{doublespace}
+\noindent\fontsize{18}{22}\selectfont\itshape
+\nohyphenation
+Dedicated to those who appreciate \LaTeX{} 
+and the work of \mbox{Edward R.~Tufte} 
+and \mbox{Donald E.~Knuth}.
+\end{doublespace}
+\vfill
+\vfill
+
+% r.9 introduction
+\cleardoublepage
+\fi
+\chapter*{Preface}
+Cryptography enables many paradoxical objects, such as public key encryption, verifiable electronic signatures, zero-knowledge protocols, and fully homomorphic encryption.  The two main steps in developing such seemingly impossible primitives are (i) defining the desired security properties formally and (ii) obtaining a construction satisfying the security property provably. In modern cryptography, the second step typically assumes (unproven) computational assumptions, which are conjectured to be computationally intractable. In this course, we will define several cryptographic primitives and argue their security based on well-studied computational hardness assumptions. However, we will largely ignore the mathematics underlying the assumed computational intractability assumptions.
+
+\section*{Acknowledgements}
+These lecture notes are based on scribe notes taken by students in CS 276 over the years. Also, thanks to Peihan Miao, Akshayaram Srinivasan, and Bhaskar Roberts for helping to improve these notes.
+%%
+% Start the main matter (normal chapters)
+\newcommand{\sanjam}[1]{{\color{red} Sanjam: #1}}
+
+\newcommand{\bhaskar}[1]{{\color{ForestGreen} Bhaskar: #1}}
+
+
+\mainmatter
+\chapter{Mathematical Background}
+\label{sec:mb}
+
+In modern cryptography, (1) we typically assume that our attackers cannot run in unreasonably large amounts of time, and (2) we allow security to be broken with a \emph{very small}, but non-zero, probability.
+
+Without these assumptions, we must work in the realm of information-theoretic cryptography, which is often unachievable or impractical for many applications. For example, the one-time pad
+\DIFdelbegin \DIFdel{--- }\DIFdelend \DIFaddbegin \footnote{\DIFadd{For a message \mbox{%DIFAUXCMD
+$m \in \{0,1\}^n$
+}%DIFAUXCMD
+and a random key \mbox{%DIFAUXCMD
+$k \in \{0,1\}^n$
+}%DIFAUXCMD
+, the encryption of \mbox{%DIFAUXCMD
+$m$
+}%DIFAUXCMD
+is \mbox{%DIFAUXCMD
+$c = m \oplus k$
+}%DIFAUXCMD
+. The decryption is \mbox{%DIFAUXCMD
+$m = c \oplus k$
+}%DIFAUXCMD
+.}}
+\DIFadd{-- }\DIFaddend an information-theoretically secure cipher \DIFdelbegin \DIFdel{--- }\DIFdelend \DIFaddbegin \DIFadd{-- }\DIFaddend is not very useful because it requires very large keys.
+
+In this chapter, we define items (1) and (2) more formally. We require our adversaries to run in polynomial time, which captures the idea that their runtime is not unreasonably large (sections~\ref{ssec:ppt}). We also allow security to be broken with negligible -- very small -- probability (section ~\ref{ssec:nnf}). 
+
+
+\section{Probabilistic Polynomial Time}
+\label{ssec:ppt}
+A probabilistic Turing Machine is a generic computer that is allowed to make random choices during its execution. A probabilistic \textit{polynomial time} Turing Machine is one which halts in time polynomial in its input length. More formally:
+
+\begin{definition}[Probabilistic Polynomial Time]
+A probabilistic Turing Machine $M$ is said to be PPT (a Probabilistic Polynomial Time Turing Machine) if $\exists c \in \mathbb{Z}^+$ such that $\forall x \in\{0,1\}^*$, $M(x)$ halts in $|x|^c$ steps.
+\end{definition}
+
+A {\em non-uniform} PPT Turing Machine is a collection of machines one for each input length, as opposed to a single machine that must work for all input lengths.
+
+\begin{definition}[Non-uniform PPT]
+A non-uniform PPT machine is a sequence of Turing Machines $\{ M_1, M_2, \cdots \}$ such that $\exists c \in \mathbb{Z}^+$ such that $\forall x \in\{0,1\}^*$, $M_{|x|}(x)$ halts in $|x|^c$ steps.
+\end{definition}
+
+
+
+\section{Noticeable and Negligible Functions}
+\label{ssec:nnf}
+Noticeable and negligible functions are used to characterize the ``largeness'' or ``smallness'' of a function describing the probability of some event.  Intuitively, a noticeable function is required to be larger than some inverse-polynomially function in the input parameter. On the other hand, a negligible function must be smaller than any inverse-polynomial function of the input parameter. More formally:
+
+
+\begin{definition}[Noticeable Function]
+A function $\mu(\cdot): \mathbb{Z}^+ \rightarrow [0,1]$ is noticeable iff $\exists c \in \mathbb{Z}^+, n_0 \in \mathbb{Z}^+$ such that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\forall n \geq n_0 , \; \mu(n) \geq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\forall n \geq n_0 , \; \mu(n) > n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend .
+\end{definition}
+
+\paragraph{Example.} Observe that $\mu(n) = n^{-3}$ is a noticeable function.  (Notice that the above definition is satisfied for \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$c = 3$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$c = 4$
+}%DIFAUXCMD
+}\DIFaddend and $n_0 = 1$.)
+
+\begin{definition}[Negligible Function]
+A function $\mu(\cdot): \mathbb{Z}^+ \rightarrow [0,1]$ is negligible iff $\forall c \in \mathbb{Z}^+ \; \exists n_0 \in \mathbb{Z}^+$ such that $\forall n \geq n_0 , \; \mu(n) < n^{-c}$.
+\end{definition}
+
+\paragraph{Example.} $\mu(n) = 2^{-n}$ is an example of a negligible function. This can be observed as follows.
+Consider an arbitrary $c \in \mathbb{Z}^+$ and set $n_0 = c^2$. Now, observe that for all $n \geq n_0$, we have that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\frac{n}{\log_2 n} \geq \frac{n_0}{\log_2 n_0} \geq \frac{n_0}{\sqrt{n_0}} = \sqrt{n_0} = c$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\frac{n}{\log_2 n} \geq \frac{n_0}{\log_2 n_0} > \frac{n_0}{\sqrt{n_0}} = \sqrt{n_0} = c$
+}%DIFAUXCMD
+}\DIFaddend . This allows us to conclude that $$\mu(n) = 2^{-n} = n^{-\frac{n}{\log_2 n}} \DIFdelbegin \DIFdel{\leq }\DIFdelend \DIFaddbegin \DIFadd{< }\DIFaddend n^{-c}.$$
+
+Thus, we have proved that for any $c \in \mathbb{Z}^+$, there exists $n_0 \in \mathbb{Z}^+$ such that for any $n \geq n_0$, \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu(n) \leq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu(n) < n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend .
+
+\paragraph{Gap between Noticeable and Negligible Functions.}
+At first thought it might seem that a function that is {not} negligible (or, a non-negligible function) must be a noticeable. This is not true!\cite{JC:Bellare02} Negating the definition of a negligible function, we obtain that a non-negligible function $\mu(\cdot)$ is such that $\exists c \in \mathbb{Z}^+$ such that $\forall n_0 \in \mathbb{Z}^+$, $\exists n \geq n_0$ such that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu(n) \geq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu(n) > n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend .
+Note that this requirement is satisfied as long as \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu(n) \geq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu(n) > n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend for infinitely many choices of $n \in \mathbb{Z}^+$. However, a noticeable function requires this condition to be true for every $n \geq n_0$.
+
+Below we give example of a function $\mu(\cdot)$ that is neither negligible nor noticeable.
+$$\mu(n) = \Big\{
+\begin{array}{ll}
+  2^{-n} & : x \mod 2 = 0\\
+  n^{-3} & : x \mod 2 \neq 0
+\end{array}
+$$
+This function is obtained by interleaving negligible and  noticeable functions. It cannot be negligible (resp., noticeable) because it is greater (resp., less) than an inverse-polynomially function for infinitely many input choices.
+
+\paragraph{Properties of Negligible Functions.} Sum and product of two negligible functions is still a negligible function. We argue this for the sum function below and defer the problem for products to Exercise~\ref{ex:product}. \DIFaddbegin \DIFadd{These properties together imply that any polynomial function of a negligible function is still negligible.
+}\DIFaddend 
+
+\begin{exercise}
+If $\mu(n)$ and $\nu(n)$ are negligible functions from domain $\mathbb{Z}^+$ to range $[0,1]$ then prove that the following functions are also negligible:
+\begin{enumerate}
+    \item $\psi_1(n) = \frac{1}{2} \cdot \left(\mu(n) + \nu(n)\right)$
+    \item \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\psi_2(n) = \mu(n)\cdot \nu(n)$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\psi_2(n) = \min\{\mu(n) + \nu(n), 1\}$
+}%DIFAUXCMD
+}\DIFaddend \item \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\psi_3(n) = \mathsf{poly}(\mu(n))$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\psi_3(n) = \mu(n)\cdot \nu(n)$
+}%DIFAUXCMD
+}\item \DIFadd{\mbox{%DIFAUXCMD
+$\psi_4(n) = \mathsf{poly}(\mu(n))$
+}%DIFAUXCMD
+}\DIFaddend , where $\mathsf{poly}(\cdot)$ is an unspecified polynomial function. \DIFaddbegin \DIFadd{(Assume that the output is also clamped to \mbox{%DIFAUXCMD
+$[0,1]$
+}%DIFAUXCMD
+to satisfy the definition)
+}\DIFaddend \end{enumerate}function.
+\end{exercise}
+\proof 
+$ $
+\begin{enumerate}
+    \item We need to show that for any $c \in \mathbb{Z}^+$, we can find $n_0$ such that $\forall n \geq n_0$, $\psi_1(n) \leq n^{-c}$. Our argument proceeds as follows. Given the fact that $\mu$ and $\nu$ are negligible we can conclude that there exist $n_1$ and $n_2$ such that $\forall n \geq n_1$, \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu(n) \leq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu(n) < n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend and $\forall n \geq n_2$, \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$g(n) \leq n^{-c}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$g(n) < n^{-c}$
+}%DIFAUXCMD
+}\DIFaddend . Combining the above two facts and setting $n_0 = \max(n_1, n_2)$ we have that for every $n \geq n_0$,
+    \begin{align*}
+        \psi_1(n) &= \frac{1}{2} \cdot (\mu(n) + \nu(n)) \DIFdelbegin \DIFdel{\leq }\DIFdelend \DIFaddbegin \DIFadd{< }\DIFaddend \frac{1}{2} \cdot (n^{-c} + n^{-c}) = n^{-c}
+    \end{align*}
+    Thus, $\psi_1(n) \leq n^{-c}$ and hence is negligible.
+\DIFaddbegin 
+
+    \item \DIFadd{We need to show that for any \mbox{%DIFAUXCMD
+$c \in \mathbb{Z}^+$
+}%DIFAUXCMD
+, we can find \mbox{%DIFAUXCMD
+$n_0$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$\forall n \geq n_0$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$\psi_2(n) \leq n^{-c}$
+}%DIFAUXCMD
+. Given the fact that \mbox{%DIFAUXCMD
+$\mu$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$\nu$
+}%DIFAUXCMD
+are negligible, there exist \mbox{%DIFAUXCMD
+$n_1$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$n_2$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$\forall n \geq n_1$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$\mu(n) \leq n^{-c-1}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$\forall n \geq n_2$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$g(n) \leq n^{-c-1}$
+}%DIFAUXCMD
+. Setting \mbox{%DIFAUXCMD
+$n_0 = \max(n_1, n_2, 3)$
+}%DIFAUXCMD
+we have that for every \mbox{%DIFAUXCMD
+$n \geq n_0$
+}%DIFAUXCMD
+,
+    }\begin{align*}
+        \DIFadd{\psi_2(n) }&\DIFadd{= \min\{\mu(n) + \nu(n), 1\} < n^{-c-1} + n^{-c-1} < n^{-c}
+    }\end{align*}
+\DIFaddend \end{enumerate}
+\qed
+
+%\begin{corollary}
+%If $f(n)$ is non-negligible and $g(n)$ is negligible, then $h(n) = f(n) - g(n)$ is non-negligible.
+%\end{corollary}
+%
+%\proof If $h(n)$ was negligible, then $f(n) = g(n) + h(n)$ would be the sum of two negligible functions, but would be non-negligible, which is a contradiction.  \qed
+
+
+\newcommand{\binset}[1]{\{0,1\}^{#1}}
+\newcommand{\binfunc}[2]{\binset{#1}\rightarrow\binset{#2}}
+\chapter{One-Way Functions}
+\label{sec:owf}
+
+\label{ssec:owf}
+Cryptographers often attempt to base cryptographic results on conjectured computational assumptions to leverage reduced adversarial capabilities. Furthermore, the security of these constructions is no better than the assumptions they are based on. 
+\DIFdelbegin %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelend \begin{quote}
+\emph{Cryptographers seldom sleep well.}\footnote{Quote by Silvio Micali in personal communication with Joe Kilian.}
+\end{quote}
+\DIFdelbegin %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdelend Thus, basing cryptographic tasks on the \emph{minimal} necessary assumptions is a key \DIFdelbegin \DIFdel{tenant }\DIFdelend \DIFaddbegin \DIFadd{tenet }\DIFaddend in cryptography. Towards this goal, rather can making assumptions about specific computational problem in number theory, cryptographers often consider \emph{abstract primitives}. The existence of these abstract primitives can then be based on one or more computational problems in number theory.
+
+The weakest abstract primitive cryptographers consider is one-way functions. Virtually, every cryptographic goal of interest is known to imply the existence of one-way functions. In other words, most cryptographic tasks would be impossible if the existence of one-way functions was ruled out. On the flip side, the realizing cryptographic \DIFdelbegin \DIFdel{taks }\DIFdelend \DIFaddbegin \DIFadd{tasks }\DIFaddend from just one-way functions would be ideal. 
+
+\section{Definition}
+A one-way function $f: \{0,1\}^n \rightarrow \{0,1\}^m$ is a function that is easy to compute but hard to invert. This intuitive notion is trickier to formalize than it might appear on first thought.
+
+\begin{definition}[One-Way Functions]
+A function $f : \binset{*} \rightarrow \binset{*}$ is said to be one-way function if:
+\begin{itemize}
+\item[-] \textbf{Easy to Compute:} $\exists$ a (deterministic) polynomial time machine $M$ such that $\forall x \in \binset{*}$ we have that \[M(x) = f(x)\]
+\DIFaddbegin 
+
+\DIFaddend \item[-] \textbf{Hard to Invert:} $\forall$ non-uniform PPT adversary $\mathcal{A}$ we have that
+    \begin{equation}\label{eq:owf}
+    \mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))]
+     \end{equation}
+     is a negligible function,  $x \overset{\$}{\leftarrow} \binset{n}$ denotes that $x$ is drawn uniformly at random from the set $\binset{n}$, $f^{-1}(f(x)) = \{x' \mid f(x) = f(x')\}$, and the probability is over the random choices of $x$ and the random coins of $\mathcal{A}$\DIFaddbegin \footnotemark\DIFaddend .
+\end{itemize}
+\end{definition}
+
+\DIFaddbegin \marginpar{
+\begin{tikzpicture}
+    % ellipse
+    \draw[black,fill=blue!10] (0,0) ellipse (1cm and 2cm)
+    node at (0,0) {\mbox{%DIFAUXCMD
+$\{0,1\}^n$
+}%DIFAUXCMD
+};
+    \draw[black,fill=blue!10] (3,0) ellipse (1cm and 2cm) 
+    node at (3,0) {\mbox{%DIFAUXCMD
+$\{0,1\}^m$
+}%DIFAUXCMD
+};
+    % lines connecting ellipses
+    \draw[green!40!black!100, thick, ->] (0.5,0.75) -- (2.5,0.75) node[midway, above] {Easy to Compute};
+    \draw[red!40!black!100, thick, ->] (2.5,-0.75) -- (0.5,-0.75) node[midway, below] {Hard to Invert};
+\end{tikzpicture}
+}
+
+
+\footnotetext{\DIFadd{Typically, the probability is only taken over the random choices of \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+, since we can fix the random coins of the adversary \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+that maximize its advantage.}}
+
+\DIFadd{We note that the function is not necessarily one-to-one. In other words, it is possible that \mbox{%DIFAUXCMD
+$f(x) = f(x')$
+}%DIFAUXCMD
+for \mbox{%DIFAUXCMD
+$x \neq x'$
+}%DIFAUXCMD
+-- and the adversary is allowed to output any such \mbox{%DIFAUXCMD
+$x'$
+}%DIFAUXCMD
+.
+}
+
+\DIFaddend The above definition is rather delicate. We next describe problems in the slight variants of this definition that are insecure.
+
+\begin{enumerate}
+\item What if we require that
+    $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] = 0$ instead of being negligible?
+
+This condition is false for every function $f$. An adversary $\mathcal{A}$ that outputs an arbitrarily fixed value $x_0$ succeeds with probability at least $1/2^{n}$, as $x_0 = x$ with at least the same probability.
+
+\item  What if we drop the input $1^n$ to $\mathcal{A}$ in Equation~\ref{eq:owf}?
+
+Consider the function $f(x) = |x|$.  In this case, we have that $m = \log_2 n$, or $n = 2^m$.  Intuitively, $f$ should not be considered a one-way function, because it is easy to invert $f$. Namely, given a value $y$ any $x$ such that $|x| = y$ is such that $x \in f^{-1}(y)$.  However, according to this definition the adversary gets an $m$ bit string as input, and hence is restricted to running in time polynomial in $m$. Since each possible $x$ is of size $n = 2^m$, the adversary doesn't even have enough time to write down the answer!  Thus, according to the flawed definition above, $f$ would be a one-way function.
+
+Providing the attacker with $1^n$ ($n$ repetitions of the $1$ bit) as additional input avoids this issue.  In particular, it allows the attacker to run in time polynomial in $m$ and $n$.
+\end{enumerate}
+
+\paragraph{\DIFdelbegin \DIFdel{A }\DIFdelend Candidate One-way \DIFdelbegin \DIFdel{Function}\DIFdelend \DIFaddbegin \DIFadd{Functions}\DIFaddend .}
+It is not known whether one-way functions exist. \DIFdelbegin \DIFdel{The }\DIFdelend \DIFaddbegin \DIFadd{In fact, the }\DIFaddend existence of one-way functions would imply that $P \neq NP$ (see Exercise~\ref{ex:PNP})\DIFdelbegin \DIFdel{, and so of course we do not know of any concrete functions that have been proved to be one-way}\DIFdelend . 
+
+However, there are candidates of functions that could be one-way functions\DIFaddbegin \DIFadd{, based on the difficulty of certain computational problems}\DIFaddend . One example is based on the hardness of factoring. Multiplication can be done easily in $O(n^2)$ time, but so far no polynomial time algorithm is known for factoring.
+\DIFaddbegin \DIFadd{Explicitly, we can define the function \mbox{%DIFAUXCMD
+$f_1 : P_n \times P_n \rightarrow \mathbb{Z}$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$P_n$
+}%DIFAUXCMD
+is the set of all \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+-bit primes as \mbox{%DIFAUXCMD
+$f_1(p, q) = p \cdot q$
+}%DIFAUXCMD
+.
+}\DIFaddend 
+
+\DIFdelbegin \DIFdel{One candidate might be to say that given an input }\DIFdelend %DIF >  One candidate might be to say that given an input $x$, split $x$ into its left and right halves $x_1$ and $x_2$, and then output $x_1 \times x_2$.  However, this is not a one-way function, because with probability $\frac{3}{4}$, $2$ will be a factor of $x_1 \times x_2$, and in general the factors are small often enough that a non-negligible number of the outputs could be factored in polynomial time.
+\DIFaddbegin 
+
+%DIF >  To improve this, we again split $x$ into $x_1$ and $x_2$, and use $x_1$ and $x_2$ as seeds in order to generate large primes $p$ and $q$, and then output $pq$.  Since $p$ and $q$ are primes, it is hard to factor $pq$, and so it is hard to retrieve $x_1$ and $x_2$.  This function is believed to be one-way.
+
+\DIFadd{Another candidate is based on the hardness of the discrete logarithm problem. Given a group \mbox{%DIFAUXCMD
+$\mathbb{G}$
+}%DIFAUXCMD
+of prime order \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+and a generator \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+, the discrete logarithm problem is to find }\DIFaddend $x$ \DIFdelbegin \DIFdel{, split \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+into its left and right halves \mbox{%DIFAUXCMD
+$x_1$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$x_2$
+}%DIFAUXCMD
+, and then output \mbox{%DIFAUXCMD
+$x_1 \times x_2$
+}%DIFAUXCMD
+.
+However, this is not a }\DIFdelend \DIFaddbegin \DIFadd{such that \mbox{%DIFAUXCMD
+$g^x = y$
+}%DIFAUXCMD
+for a given \mbox{%DIFAUXCMD
+$y$
+}%DIFAUXCMD
+. The function \mbox{%DIFAUXCMD
+$f_2 : \mathbb{Z}_q \rightarrow \mathbb{G}$
+}%DIFAUXCMD
+defined as \mbox{%DIFAUXCMD
+$f_2(x) = g^x$
+}%DIFAUXCMD
+is also believed to be }\DIFaddend one-way \DIFaddbegin \DIFadd{assuming the hardness of the discrete logarithm problem.
+}
+
+
+\section{\DIFadd{Robustness and Brittleness of One-way Functions}}
+\DIFadd{What operations can we perform on one-way functions and still have a one-way function? In this section, we explore the robustness and brittleness of one-way functions and some operations that are safe or unsafe to perform on them.
+}
+
+\subsection{\DIFadd{Robustness}}
+\DIFadd{Consider having a one-way }\DIFaddend function \DIFdelbegin \DIFdel{, because with probability \mbox{%DIFAUXCMD
+$\frac{3}{4}$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$2$
+}%DIFAUXCMD
+will be a factor of \mbox{%DIFAUXCMD
+$x_1 \times x_2$
+}%DIFAUXCMD
+, and in general the factors are small often enough that a non-negligible number of the outputs could be factored in polynomial time.
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+.  Can we use this function \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+in order to make a more structured one-way function \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$g(x_0) = y_0$
+}%DIFAUXCMD
+for some constants \mbox{%DIFAUXCMD
+$x_0, y_0$
+}%DIFAUXCMD
+, or would this make the function no longer be one-way? 
+}\DIFaddend 
+
+\DIFdelbegin \DIFdel{To improve this }\DIFdelend \DIFaddbegin \DIFadd{Intuitively, the answer is yes - we can specifically set \mbox{%DIFAUXCMD
+$g(x_0) = y_0$
+}%DIFAUXCMD
+, and otherwise have \mbox{%DIFAUXCMD
+$g(x) = f(x)$
+}%DIFAUXCMD
+.  In this case, the adversary gains the knowledge of how to invert \mbox{%DIFAUXCMD
+$y_0$
+}%DIFAUXCMD
+, but that will only happen with negligible probability}\DIFaddend , \DIFdelbegin \DIFdel{we again split }\DIFdelend \DIFaddbegin \DIFadd{and so the function is still one-way.
+}
+
+%DIF >  \begin{theorem}
+%DIF >  Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.
+%DIF >  \end{theorem}
+
+\DIFadd{In fact, this can be done for an exponential number of \mbox{%DIFAUXCMD
+$x_0, y_0$
+}%DIFAUXCMD
+pairs. To illustrate that, consider the following function:
+}\[
+  \DIFadd{g(x_1\|x_2) = \left\{ \begin{array}{ll} x_1\|x_2 & : x_1 = 0^{n/2} \\ f(x_1\|x_2) & : \text{otherwise} \end{array} \right.
+}\]
+
+\DIFadd{However, this raises an apparent contradiction - according to this theorem, given a one-way function \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+, we could keep fixing each of its values to \mbox{%DIFAUXCMD
+$0$
+}%DIFAUXCMD
+, and it would continue to be a one-way function.  If we kept doing this, we would eventually end up with a function which outputs 0 for }{\em \DIFadd{all}} \DIFadd{of the possible values of }\DIFaddend $x$\DIFdelbegin \DIFdel{into \mbox{%DIFAUXCMD
+$x_1$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$x_2$
+}%DIFAUXCMD
+, and use \mbox{%DIFAUXCMD
+$x_1$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$x_2$
+}%DIFAUXCMD
+as seeds in order to generate large primes \mbox{%DIFAUXCMD
+$p$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+, and then output \mbox{%DIFAUXCMD
+$pq$
+}%DIFAUXCMD
+.  Since \mbox{%DIFAUXCMD
+$p$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+are primes, it is hard to factor \mbox{%DIFAUXCMD
+$pq$
+}%DIFAUXCMD
+, and so it is hard to retrieve \mbox{%DIFAUXCMD
+$x_1$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$x_2$
+}%DIFAUXCMD
+.  This function is believed to }\DIFdelend \DIFaddbegin \DIFadd{.  How could this still be one-way?}\\
+
+\DIFadd{The resolution of this apparent paradox is by noticing that a one-way function is only required to be one-way in the limit where \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+grows very large.  So, no matter how many times we fix the values of \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+to }\DIFaddend be \DIFaddbegin \DIFadd{0, we are still only setting a finite number of \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+values to 0.  However, this will still satisfy the definition of a }\DIFaddend one-way \DIFaddbegin \DIFadd{function - it is just that we will have to use larger and larger values of \mbox{%DIFAUXCMD
+$n_0$
+}%DIFAUXCMD
+in order to prove that the probability of breaking the one-way function is negligible}\DIFaddend .
+
+%DIF < \section{Modifying One-way Functions}
+%DIF < 
+%DIF < \subsection{Fixing Certain Values of a One-way Function}
+%DIF < 
+%DIF < Consider having a one-way function $f$.  Can we use this function $f$ in order to make a one-way function $g$ such that $g(x_0) = y_0$ for some constants $x_0, y_0$, or would this make the function no longer be one-way?\\
+%DIF < 
+%DIF < Intuitively, the answer is yes - we can specially set $g(x_0) = y_0$, and otherwise have $g(x) = f(x)$.  In this case, the adversary gains the knowledge of how to invert $y_0$, but that will only happen with negligible probability, and so the function is still one-way.
+%DIF < 
+%DIF < \begin{theorem}
+%DIF < Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.
+%DIF < \end{theorem}
+%DIF < 
+%DIF < The proof is given in the appendix.\\
+%DIF < 
+%DIF < However, this raises an apparent contradiction - according to this theorem, given a one-way function $f$, we could keep fixing each of its values to $0$, and it would continue to be a one-way function.  If we kept doing this, we would eventually end up with a function which outputs 0 for {\em all} of the possible values of $x$.  How could this still be one-way?\\
+%DIF < 
+%DIF < The resolution of this apparent paradox is by noticing that a one-way function is only required to be one-way in the limit where $n$ grows very large.  So, no matter how many times we fix the values of $f$ to be 0, we are still only setting a finite number of $x$ values to 0.  However, this will still satisfy the definition of a one-way function - it is just that we will have to use larger and larger values of $n_0$ in order to prove that the probability of breaking the one-way function is negligible.
+\DIFdelbegin %DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\section{\DIFdel{Composability of One-Way Functions}}
+%DIFAUXCMD
+\addtocounter{section}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \subsection{\DIFadd{Brittleness}}
+\DIFaddend Given a one-way function $f : \binfunc{n}{n}$, is the function $f^2(x) = f(f(x))$ also a one-way function?  Intuitively, it seems that if it is hard to invert $f(x)$, then it would be just as hard to invert $f(f(x))$. 
+\DIFdelbegin %DIFDELCMD < \sanjam{Explain the intuitive reduction that doesn't work.}  %%%
+\DIFdelend %DIF >  \sanjam{Explain the intuitive reduction that doesn't work.}  
+However, this intuition is incorrect and highlights the delicacy when working with cryptographic assumptions and primitives. In particular, assuming one-way functions exists we describe a one-way function \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$f: \{0,1\}^{n/2}\times \{0,1\}^{n/2} \rightarrow \{0,1\}^{n}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$f: \{0,1\}^{n}\times \{0,1\}^{n} \rightarrow \{0,1\}^{2n}$
+}%DIFAUXCMD
+}\DIFaddend such that $f^2$ can be efficiently inverted.
+Let $g: \{0,1\}^n \rightarrow \{0,1\}^n$ be a one-way function then we set $f$ as follows:
+$$f(x_1,x_2) = \DIFdelbegin %DIFDELCMD < \left\{
+%DIFDELCMD < \begin{array}{ll}
+%DIFDELCMD <   0^{n} & : \text{if } x_1 = 0^{n/2} \\
+%DIFDELCMD <   0^{n/2}\|g(x_2) & : \text{otherwise}
+%DIFDELCMD < \end{array}
+%DIFDELCMD < \right.%%%
+\DIFdelend \DIFaddbegin \DIFadd{0^{n}\|g(x_1)}\DIFaddend $$
+Two observations follow:
+\begin{enumerate} 
+  \item $f^2$ is not one-way. This follows from the fact that for all inputs $x_1, x_2$ we have that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$f^2(x_1,x_2) = 0^n$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$f^2(x_1,x_2) = 0^{2n}$
+}%DIFAUXCMD
+}\DIFaddend . This function is clearly not one-way!
+  \item $f$ is one-way. This can be argued as follows. Assume that there exists an adversary $\mathcal{A}$ such that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))]$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{2n}, f(x)) \in f^{-1}(f(x))]$
+}%DIFAUXCMD
+}\DIFaddend is non-negligible. Using such an $\mathcal{A}$ we will describe a construction of adversary $\mathcal{B}$ such that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu_{\mathcal{B},g}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, g(x)) \in g^{-1}(g(x))]$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\allowbreak\mu_{\mathcal{B},g}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, g(x)) \in g^{-1}(g(x))]$
+}%DIFAUXCMD
+}\DIFaddend is also non-negligible. This would be a contradiction thus proving our claim.
+
+      \textbf{Description of $\mathcal{B}$}: $\mathcal{B}$ on input $y \in\{0,1\}^n$ outputs the $n$ lower-order bits of  $\mathcal{A}(1^{2n}, 0^{n}\|y)$.
+
+      Observe that if $\mathcal{A}$ successfully inverts $f$ then we have that $\mathcal{B}$ successfully inverts $g$. More formally, we have that:
+      $$\mu_{\mathcal{B},g}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{2n}, 0^n || g(x)) \in \{0,1\}^n || g^{-1}(g(x))\right].$$
+      \DIFdelbegin \DIFdel{Note that
+      }\DIFdelend \DIFaddbegin \DIFadd{But
+      }\DIFaddend \begin{align*}
+      \mu_{\mathcal{A},f}(2n) =& \Pr_{x_1, x_2 \stackrel{\$}{\leftarrow} \binset{2n}}[ \mathcal{A}(1^{2n}, f(x_1, x_2)) \in f^{-1}(f(\tilde x))]\\
+      \DIFdelbegin \DIFdel{\leq }%DIFDELCMD < & %%%
+\DIFdel{\Pr_{x_1 \stackrel{\$}{\leftarrow} \binset{n}}[x_1 = 0^n] +  \Pr_{x_1 \stackrel{\$}{\leftarrow} \binset{n}}[x_1 \neq 0^n] \Pr_{x_2 \stackrel{\$}{\leftarrow} \binset{n}} }%DIFDELCMD < [ %%%
+\DIFdel{\mathcal{A}(1^{2n}, 0^n || g(x_2)) \in \{0,1\}^n || g^{-1}(g(x_2))}%DIFDELCMD < ]\\
+%DIFDELCMD <       %%%
+\DIFdelend = & \DIFdelbegin \DIFdel{\frac{1}{2^n} + }%DIFDELCMD < \left( %%%
+\DIFdel{1-\frac{1}{2^n}}%DIFDELCMD < \right)%%%
+\DIFdel{\cdot}\DIFdelend \Pr\DIFdelbegin \DIFdel{_{x_2 \stackrel{\$}{\leftarrow} \binset{n}} }%DIFDELCMD < [ %%%
+\DIFdel{\mathcal{A}(1^{2n}, 0^n || g(x_2)) \in \{0,1\}^n || g^{-1}(g(x_2))}%DIFDELCMD < ]%%%
+\DIFdelend \DIFaddbegin \DIFadd{_{x_1 \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{2n}, 0^n || g(x_2)) \in \{0,1\}^n || g^{-1}(g(x_2))] }\DIFaddend \\
+      = & \DIFdelbegin \DIFdel{\frac{1}{2^n} + }%DIFDELCMD < \left( %%%
+\DIFdel{1-\frac{1}{2^n}}%DIFDELCMD < \right)%%%
+\DIFdel{\cdot}\DIFdelend \mu_{\mathcal{B},g}(n).
+      \end{align*}
+      \DIFdelbegin \DIFdel{Rewriting the above expression}\DIFdelend \DIFaddbegin \DIFadd{Hence}\DIFaddend , we have that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\mu_{\mathcal{B},g}(n) = \frac{\mu_{\mathcal{A},f}(2n) - \frac{1}{2^n}}{1- \frac{1}{2^n}}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\mu_{\mathcal{B},g}(n) = \mu_{\mathcal{A},f}(2n)$
+}%DIFAUXCMD
+}\DIFaddend which is non-negligible as long as $\mu_{\mathcal{A},f}(2n)$  is non-negligible.
+\end{enumerate}
+
+
+%\begin{lemma}
+%If $f : \binfunc{n}{n}$ is a one-way function, then $g : \binfunc{2n}{2n}$ defined as $g(x) = 0^n \concat f(x_{[1:n]})$ is also one-way.\\
+%\end{lemma}
+%\proof
+%Assume towards contradiction that $g$ is not one-way, and so there is an adversary $A_g$ that inverts $g$ with probability $\mu(2n)$ that is non-negligible.\\
+%
+%Note that $\mu(2n)$ is also non-negligible with respect to inputs of size $n$.\\
+
+%Then we can define an adversary $A_f$ such that $A_f(y) = (A_g(0^n \concat y))_{[1:n]}$.  Note that $A_g$ breaks $g$ on input $0^n \concat y$ $\implies$ $A_f$ breaks $f$ on input $y$, and so $A_f$ breaks $f$ with at least non-negligible probability $\mu(2n)$.  Contradiction.\\
+%
+%Thus, $g$ is also one-way.  \qed\\
+%
+%Now, given a function $f : \binfunc{n}{n}$, we can construct a new one-way function $g : \binfunc{2n}{2n}$.  From $g$, we can construct another one-way function $h : \binfunc{2n}{2n}$ defined by:
+%
+%$h(x) = \left\{
+%\begin{array}{lr}
+%  0^{2n} & : x_{[1:n]} = 0^n \\
+%  g(x) & : otherwise
+%\end{array}
+%\right.$
+
+%A generalization of the previous theorem (fixing values in a one-way function) shows that $h$ is also a one-way function.  (In short, we are only fixing the values of $\frac{2^n}{2^{2n}} = \frac{1}{2^n}$ of all of the possible values of $x$.  Since we are only fixing a negligible fraction of the possible values of $x$, the same proof with slight modifications still applies.)\\
+%
+%So, $h$ is a one-way function.  However, $h^2(x) = h(h(x)) = 0^{2n}$, and so $h^2$ is clearly not a one-way function.  Thus, composing one-way functions is not guaranteed to give another one-way function. \qed
+
+
+
+\newcommand{\bin}{\{0,1\}}
+\newcommand{\adv}{\mathcal{A}}
+\newcommand{\advb}{\mathcal{B}}
+\newcommand{\advc}{\mathcal{C}}
+%\usepackage[utf8]{inputenc}
+%\usepackage{amsmath,amssymb,fullpage}
+
+
+\DIFdelbegin \section{\DIFdel{Examples}}
+%DIFAUXCMD
+\addtocounter{section}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \DIFadd{Below is another example of a transformation that does not work.
+%DIF >  The goal of this section is to illustrate the general strategy for the problems of the form,
+%DIF >  \begin{center}
+%DIF >  \textit{``If $f$ is one-way function, then show that $f'$ (derived from $f$) is not a one-way function"}
+%DIF >  \end{center}
+%DIF >  Some of the examples include:
+%DIF >  \begin{itemize}
+%DIF >  \item If $f$ is a one-way function, prove that $f'$ defined as $f(f(\cdot))$ is not one-way.
+%DIF >  \item If $f$ is a one-way function, prove that $f'$ defined by dropping the first bit the output of $f$ is not one-way.
+%DIF >  \end{itemize}
+}\DIFaddend 
+
+\DIFdelbegin \DIFdel{The goal of this section is to illustrate the general strategy for the problems of the form,
+}%DIFDELCMD < \begin{center}
+%DIFDELCMD < %%%
+\textit{\DIFdel{``If \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+is one-way function, then show that \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+(derived from \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+) is not a one-way function"}}
+%DIFAUXCMD
+%DIFDELCMD < \end{center}
+%DIFDELCMD < %%%
+\DIFdel{Some of the examples include:
+}%DIFDELCMD < \begin{itemize}
+\begin{itemize}%DIFAUXCMD
+%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{If \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+is a one-way function, prove that \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+defined as \mbox{%DIFAUXCMD
+$f(f(\cdot))$
+}%DIFAUXCMD
+is not one-way.
+}%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{If \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+is a one-way function, prove that \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+defined by dropping the first bit the output of \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+is not one-way.
+}
+\end{itemize}%DIFAUXCMD
+%DIFDELCMD < \end{itemize}
+%DIFDELCMD < %%%
+\DIFdelend %DIF >  In order to give such a proof, we need to give an example of an one-way function $f$ and show that $f'$ (derived from $f$) is not one-way. The general strategy for these types of problems is the following:
+%DIF >  \begin{enumerate}
+%DIF >  \item Come up with a contrived function $g$ and show that $g$ is one-way. 
+%DIF >  \item Construct the new function $g'$ that is derived from $g$.
+%DIF >  \item Show that $g'$ can be inverted with non-negligible probability and thus show that $g'$ is not one-way.
+%DIF >  \end{enumerate}
+%DIF >  The reason why we need to come-up with a contrived function is that for specific one-way function $f$, $f'$ (derived from $f$) could be one-way. To see why this is the case, consider a one-way function $f: \bin^n \rightarrow \bin^n$ that is additionally injective. Then, one can show that $f^2(\cdot)$ is in fact a one-way function.\footnote{Try to prove this!} On the other hand, in the previous section, we showed that there exists a (contrived) function $g$ such that $g$ is one-way but $g^2$ is not one-way.
+%DIF >  Hence, we might not always be able to start from any one-way function $f$ and show that $f'$ (derived from $f$) is not one-way. The first step where we come up a suitable $g$ requires some ingenuity. Once that is done, the second and the third steps would generally be not so hard.
+
+\DIFdelbegin \DIFdel{In order to give such a proof, we need to give an example of an one-way function \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+and show that \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+(derived from \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+) is not one-way. The general strategy for these types of problems is the following:
+}%DIFDELCMD < \begin{enumerate}
+\begin{enumerate}%DIFAUXCMD
+%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Come up with a contrived function \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+and show that \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+is one-way. 
+}%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Construct the new function \mbox{%DIFAUXCMD
+$g'$
+}%DIFAUXCMD
+that is derived from \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+.
+}%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdel{Show that \mbox{%DIFAUXCMD
+$g'$
+}%DIFAUXCMD
+can be inverted with non-negligible probability and thus show that \mbox{%DIFAUXCMD
+$g'$
+}%DIFAUXCMD
+is not one-way.
+}
+\end{enumerate}%DIFAUXCMD
+%DIFDELCMD < \end{enumerate}
+%DIFDELCMD < %%%
+\DIFdel{The reason why we need to come-up with a contrived function is that for specific one-way function \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+(derived from \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+) could be one-way. To see why this is the case, consider a one-way function \mbox{%DIFAUXCMD
+$f: \bin^n \rightarrow \bin^n$
+}%DIFAUXCMD
+that is additionally injective. Then, one can show that \mbox{%DIFAUXCMD
+$f^2(\cdot)$
+}%DIFAUXCMD
+is in fact a one-way function.}\footnote{\DIFdel{Try to prove this!}} %DIFAUXCMD
+\addtocounter{footnote}{-1}%DIFAUXCMD
+\DIFdel{On the other hand, in the previous section, we showed that there exists a (contrived) function \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+is one-way but \mbox{%DIFAUXCMD
+$g^2$
+}%DIFAUXCMD
+is not one-way.
+Hence, we might not always be able to start from any one-way function \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+and show that \mbox{%DIFAUXCMD
+$f'$
+}%DIFAUXCMD
+(derived from \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+) is not one-way. The first step where we come up a suitable \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+requires some ingenuity. Once that is done, the second and the third steps would generally be not so hard.
+}%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdel{To illustrate these three steps, let us consider a concrete example. We want to }\DIFdelend %DIF >  To illustrate these three steps, let us consider a concrete example. 
+\DIFaddbegin 
+
+\DIFadd{We }\DIFaddend show that if $f$ is one-way then $f'$ that is defined by dropping the first bit of the output of $f$ is not one-way.
+
+
+\DIFdelbegin \paragraph{\DIFdel{Step-1: Designing the function \mbox{%DIFAUXCMD
+$g$
+}%DIFAUXCMD
+.}} %DIFAUXCMD
+\addtocounter{paragraph}{-1}%DIFAUXCMD
+\DIFdelend %DIF >  \paragraph{Step-1: Designing the function $g$.} 
+We want to come up with a (contrived) function $g$ and prove that it is one-way.
+Let us assume that there exists a one-way function $h : \bin^n \rightarrow \bin^n$. We define the function $g : \bin^{2n} \rightarrow \bin^{2n}$ as follows:
+$$
+g(x\|y) = \begin{cases}
+ 0^{n}\|y &\text{    if } x = 0^n\\
+1\|0^{n-1}\|g(y) &\text{    otherwise }
+\end{cases}
+$$
+\begin{claim}
+If $h$ is a one-way function, then so is $g$.
+\end{claim}
+\begin{proof}
+Assume for the sake of contradiction that $g$ is not one-way. Then there exists a polynomial time adversary $\adv$ and a non-negligible function $\mu(\cdot)$ such that:
+$$
+\Pr_{x,y}[\adv(1^n,g(x\|y)) \in g^{-1}(g(x\|y))] = \mu(n)
+$$
+We will use such an adversary $\adv$ to invert $h$ with some non-negligible probability. This contradicts the one-wayness of $h$ and thus our assumption that $g$ is not one-way function is false.
+
+Let us now construct an $\advb$ that uses $\adv$ and inverts $h$. $\advb$ is given $1^n,h(y)$ for a randomly chosen $y$ and its goal is to output $y' \in h^{-1}(h(y))$ with some non-negligible probability. $\advb$ works as follows:
+\begin{enumerate}
+\item It samples $x \gets \bin^n$ randomly.
+\item If $x = 0^n$, it samples a random $y' \gets \bin^n$ and outputs it.
+\item Otherwise, it runs $\adv(10^{n-1}\|h(y))$ and obtains $x' \| y'$. It outputs $y'$.
+\end{enumerate}
+
+Let us first analyze the running time of $\advb$. The first two steps are clearly polynomial (in $n$) time. In the third step, $\advb$ runs $\adv$ and uses its output. Note that the running time of since $\adv$ runs in polynomial (in $n$) time, this step also takes polynomial (in $n$) time. Thus, the overall running time of $\advb$ is polynomial (in $n$).
+
+Let us now calculate the probability that $\advb$ outputs the correct inverse. If $x = 0^n$, the probability that $y'$ is the correct inverse is at least $\frac{1}{2^n}$ (because it guesses $y'$ randomly and probability that a random $y'$ is the correct inverse is $\geq 1/2^n$). On the other hand, if $x \neq 0^n$, then the probability that $\advb$ outputs the correct inverse is $\mu(n)$. Thus,
+\begin{eqnarray*}
+\Pr[\advb(1^n,h(y)) \in h^{-1}(h(y))] & \geq & \Pr[x = 0^n](\frac{1}{2^n}) + \Pr[x \neq 0^n]\mu(n)\\
+& = & \frac{1}{2^{2n}} + (1 - \frac{1}{2^n}) \mu(n) \\
+& \geq & \mu(n) - (\frac{1}{2^{n}} - \frac{1}{2^{2n}})
+\end{eqnarray*}
+
+Since $\mu(n)$ is a non-negligible function and $(\frac{1}{2^{n}} - \frac{1}{2^{2n}})$ is a negligible function, their difference is non-negligible.\footnote{Exercise: Prove that if $\alpha(\cdot)$ is a non-negligible function and $\beta(\cdot)$ is a negligible function, then $(\alpha - \beta)(\cdot)$ is a non-negligible function.} This contradicts the one-wayness of $h$.
+
+\end{proof}
+
+\DIFdelbegin \paragraph{\DIFdel{Step-2: Constructing \mbox{%DIFAUXCMD
+$g'$
+}%DIFAUXCMD
+.}} %DIFAUXCMD
+\addtocounter{paragraph}{-1}%DIFAUXCMD
+\DIFdelend %DIF >  \paragraph{Step-2: Constructing $g'$.} 
+We construct the new function $g': \bin^{2n} \rightarrow \bin^{2n-1}$ by dropping the first bit of $g$. That is,
+$$
+g'(x\|y) = \begin{cases}
+ 0^{n-1}\|y &\text{    if } x = 0^n\\
+0^{n-1}\|g(y) &\text{    otherwise }
+\end{cases}
+$$
+
+\DIFdelbegin \paragraph{\DIFdel{Step-3: Inverting \mbox{%DIFAUXCMD
+$g'$
+}%DIFAUXCMD
+.}} %DIFAUXCMD
+\addtocounter{paragraph}{-1}%DIFAUXCMD
+\DIFdelend %DIF >  \paragraph{Step-3: Inverting $g'$.} 
+We now want to prove that $g'$ is not one-way. That is, we want to design an adversary $\advc$ such that given $1^{2n}$ and $g'(x \| y)$ for a randomly chosen $x,y$, it outputs an element in the set $g^{-1}(g(x \| y)$. The description of $\advc$ is as follows:
+
+\begin{itemize}
+\item On input $1^{2n}$ and $g'(x \| y)$, the adversary $\advc$ parses $g'(x \| y)$ as $0^{n-1} \| \overline{y}$.
+\item It outputs $0^{n} \| \overline{y}$ as the inverse.
+\end{itemize}
+Notice that $g'(0^{n} \| \overline{y}) = 0^{n-1} \| \overline{y}$. Thus, $\advc$ succeeds with probability $1$ and this breaks the one-wayness of $g'$.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hardness Amplification}
+\label{sec:owf:amplify}
+In this section, we show that even a very \emph{weak} form of one-way functions suffices from constructing one-way functions as defined previously. For this section, we refer to this previously defined notion as strong one-way functions.
+\begin{definition}[Weak One-Way Functions]
+A function $f : \binset{n} \rightarrow \binset{m}$ is said to be a weak one-way function if:
+\begin{itemize}
+\item[-] $f$ is computable by a polynomial time machine, and
+\item[-] There exists a noticeable function $\alpha_f(\cdot)$ such that $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+    $$
+    \mu_{\mathcal{A},f}(n) =
+    \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] \leq 1 - \alpha_{f}(n).
+    $$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}\label{theorem:weakstrongOWF}
+If there exists a weak one-way function, then there exists a (strong) one-way function.
+\end{theorem}
+
+\proof We prove the above theorem constructively. Suppose $f : \binset{n} \rightarrow \binset{m}$ is a weak one-way function, then we prove that the function $g: \binset{nq} \rightarrow \binset{mq}$ for $q = \lceil \frac{2n}{\alpha_{f}(n)} \rceil$ where 
+$$g(x_1, x_2, \cdots, x_q) = f(x_1) || f(x_2) || \cdots || f(x_q),$$
+ is a strong one-way function.
+
+Assume for the sake of contradiction that there exists an adversary $\mathcal{B}$ such that $\mu_{\mathcal{B},g}(nq) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x)) \in g^{-1}(g(x))]$ is non-negligible.
+%Suppose $\mu_{\mathcal{A},g}(nq) \geq \tilde \mu_{\mathcal{A},g}(nq)$ for arbitrarily large $n$, where $\tilde  \mu_{\mathcal{A},g}$ is a noticeable function.\peihan{to ensure that $T$ is poly}
+Then we use $\mathcal{B}$ to construct $\mathcal{A}$ (see Figure~\ref{fig:adv:weak}) that breaks $f$, namely $\mu_{\mathcal{A},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) \in f^{-1}(f(x))] > 1 - \alpha_f(n)$ for sufficiently large $n$.
+\begin{marginfigure}[-5cm]
+%\Loop { $T=\frac{4n^2}{\alpha_f(n) \mu_{\mathcal{B}, g}(nq)}$ times}
+\begin{enumerate}
+    \item $i \stackrel{\$}{\leftarrow} [q]$.
+    \item $x_1, \cdots, x_{i-1}, x_i, \cdots, x_q \stackrel{\$}{\leftarrow} \binset{n}$.
+    \item Set $y_j = f(x_j)$ for each $j \in [q]\backslash \{i\}$ and $y_i = y$.
+    \item $(x'_1, x'_2, \cdots, x'_q) := \mathcal{B} (f(x_1), f(x_2), \cdots, f(x_q))$.
+    \item {$f(x'_i) = y$} then output $x'_i$ else $\bot$.
+\end{enumerate}
+\caption{Construction of $\mathcal{A}(1^n, y)$}
+\label{fig:adv:weak}
+\end{marginfigure}
+
+Note that: (1) $\mathcal{A}(1^n, y)$ iterates at most $T = \frac{4n^2}{\alpha_f(n)\mu_{\mathcal{B},g}(nq)}$ times each call is polynomial time. (2) $\mu_{\mathcal{B},g}(nq)$ is a non-negligible function. This implies that for infinite choices of $n$ this value is greater than some noticeable function. Together these two facts imply that for infinite choices of $n$ the running time of $\mathcal{A}$ is bounded by a polynomial function in $n$.
+
+It remains to show that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^n, f(x)) = \bot] < \alpha_f(n)$ for arbitrarily large $n$. A natural way to argue this is by showing that at least one execution of $\mathcal{B}$ should suffice for inverting $f(x)$. However, the technical challenge in proving this formally is that these calls to $\mathcal{B}$ aren't independent. Below we formalize this argument even when these calls aren't independent.\marginnote[-5cm]{\begin{lemma}
+Let $A$ be any an efficient algorithm such that $\Pr_{x,r}[A(x,r) =1] \geq \epsilon$. Additionally, let $G = \{x\mid \geq \Pr_{r}[A(x,r) =1] \geq \frac{\epsilon}{2}\}$. Then, we have $\Pr_x[x \in G] \geq \frac{\epsilon}{2}$.
+\end{lemma}
+\begin{proof}
+The proof of this lemma follows by a very simple counting argument. Let's start by assuming that $\Pr_x[x \in G] < \frac{\epsilon}{2}$. Next, observe that
+\begin{align*}
+\Pr_{x,r}&[A(x,r) =1]& \\&= \Pr_x[x \in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \in G] \\&+ \Pr_x[x \not\in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \not\in G]
+\\&< \frac{\epsilon}{2}\cdot 1 + 1\cdot\frac{\epsilon}{2}
+\\&< \epsilon,
+\end{align*}
+which is a contradiction.
+\end{proof}
+}
+
+Define the set $S$ of ``bad'' $x$'s, which are hard to invert:
+$$S := \left\{x \left| \Pr_\mathcal{B}\left[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} \right] \leq \frac{\alpha_f(n) \mu_{\mathcal{B},g}(nq)}{4n} \right. \right\}.$$
+We start by proving that the size of $S$ is small. More formally,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S] \leq \frac{\alpha_f(n)}{2}.$$
+Assume, for the sake of contradiction,\marginnote{\begin{lemma}
+Let $A$ be any an efficient algorithm such that $\Pr_{x,r}[A(x_1,\ldots x_n,r) =1] \geq \epsilon$. Additionally, let $G = \{x\mid \geq \Pr_{x_1,\ldots x_n,r}[A(x,r) =1\mid \exists i, x = x_i] \geq \frac{\epsilon}{2}\}$. Then, we have $\Pr_x[x \in G] \geq \frac{\epsilon}{2}$.
+\end{lemma}
+\begin{proof}
+The proof of this lemma follows by a very simple counting argument. Let's start by assuming that $\Pr_x[x \in G] < \frac{\epsilon}{2}$. Next, observe that
+\begin{align*}
+\Pr_{x,r}&[A(x,r) =1]& \\&= \Pr_x[x \in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \in G] \\&+ \Pr_x[x \not\in G]\cdot\Pr_{x,r}[A(x,r) =1\mid x \not\in G]
+\\&< \frac{\epsilon}{2}\cdot 1 + 1\cdot\frac{\epsilon}{2}
+\\&< \epsilon,
+\end{align*}
+which is a contradiction.
+\end{proof}
+}
+that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}} [x \in S]  > \frac{\alpha_f(n)}{2}$. Then we have that:
+\begin{align*}
+\mu_{\mathcal{B},g}(nq) =& \Pr_{(x_1, \cdots, x_q) \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q))]\\
+=&  \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \forall i: x_i \notin S]\\
+& + \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge \exists i: x_i \in S]\\
+\leq& \Pr_{x_1, \cdots, x_q}[ \forall i: x_i \notin S]
++ \sum_{i=1}^q \Pr_{x_1, \cdots, x_q}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge  x_i \in S]\\
+\leq& \left( 1-\frac{\alpha_f(n)}{2}\right)^q
++ q \cdot \Pr_{x_1, \cdots, x_q,i}[ \mathcal{B}(1^{nq}, g(x_1, \cdots, x_q)) \in g^{-1}(g(x_1, \cdots, x_q)) \wedge x_i \in S] \\
+=& \left( 1-\frac{\alpha_f(n)}{2}\right)^{\frac{2n}{\alpha_f(n)}}
++  q\cdot \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, \mathcal{B}}[\mathcal{A} \text{ inverts $f(x)$ in a single iteration}  \wedge x \in S]\\
+\leq& e^{-n} + q\cdot  \Pr_{x}[x \in S] \cdot \Pr[\mathcal{A} \text{ inverts $f(x)$ in a single iteration} ~|~ x \in S]\\
+\leq& e^{-n} + \frac{2n}{\alpha_f(n)} \cdot  1 \cdot \frac{\mu_{\mathcal{B},g}(nq) \cdot \alpha_f(n)}{4n}\\
+\leq& e^{-n} + \frac{\mu_{\mathcal{B},g}(nq)}{2}.
+\end{align*}
+Hence $\mu_{\mathcal{B},g}(nq) \leq 2 e^{-n}$, contradicting with the fact that $\mu_{\mathcal{B},g}$ is non-negligible.
+Then we have
+\begin{align*}
+\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}&[ \mathcal{A}(1^n, f(x)) = \bot]\\
+=& \Pr_x[x \in S] + \Pr_x [x \notin S]\cdot\Pr[\mathcal{B} \text{ fails to invert $f(x)$ in every iteration} | x \notin S]\\
+\leq& \frac{\alpha_f(n)}{2}+ \left(\Pr[ \mathcal{B} \text{ fails to invert $f(x)$ a single iteration} | x \notin S] \right)^T\\
+\leq & \frac{\alpha_f(n)}{2}+ \left( 1-\frac{\mu_{\mathcal{A},g}(nq) \cdot \alpha_f(n)}{4n}\right)^T\\
+\leq& \frac{\alpha_f(n)}{2} + e^{-n} \leq \alpha_f(n)
+\end{align*}
+for sufficiently large $n$. This concludes the proof.
+\qed
+
+
+\section{Levin's One-Way Function}
+\begin{theorem}\label{thm:levin}
+If there exists a one-way function, then there exists an explicit function $f$ that is one-way  (constructively).
+\end{theorem}
+
+\begin{lemma}\label{lem:n2owf}
+If there exists a one-way function computable in time $n^c$ for a constant $c$, then there exists a one-way function computable in time $n^2$.
+\end{lemma}
+\proof
+Let $f: \binset{n} \rightarrow \binset{n}$ be a one-way function computable in time $n^c$.
+Construct $g: \binset{n+n^c} \rightarrow \binset{n+n^c}$ as follows:
+$$g(x,y) = f(x) || y$$
+where $x \in \binset{n}, y \in \binset{n^c}$.
+$g(x,y)$ takes time $2n^c$, which is linear in the input length.
+
+We next show that $g(\cdot)$ is one-way.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},g}(n+n^c) = \Pr_{(x,y) \stackrel{\$}{\leftarrow} \binset{n+n^c}}[ \mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))]$ is non-negligible. Then we use $\mathcal{A}$ to construct $\mathcal{B}$ such that $\mu_{\mathcal{B},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, f(x)) \in f^{-1}(f(x))]$ is also non-negligible.
+
+$\mathcal{B}$ on input $z \in\{0,1\}^n$, samples $y \stackrel{\$}{\leftarrow} \binset{n^c}$, and outputs the $n$ higher-order bits of  $\mathcal{A}(1^{n+n^c}, z||y)$. Then we have
+\begin{align*}
+\mu_{\mathcal{B},g}(n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, y \stackrel{\$}{\leftarrow} \binset{n^c}}\left[\mathcal{A}(1^{n+n^c}, f(x) || y) \in f^{-1}(f(x)) || \binset{n^c}\right]\\
+\geq&\Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in f^{-1}(f(x)) || y\right]\\
+=& \Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))\right]
+\end{align*}
+is non-negligible.
+\qed
+
+\bigskip
+\proof[of Theorem~\ref{thm:levin}]
+We first construct a weak one-way function $h: \binset{n} \rightarrow \binset{n}$ as follows:
+$$
+h(M,x) = \left\{
+\begin{array}{ll}
+M || M(x) & \text{if $M(x)$ takes no more than $|x|^2$ steps} \\
+M || 0 & \text{otherwise}
+\end{array}
+\right.
+$$
+where $|M| = \log n, |x| = n - \log n$ (interpreting $M$ as the code of a machine  and $x$ as its input).
+If $h$ is weak one-way, then we can construct a one-way function from $h$ as we discussed in Section~\ref{sec:owf:amplify}.
+
+It remains to show that if one-way functions exist, then $h$ is a weak one-way function, with $\alpha_h(n) = \frac{1}{n^2}$.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},h}(n) = \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))]\geq 1-\frac{1}{n^2}$ for all sufficiently large $n$.
+By the existence of one-way functions and Lemma~\ref{lem:n2owf}, there exists a one-way function $\tilde M$ that can be computed in time $n^2$. Let $\tilde M$ be the uniform machine that computes this one-way function.
+We will consider values $n$ such that $n > 2^{|\tilde M|}$. In other words for these choices of $n$, $\tilde M$ can be described using $\log n$ bits.
+We construct $\mathcal{B}$ to invert $\tilde M$: on input $y$ outputs the $(n-\log n)$ lower-order bits of $\mathcal{A}(1^n, \tilde M||y)$. Then
+\begin{align*}
+\mu_{\mathcal{B},\tilde M}(n-\log n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \binset{\log n} || \tilde M^{-1}(\tilde M((x))\right]\\
+\geq& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \tilde{M} || \tilde M^{-1}(\tilde M((x))\right].
+\end{align*}
+Observe that for sufficiently large $n$ it holds that
+\begin{align*}
+1-\frac{1}{n^2} \leq& \mu_{\mathcal{A},h}(n)\\
+=& \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))\right]\\
+\leq& \Pr_{M }[M = \tilde M] \cdot \Pr_{x }\left[ \mathcal{A}(1^{n}, \tilde M||\tilde M(x)) \in  \tilde{M} || \tilde M^{-1}(\tilde M((x))\right] + \Pr_{M }[M \neq \tilde M]  \\
+\leq&  \frac{1}{n} \cdot \mu_{\mathcal{B},\tilde M}(n-\log n) +\frac{n-1}{n}.
+\end{align*}
+Hence $\mu_{\mathcal{B},\tilde M}(n-\log n) \geq \frac{n-1}{n}$  for sufficiently large $n$ which is a contradiction.
+\qed
+
+\newpage
+\section*{Exercises}
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ and $\nu(\cdot)$ are negligible functions then show that $\mu(\cdot) \cdot \nu(\cdot)$ is a negligible function.
+\end{exercise}
+
+\begin{exercise}
+\label{ex:product} If $\mu(\cdot)$ is a negligible function and $f(\cdot)$ is a function polynomial in its input then show that $\mu(f(\cdot))$\footnote{Assume that $\mu$ and $f$ are such that $\mu(f(\cdot))$ takes inputs from $\mathbb{Z}^+$ and outputs values in $[0,1]$.} are negligible functions.
+\end{exercise}
+
+\begin{exercise}\label{ex:PNP} Prove that the existence of one-way functions implies $P \neq NP$.
+\end{exercise}
+
+\begin{exercise}
+Prove that there is no one-way function $f:\{0,1\}^n\to \{0,1\}^{\lfloor \log_2 n\rfloor}$.
+\end{exercise}
+
+
+\begin{exercise} Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be any one-way function then is $f'(x) \stackrel{def}{=} f(x)\oplus x$ necessarily one-way?
+\end{exercise}
+
+\begin{exercise}
+Prove or disprove: If $f: \{0,1\}^n\rightarrow \{0,1\}^n$ is a one-way function, then $g: \{0,1\}^n\rightarrow \{0,1\}^{n-\log n}$ is a one-way function, where $g(x)$ outputs the $n-\log n$ higher order bits of $f(x)$.
+\end{exercise}
+
+\begin{exercise}
+Explain why the proof of Theorem~\ref{theorem:weakstrongOWF} fails if the attacker $\mathcal{A}$ in Figure~\ref{fig:adv:weak} sets $i = 1$ and not $i \stackrel{\$}{\leftarrow} \{1, 2, \cdots, q\}$.
+\end{exercise}
+
+\begin{exercise}
+Given a (strong) one-way function construct a weak one-way function that is not a (strong) one-way function.
+\end{exercise}
+
+\begin{exercise}
+ Let $f:\{0,1\}^n\to \{0,1\}^{n}$ be a weak one-way permutation (a weak one way function that is a bijection). More formally, $f$ is a PPT computable one-to-one function such that $\exists$ a constant $c >0$ such that $\forall$ non-uniform PPT machine $A$ and $\forall$ sufficiently large $n$ we have that:
+    \[\Pr_{x,A}[A(f(x)) \not\in f^{-1}(f(x))] > \frac{1}{n^c}\]
+
+     Show that $g(x) = f^T(x)$ is not a strong one way permutation. Here $f^T$ denotes the $T$ times self composition of $f$ and $T$ is a polynomial in $n$.
+
+     Interesting follow up reading if interested: With some tweaks the function above can be made a strong one-way permutation using explicit constructions of expander graphs. See Section 2.6 in \url{http://www.wisdom.weizmann.ac.il/~oded/PSBookFrag/part2N.ps}
+\end{exercise}
+
+
+\newcommand{\ma}{\mathcal{A}}
+\chapter{Pseudorandomness}
+
+\section{Distinguishability Between Two Distributions}
+\sanjam{add}
+\section{Computational Indistinguishability}
+
+Defining indistinguishability between two distributions by a computationally bounded adversary turns out be tricky. In particular, It is tricky to define for a single pair of distributions because the length of the output of a random variable is a constant. Therefore, in order for ``computationally bounded'' adversaries to make sense, we have to work with infinite families of probability distributions.
+
+\begin{definition}
+An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT machines $\ma$, the quantities
+$$p(n) := \Pr[\ma(1^n, X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
+and
+$$q(n) := \Pr[\ma(1^n,Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
+differ by a negligible amount; i.e. $|p(n) - q(n)|$ is negligible in $n$.    
+This equivalence is denoted by
+$$\{X_n\}_n\approx \{Y_n\}_n$$
+\end{definition}
+We now prove some properties of computationally indistinguishable ensembles that will be useful later on.
+
+\begin{lemma}[Sunglass Lemma]
+If $\{X_n\}_n\approx\{Y_n\}_n$ and $P$ is a PPT machine, then
+
+$$\{P(X_n)\}_n\approx \{P(Y_n)\}_n$$
+\end{lemma}
+
+\proof
+Consider an adversary $\ma$ that can distinguish $\{P(X_n)\}_n$ from $\{P(Y_n)\}_n$ with non-negligible probability. Then the adversary $\ma\circ P$ can distinguish $\{X_n\}_n$ from $\{Y_n\}_n$ with the same non-negligible probability. Since $P$ and $\ma$ are both PPT machines, the composition is also a PPT machine. This proves the contrapositive of the lemma.
+\qed
+
+
+\begin{lemma}[Hybrid Argument]
+For a polynomial $t:\mathbb{Z}^+\rightarrow\mathbb{Z}^+$ let the $t$-product of $\{Z_n\}_n$ be
+
+$$\{Z_n^{(1)}, Z_n^{(2)},\hdots, Z_n^{(t(n))}\}_n$$
+where the $Z_n^{(i)}$s are independent copies of $Z_n$. If
+$$\{X_n\}_n\approx\{Y_n\}_n$$
+then
+$$\{X_n^{(1)},\hdots,X_n^{(t)}\}_n\approx\{Y_n^{(1)},\hdots,Y_n^{(t)}\}_n$$
+as well.
+\end{lemma}
+
+\begin{proof}
+Consider the set of tuple random variables
+$$H^{(i,t)}_n = (Y_n^{(1)},\hdots,Y_n^{(i)},X_n^{(i+1)},X_n^{(i+2)},\hdots,X_n^{(t)})$$
+for integers $0\le i\le t$. Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference $r(n)$. Suppose that $\ma$ returns 1 with probability $\epsilon_i$ when it runs on samples from $H^{(i,t)}_n$. By definition, $|\epsilon_t - \epsilon_0|\ge r(n)$. By the Triangle Inequality and the Pigeonhole Principle, there is some index $k$ for which
+$|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. This is a contradiction. 
+\qed
+%This is equivalent to trying to distinguish the ensembles $\{(X_n,T_n)\}_n$ from $\{(Y_n,T_n)\}_n$, where $T_n$ is independent of $X_n$ and $Y_n$ ($T_n$ is the random variable representing all coordinates but the $k$-th coordinate). Note that
+%
+%\begin{align*}
+%r(n)/t&\le |Pr[A(Y_n,T_n) = 1] - Pr[A(X_n,T_n) = 1]|\\
+%&= |\sum_{x,t} (Pr[Y_n = x,T_n = t] - Pr[X_n = x,T_n = t])Pr[A(x,t) = 1]|\\
+%&= |\sum_t Pr[T_n = t]\sum_x (Pr[Y_n = x] - Pr[X_n = x])Pr[A(x,t) = 1]|\\
+%&\le \sum_t Pr[T_n = t]\sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t) = 1]\\
+%\end{align*}
+%
+%so by the probabilistic method there is a $t_0$ for which $r(n)/t\le \sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t_0) = 1]$. This means that $X_n$ can be distinguished from $Y_n$ with probability difference $r(n)/t$, which is non-negligible (a contradiction).
+\end{proof}
+
+
+\iffalse
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a PPT machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ accuracy.
+\qed
+
+\bigskip
+\noindent\textbf{Application: Coin tossing over the phone.}
+Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
+A hard core bit of a one-way permutation can resolve this issue.
+
+Let $f$ be a one-way permutation and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
+\item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
+\item[-] $P_1$ sends back $(x, B(x))$.  $B(x)$ serves as the outcome of the flipping.
+\end{itemize}
+On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
+On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
+
+\section{One-Way Permutations with Hard Core Bits}
+We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
+Before delving into important characteristics of hard core bits for one-way permutations, we consider an interesting application of hard core bits and one-way permutations.
+
+
+
+
+
+\bigskip
+Given a one-way permutation, we can construct a one-way permutation with a hard core bit:
+\begin{theorem}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
+Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$f'(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. It has the hard core bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\proof
+\peihan{TODO...}
+If $\exists$ non-uniform PPT adversary $\ma$ s.t. $\Pr_{x,r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-$neg$, then $\exists$ an adversary $R$ that inverts $f$
+
+	First, note that $f'$ is a OWF function (as per last lecture).  Let $e^i$ be the value/binary string $0\ldots1\ldots0$, where the $1$ is in the $i$th position.\\
+
+\textbf{Super simple case:}\\
+	Assume that $A$ breaks the $B$ with perfect probability/accuracy: $\Pr[A(f'(x,r)) = B(x,r)] = 1$\\
+	We will now construct an adversary $R(f(x))$ which yields $x$\\
+	To invert $f$, $R$:
+	\begin{enumerate}
+		\item For each $i$, $R$ executes $A(f(x) \circ e^i)$
+		\item Then $R$ XOR's (sums, modulo 2) the values from step $1$.  $A(f(x) \circ e^i) \rightarrow B(x, e^i) = \sum_{j=1}^n x_j e_j^i \mod 2  = x_i$
+		\item $R$ concatenates each $x_i$ and returns the value as $x$
+	\end{enumerate}
+	Since $A$ predicts $B(f'(x,r))$ with probability 1, the output of $R$ is produced with probability $1$.\\
+
+To begin with a more complicated case let us consider a set that gives us better probability than that in the theorem - a set that gives $\Pr[E] \ge \frac{1}{2} + \epsilon(n)$ (where $E$ is $A(f'(x,r)) = B(x,r)$ from the theorem statement).
+Let us define this set as $G$ (standing for $Good$):\\
+$\forall_{x \in G} \Pr_{r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \frac{\epsilon(n)}{2}$ with $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$ \\
+\\
+Assuming $\Pr[x \in G] \le \frac{\epsilon(n)}{2}$ implies a contradiction, so it is safe to conclude $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\begin{proof}
+Assume that $\Pr[x \in G] \le \epsilon(n)/2$\\
+$\frac{1}{2}+\epsilon(n) \le \Pr_{x,r,A}[E] = \Pr[E(x) | x \in G] \times \Pr[x \in G] + \Pr[E(x) | x \notin G] \times \Pr[x \notin G]$\\
+$< 1 \times \frac{\epsilon(n)}{2} + (\frac{1}{2}+\frac{\epsilon(n)}{2}) \times 1 \le \frac{\epsilon(n)}{2} + \frac{1}{2}+\frac{\epsilon(n)}{2} = \frac{1}{2}+ \epsilon(n) \not> \frac{1}{2}+ \epsilon(n) contradiction$\\
+$\implies \Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\end{proof}
+\\
+	Observe that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$\\
+	$= (\sum_j x_j r_j + \sum_j x_j r_j \oplus e^i_j) \mod 2$\\
+	$= (\sum_j^{j \not= i} (x_j r_j + x_j r_j)$  $+ x_i r_i + x_i (1-r_i)) \mod 2$\\
+	$= x_i r_i + x_i - x_i r_i = x_i$\\\\
+
+Let us work with the probability: $\Pr_{r}[A(f(x), r) \oplus A(f(x), r \oplus e^i) = x_i]$\\
+		Note that if both A's guess correctly, we get the right/intended answer.
+		The probability of this happening $=$ both A's are right $=$ 1- either one is wrong $\ge  1-\frac{\text{either one is wrong}}{2 (\frac{1}{2}-\epsilon(n))} = 1 - \frac{\text{either one is wrong}}{2 \epsilon(n)}$\\\\
+\textbf{The Simple Case:}\\
+	$\Pr[E(x)] \ge \frac{3}{4}+\frac{\epsilon(n)}{2}$\\
+	This probability, is bounded by $1-2(\frac{1}{4} - \frac{\epsilon(n)}{2}) = \frac{1}{2} + \epsilon(n)$ from the observation before (as $\text{one is wrong} = 1- (\frac{3}{4}+\frac{\epsilon(n)}{2}) = \frac{1}{4} - \frac{\epsilon(n)}{2}$)\\
+	$R$ then runs the two A's polynomial times and uses majority vote.\\
+	We use Chebyshev's inequality to justify the use of majority vote.
+	%read chernov and chebyshev bounds
+
+\subsection{Chebyshev's inequality} %TODO: should this be a subsection or should it be smaller?
+	Let $x_1,\ldots,x_m$ be independent and identical random variables assuming values 0 or 1.  Also, let $\Pr[x_i=1] = p$.\\
+		Then $\Pr[ \lvert \sum x_i - pm \rvert > \delta m] < 1/(4\delta^2 m)$\\
+
+	Let $b_1,\ldots,b_T$ be random bits.\\
+	Let $X_1$ be 1 when $A(r_1) \rightarrow b_1$,\\
+	$X_2$ be 1 when $A(r_2) \rightarrow b_2$,\\
+	$\ldots$\\
+	and let $X_T=1$ when $A(r_T) \rightarrow b_T$.\\
+	Let $T=\frac{2n}{\epsilon(n)^2}$\\\\
+
+The problematic case is:\\
+	$\Pr[ \sum_{i=1}^T X_i \le T/2]$\\
+	$= \Pr[ \sum_{i=1}^T X_i - (\frac{1}{2} + \epsilon(n)) T \le T/2 - (\frac{1}{2}+\epsilon(n))\times T]$\\
+	$< \Pr[ \lvert \sum_{i=1}^T X_i - (\frac{1}{2}+\epsilon(n) T)\rvert > \epsilon(n) \frac{T}{2} ]$\\
+	$< \frac{1}{4 (\epsilon(n)/2)^2 T} = \frac{1}{\epsilon(n)^2 T} = \frac{1}{2n}$ which is sufficient for the theorem\\\\
+
+In order to show that we can use Chebyshev's inequality, we need to show that the samples we are voting over are pairwise independent:\\
+For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in {0,1}} \Pr[x=a \text{and} y=b] = \Pr[x=a] \times \Pr[y=b]$\\
+
+	Imagine we have $(r_1, B(x, r_1)), \ldots, (r_T, B(x,r_T))$\\
+	Let $k = \log(T)$, $S_1, \ldots, S_k \in \{0,1\}^n$ be sampled uniformly, and $b_1 = B(x, S_1), b_2 = B(x, S_2), \ldots, b_k = B(x, S_k)$
+	$\forall_{Y \subseteq [k]}$, $R$ generates $(f(x, \bigoplus_{i \in Y} S_i), \bigoplus_{i \in Y} b_i)$\\
+	(note: $[k]$ is the set $\{1,\ldots, k\}$)\\
+	\\
+	This proof is finished in the next lecture, with some slight changes.
+
+\qed
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%
+\fi
+
+
+\section{Hard Core Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Core Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a polynomial time machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard core bit is hidden because of computational hardness and not information theoretic hardness.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. (We leave this as an exercise!)
+We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ probability.
+\qed
+
+
+
+\paragraph{Application: Coin tossing over the phone.} We next describe an application of hard core bits to coin tossing.
+Consider two parties trying to perform a coin tossing over the phone. In this setting the first party needs to declare its choice as the second one flips the coin. However, how can the first party trust the win/loss response from the second party?  In particular, if the first party calls out ``head'' and then the second party can just lie that it was ``tails.'' We can use hard core bit of a (one-to-one) one-way function to  enable this applications.
+
+Let $f$ be a (one-to-one) one-way function and $B$ be a hard core bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $y$, where $y = f(x)$, to party $P_2$.
+\item[-] $P_2$ sends back a random bit $b$ sampled from $\{0,1\}$.
+\item[-] $P_1$ sends back $(x, B(x))$ to $P_2$. $P_2$ aborts if $f(x) \neq y$.
+\item[-]  Both parties output $B(x)\oplus b$.
+\end{itemize}
+Note that $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$ as he sends back his $b$.
+On the other hand, $P_1$ cannot flip the value $B(x)$ once it has sent $f(x)$ to $P_2$ because $f$ is one-to-one.
+
+
+\section{Hard Core Bit of any One-Way Functions}
+We now show that a slight modification of every one-way function has a hard core bit. More formally,
+\begin{theorem}\label{thm:hard-core-bit}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+Define a function $g:\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$g(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard core bit, namely $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\begin{remark}
+If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard core bit $B(\cdot)$.
+\end{remark}
+\proof
+We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard core bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n)$.
+
+\medskip
+\noindent\textbf{\underline{Super simple case.}}
+Suppose that $\ma$ breaks the $B$ with perfect accuracy:
+$$\Pr_{x,r}[E] =1.$$
+We  now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
+Let $e^i$ be an $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
+On input $f(x)||R$, $\mathcal{B}$ does the following:
+
+\medskip
+\begin{algorithmic}
+\For {$i=1$ \textbf{to} $n$}
+    \State $x'_i \gets \ma(1^{2n}, f(x)||e^i)$
+\EndFor
+\State \Return $x'_1\cdots x'_n || R$
+\end{algorithmic}
+Observe that $B(x,e^i) = \sum_{j=1}^n x_je^i_j = x_i$. Therefore, the probability that $\mathcal{B}$ inverts a single bit successfully is,
+$$\Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=x_i\right] =  \Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=B(x,e^i)\right] = 1.$$
+Hence $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)] = 1$.
+
+
+\bigskip
+\noindent\textbf{\underline{Simple case.}}
+Next moving on to the following more demanding case.
+$$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$
+ where $\epsilon$ is non-negligible.
+Just like the super simple case, we describe our algorithm of $\mathcal{B}$ for inverting $g$.
+On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\For {$i = 1$ \textbf{to} $n$}
+	\For {$t = 1$ \textbf{to} $T = \frac{n}{2\epsilon(n)^2}$}
+		\State $r \stackrel{\$}{\leftarrow} \binset{n}$
+    	\State $x_i^t \leftarrow \ma(f(x)|| r) \oplus \ma(f(x) || r+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^1, \cdots, x_i^T\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+Correctness of $\mathcal{B}$ given that $\ma$ calls output the correct answer follows by observing that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$:
+\begin{align*}
+&B(x,r) \oplus B(x, r\oplus e^i)\\
+=& \sum_j x_j r_j + \sum_j x_j (r_j \oplus e^i_j) \mod 2\\
+=& \sum_{j \not= i} (x_j r_j + x_j r_j) + x_i r_i + x_i (r_i+1) \mod 2\\
+=& x_i.
+\end{align*}
+The key technical challenge in proving that $\mathcal{B}$ inverts $g$ with non-negligible probability arises from the fact that the calls to $\ma$ made during one execution of $\mathcal{B}$ are not independent. In particular, all calls to $\ma$ share the same $x$ and the class $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ use correlated randomness as well. We solve the first issue by showing that exists a large choices of values of $x$ for which $\ma$ still works with large probability. The later issue of lack of independent of $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ will be solved using a union bound.
+
+\noindent Formally, define the set $G$ of ``good'' $x$'s, which are easy for $\ma$  to predict:
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{3}{4} + \frac{\epsilon(n)}{2} \right. \right\}.$$
+We start by proving that the size of $G$ is not small. More formally we claim that,
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$
+Assume, that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] < \frac{\epsilon(n)}{2}$. Then we have the following contradiction:
+\begin{align*}
+\frac{3}{4} + \epsilon(n) \leq& \Pr_{x,r}[E]\\
+=& \Pr_x [x \in G] \Pr_{r}[E| x\in G] + \Pr_x [x \notin G] \Pr_{r}[E | x\notin G]\\
+< & \frac{\epsilon(n)}{2} \cdot 1 + 1\cdot \left(\frac{3}{4}+\frac{\epsilon(n)}{2}\right)  = \frac{3}{4} + \epsilon(n).
+\end{align*}
+For and fixed $x \in G$:
+\begin{align*}
+&\Pr_{r} \left[ \ma(f(x), r) \oplus \ma(f(x), r+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right] + \Pr_{r} \left[ \text{Both $\ma$'s are wrong} \right]\\
+\geq& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right]\\
+\geq& 1-2 \cdot \Pr_{r} \left[ \text{Either $\ma$ is correct} \right]\\
+\geq& 1-2\left(\frac{1}{4} - \frac{\epsilon(n)}{2} \right)
+= \frac{1}{2} + \epsilon(n).
+\end{align*}
+Let $Y_i^t$ be the indicator random variable that $x_i^t = x_i$ (namely, $Y_i^t=1$ with probability  $\Pr[x_i^t = x_i]$ and $Y_i^t=0$ otherwise).
+Note that $Y_i^1, \cdots, Y_i^T$ are independent and identical random variables, and for all $t \in \{1,\ldots, T\}$ we have that $\Pr[Y_i^t=1] = \Pr[x_i^t = x_i] \geq \frac{1}{2} + \epsilon(n)$. Next we argue that majority of $x_i^1, \ldots x_i^T$ coincides with $x_i$ with high probability.
+\begin{align*}
+\Pr[x'_i \neq x_i]
+=& \Pr\left[\sum_{t=1}^T Y_i^t \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \leq \frac{T}{2} - \left(\frac{1}{2} + \epsilon(n) \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \right| \geq \epsilon(n)T \right]\\
+& \text{Let $X_1,\cdots,X_m$ be i.i.d. random variables taking values 0 or 1. Let $\Pr[X_i=1] = p$.}\\
+& \text{By Chebyshev's Inequality, $\Pr\left[ \left| \sum X_i - pm \right| \geq \delta m \right] \leq \frac{1}{4\delta^2 m}$.}\\
+\leq& \frac{1}{4\epsilon(n)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the argument,  we have
+\begin{align*}
+&\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq& \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | x \in G]\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | x \in G]\right)\\
+\geq& \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)}{4}.
+\end{align*}
+
+
+
+\bigskip
+\noindent\textbf{\underline{Real Case.}} Now, we describe the final case where $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n),$
+ where $\epsilon(\cdot)$ is a non-negligible function. The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above. However, just using one call to $\ma$ seems insufficient. The key idea is to just guess one of those values. Very surprisingly this idea along with careful analysis magically works out.
+Just like the previous two case we start by describing the algorithm $\mathcal{B}$. On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+
+\medskip
+\begin{algorithmic}
+\State $T = \frac{2n}{\epsilon(n)^2}$
+	\For {$\ell = 1$ \textbf{to} $\log T$}
+		\State $s_\ell \stackrel{\$}{\leftarrow} \binset{n}$
+		\State $b_\ell \stackrel{\$}{\leftarrow} \{0,1\}$
+	\EndFor
+\For {$i = 1$ \textbf{to} $n$}
+	\ForAll {$L \subseteq \{1,2,\cdots, \log T\}$}
+		\State $S_L :=\bigoplus_{j \in L} s_j$
+		\State $B_L := \bigoplus_{j \in L} b_j$
+		\State $x_i^L \leftarrow B_L \oplus \ma(f(x) || S_L+e^i)$
+	\EndFor
+	\State $x'_i \gets $ the majority of $\{x_i^\emptyset, \cdots, x_i^{[\log T]}\}$
+\EndFor
+\State \Return $x'_1\cdots x'_n||R$
+\end{algorithmic}
+
+\medskip
+The idea is the following. Let $b_\ell$ guess the value of $B(x,s_\ell)$, and with probability $\frac{1}{T}$ all the $b_{\ell}$'s are correct. In that case, it is easy to see that $B_L = B(x, S_L)$ for every $L$. If we follow the same argument as above, then it remains to bound the probability that $\ma(f(x) || S_L+e^i)=B(x, S_L + e^i)$. However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are not independent any more. But we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof. \\
+Just as in the simple case, we define the set $G$ as
+$$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{1}{2} + \frac{\epsilon(n)}{2} \right. \right\},$$
+and with an identical argument we obtain that
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$\\
+Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that (we use the notation $(s)_k$ to denote the $k^{th}$ bit of $s$)
+$$B(x,S_L) = \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k = \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L.$$
+Next given that $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$ we bound the probability,
+\begin{align*}
+\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L+e^i) = x_i \right]
+=& \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L+e^i) = x_i \right]\\
+=& \Pr_{r} \left[ \ma(f(x) || S_L+e^i) =  B(x,S_L +e^i) \right]\\
+\geq& \frac{1}{2} + \frac{\epsilon(n)}{2}.
+\end{align*}
+For $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
+Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
+\begin{align*}
+\Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \leq \frac{T}{2} - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right| \geq \frac{\epsilon(n)}{2} T \right]\\
+& \text{(By Theorem~\ref{thm:Chebyshev})}\\
+\leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
+\end{align*}
+Then, completing the proof, we have that
+\begin{align*}
+\Pr_{x,r}[&\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+\geq&  \Pr\left[\forall \ell \in [\log T], b_\ell = B(x,s_\ell)\right] \\& \cdot  \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\\
+\geq& \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\right)\\
+\geq& \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}.
+\end{align*}
+\qed
+
+\marginnote[-12cm]{
+\noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} Here, for the sake of completeness, we prove the Chebyshev's Inequality.
+\begin{definition}[Pairwise Independence]
+A collection of random variables $\{X_1,\cdots,X_m\}$ is said to be \emph{pairwise independent} if for every pair of random variables $(X_i, X_j), i \neq j$  and every pair of values $(v_i,v_j)$, it holds that
+$$\Pr[X_i = v_i, X_j = v_j] = \Pr[X_i = v_i]\Pr[X_j = v_j].$$
+\end{definition}
+
+\begin{theorem}[Chebyshev's Inequality]\label{thm:Chebyshev}
+Let $X_1,\hdots,X_m$ be pairwise independent and identically distributed binary random variables. In particular, for every $i \in [m]$, $\Pr[X_i = 1] = p$ for some $p\in [0,1]$ and $\Pr[X_i=0]=1-p$. Then it holds that
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq \delta m\right] \leq \frac{1}{4\delta^2m}.$$
+\end{theorem}
+
+\proof
+Let $Y = \sum_i X_i$. Then
+\begin{align*}
+\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| > \delta m\right] &=
+\Pr\left[\left(\sum_{i=1}^m X_i - pm\right)^2> \delta^2 m^2\right]\\
+&\leq \frac{\mathbb{E}\left[\left|Y - pm\right|^2\right]}{\delta^2m^2}\\
+&= \frac{\text{Var}(Y)}{\delta^2m^2}\\
+\end{align*}
+Observe that
+\begin{align*}
+\text{Var}(Y) &= \mathbb{E}\left[Y^2\right] - \left(\mathbb{E}[Y]\right)^2\\
+&= \sum_{i=1}^m \sum_{j=1}^m \left( \mathbb{E}\left[X_iX_j\right] - \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]\right)\\
+& \text{By pairwise independence, for $i \neq j$,  
+$\mathbb{E}\left[X_iX_j\right] = \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]$.}\\
+&= \sum_{i=1}^m \mathbb{E}\left[X_i^2\right] - \mathbb{E}\left[X_i\right]^2\\
+&= mp(1-p).
+\end{align*}
+Hence
+$$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq\delta m\right] \leq \frac{mp(1-p)}{\delta^2m^2} \leq \frac{1}{\delta^2m}.$$
+\qed
+}
+
+
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%
+
+
+
+
+%%
+% The back matter contains appendices, bibliographies, indices, glossaries, etc.
+
+
+
+\backmatter
+
+\bibliography{cryptobib/abbrev0,cryptobib/crypto}
+\bibliographystyle{plainnat}
+
+%\printindex
+
+\end{document}
+
