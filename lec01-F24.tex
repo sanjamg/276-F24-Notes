@@ -177,11 +177,16 @@ Two observations follow:
 % To illustrate these three steps, let us consider a concrete example. 
 
 \paragraph{Example: Dropping a bit is not always secure.}
-Below is another example of a transformation that does not work.
-We construct a function $f$ and show that if $f$ is one-way, then $f'$ that is defined by dropping the first bit of the output of $f$ is not one-way.
+Below is another example of a transformation that does not work. Given any one-way function $g$, let $g'(x)$ be $g(x)$ with the first bit omitted.
+
+\begin{claim}
+$g'$ is not necessarily one-way. In other words, there exists a OWF function $g$ for which $g'$ is not one-way.
+\end{claim}
+\begin{proof}
+We must (1) construct a function $g$, (2) show that $g$ is one-way, and (3) show that $g'$ is not one-way.
 
 
-% \paragraph{Step-1: Designing the function $g$.} 
+\textbf{Step 1: Construct a OWF $g$.} 
 To do this, we first want to come up with a (contrived) function $g$ and prove that it is one-way.
 Let us assume that there exists a one-way function $h : \bin^n \rightarrow \bin^n$. We define the function $g : \bin^{2n} \rightarrow \bin^{2n}$ as follows:
 $$
@@ -190,6 +195,9 @@ g(x\|y) = \begin{cases}
 1\|0^{n-1}\|g(y) &\text{    otherwise }
 \end{cases}
 $$
+
+\textbf{Step 2: Prove that $g$ is one-way.}
+
 \begin{claim}
 If $h$ is a one-way function, then so is $g$.
 \end{claim}
@@ -218,9 +226,10 @@ Let us now calculate the probability that $\advb$ outputs the correct inverse. I
 
 Since $\mu(n)$ is a non-negligible function and $(\frac{1}{2^{n}} - \frac{1}{2^{2n}})$ is a negligible function, their difference is non-negligible.\footnote{Exercise: Prove that if $\alpha(\cdot)$ is a non-negligible function and $\beta(\cdot)$ is a negligible function, then $(\alpha - \beta)(\cdot)$ is a non-negligible function.} This contradicts the one-wayness of $h$.
 
-\end{proof}
+\end{proof} 
 
-% \paragraph{Step-2: Constructing $g'$.} 
+
+\textbf{Step 3: Prove that $g'$ is not one-way.} 
 We construct the new function $g': \bin^{2n} \rightarrow \bin^{2n-1}$ by dropping the first bit of $g$. That is,
 $$
 g'(x\|y) = \begin{cases}
@@ -229,7 +238,6 @@ g'(x\|y) = \begin{cases}
 \end{cases}
 $$
 
-% \paragraph{Step-3: Inverting $g'$.} 
 We now want to prove that $g'$ is not one-way. That is, we want to design an adversary $\advc$ such that given $1^{2n}$ and $g'(x \| y)$ for a randomly chosen $x,y$, it outputs an element in the set $g^{-1}(g(x \| y)$. The description of $\advc$ is as follows:
 
 \begin{itemize}
@@ -237,3 +245,5 @@ We now want to prove that $g'$ is not one-way. That is, we want to design an adv
 \item It outputs $0^{n} \| \overline{y}$ as the inverse.
 \end{itemize}
 Notice that $g'(0^{n} \| \overline{y}) = 0^{n-1} \| \overline{y}$. Thus, $\advc$ succeeds with probability $1$ and this breaks the one-wayness of $g'$.
+
+\end{proof}
