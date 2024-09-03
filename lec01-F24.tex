@@ -186,7 +186,7 @@ $g'$ is not necessarily one-way. In other words, there exists a OWF function $g$
 We must (1) construct a function $g$, (2) show that $g$ is one-way, and (3) show that $g'$ is not one-way.
 
 
-\textbf{Step 1: Construct a OWF $g$.} 
+\noindent\textbf{Step 1: Construct a OWF $g$.} 
 To do this, we first want to come up with a (contrived) function $g$ and prove that it is one-way.
 Let us assume that there exists a one-way function $h : \bin^n \rightarrow \bin^n$. We define the function $g : \bin^{2n} \rightarrow \bin^{2n}$ as follows:
 $$
@@ -196,7 +196,7 @@ g(x\|y) = \begin{cases}
 \end{cases}
 $$
 
-\textbf{Step 2: Prove that $g$ is one-way.}
+\noindent\textbf{Step 2: Prove that $g$ is one-way.}
 
 \begin{claim}
 If $h$ is a one-way function, then so is $g$.
@@ -229,7 +229,7 @@ Since $\mu(n)$ is a non-negligible function and $(\frac{1}{2^{n}} - \frac{1}{2^{
 \end{proof} 
 
 
-\textbf{Step 3: Prove that $g'$ is not one-way.} 
+\noindent\textbf{Step 3: Prove that $g'$ is not one-way.} 
 We construct the new function $g': \bin^{2n} \rightarrow \bin^{2n-1}$ by dropping the first bit of $g$. That is,
 $$
 g'(x\|y) = \begin{cases}
