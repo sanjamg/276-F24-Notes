@@ -33,18 +33,20 @@ A function $f : \binset{*} \rightarrow \binset{*}$ is said to be one-way functio
 \end{itemize}
 \end{definition}
 
-\marginpar{
+\begin{marginfigure}[-10cm]
 \begin{tikzpicture}
     % ellipse
-    \draw[black,fill=blue!10] (0,0) ellipse (1cm and 2cm)
+    \draw[black,fill=yellow!50] (0,0) ellipse (1cm and 2cm)
     node at (0,0) {$\{0,1\}^n$};
-    \draw[black,fill=blue!10] (3,0) ellipse (1cm and 2cm) 
+    \draw[black,fill=orange!50] (3,0) ellipse (1cm and 2cm) 
     node at (3,0) {$\{0,1\}^m$};
     % lines connecting ellipses
     \draw[green!40!black!100, thick, ->] (0.5,0.75) -- (2.5,0.75) node[midway, above] {Easy to Compute};
-    \draw[red!40!black!100, thick, ->] (2.5,-0.75) -- (0.5,-0.75) node[midway, below] {Hard to Invert};
+    \draw[red!40!black!100, thick, dashed, ->] (2.5,-0.75) -- (0.5,-0.75) node[midway, below] {Hard to Invert};
 \end{tikzpicture}
-}
+\caption{Visulizing One-way Funcations}
+\label{fig:owf}
+\end{marginfigure}
 
 
 \footnotetext{Typically, the probability is only taken over the random choices of $x$, since we can fix the random coins of the adversary $\mathcal{A}$ that maximize its advantage.}
