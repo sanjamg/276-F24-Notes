@@ -1,0 +1,162 @@
+\section{Pseudorandom Generators}
+Now, we can define pseudorandom generators, which intuitively generates a polynomial number of bits that are indistinguishable from being uniformly random:
+\begin{definition}
+A function $G:\{0,1\}^n\rightarrow \{0,1\}^{n+m}$ with $m = poly(n)$ is called a \emph{pseudorandom generator} if
+\begin{itemize}
+\item $G$ is computable in polynomial time.
+\item $U_{n+m}\approx G(U_n)$, where $U_k$ denotes the uniform distribution on $\{0,1\}^k$.
+\end{itemize}
+\end{definition}
+
+
+\subsection{PRG Extension}
+In this section we show that any pseudorandom generator that produces one bit of randomness can be extended to create a polynomial number of bits of randomness.
+
+\begin{construction}
+Given a PRG $G: \{0, 1\}^n \rightarrow \{0, 1\} ^ {n+1}$,
+we construct a new PRG $F: \{0, 1\}^n \rightarrow \{0, 1\} ^{n+l}$ as follows ($l$ is polynomial in $n$).
+\begin{enumerate}[label=(\alph*)]
+    \item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
+    \item $\forall i \in [l] = \{1, 2, \cdots, l\}$, $(\sigma_i, S_i) := G(S_{i-1})$, where $\sigma_i \in \{0, 1\}, S_i \in \{0, 1\}^n$ .
+    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
+\end{enumerate}
+\end{construction}
+
+\begin{theorem}
+The function $F$ constructed above is a PRG.
+\end{theorem}
+
+\proof
+We prove this by hybrid argument. Define the hybrid $H_i$ as follows.
+\begin{enumerate}[label=(\alph*)]
+	\item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
+    \item $\sigma_1, \sigma_2, \cdots, \sigma_i \xleftarrow{\$} \{0, 1\}$, $S_i \gets S_0$.\\
+     $\forall j \in \{i+1, i+2, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
+    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
+\end{enumerate}
+Note that $H_0 \equiv F$, and $H_l \equiv U_{n+l}$.
+
+Assume for the sake of contradiction that there exits a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ form $H_l$.
+Define $\epsilon_i := \Pr[\ma(1^n, H_i)=1]$ for $i = 0, 1, \cdots, l$.
+Then there exists a non-negligible function $v(n)$ such that $|\epsilon_0 - \epsilon_l| \geq v(n)$.
+Since
+\[
+|\epsilon_0 - \epsilon_1| +
+|\epsilon_1 - \epsilon_2| +
+\cdots +
+|\epsilon_{l-1} - \epsilon_l| \geq
+|\epsilon_0 - \epsilon_l|
+\geq v(n),
+\]
+there exists $k \in \{0, 1, \cdots, l-1\}$ such that
+\[
+|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
+\]
+$l$ is polynomial in $n$, hence $\frac{v(n)}{l}$ is also a non-negligible function.
+That is to say, $\ma$ can distinguish $H_{k}$ from $H_{k+1}$.
+Then we use $\ma$ to construct an adversary $\mathcal{B}$ that can distinguish $U_{n+1}$ from $G(U_n)$ (which leads to a contradiction):
+On input $T \in \{0, 1\}^{n+1}$ ($T$ could be either from $U_{n+1}$ or $G(U_n)$), $\mathcal{B}$ proceeds as follows:
+\begin{itemize}
+\item $\sigma_1, \sigma_2, \cdots, \sigma_k \xleftarrow{\$} \{0, 1\}$, $(\sigma_{k+1}, S_{k+1}) \gets T$.
+\item $\forall j \in \{k+2, k+3, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
+\item Output: $\ma(1^n, \sigma_1 \sigma_2 \cdots \sigma_l S_l)$.
+\end{itemize}
+
+First, since $\ma$ and $G$ are both PPT computable, $\mathcal{B}$ is also PPT computable.
+
+Second, if $T\gets G(U_n)$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of  $H_{k}$; if $T \stackrel{\$}\leftarrow U_{n+1}$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of $H_{k+1}$.
+Hence
+\begin{align*}
+&\big|\Pr[\mathcal{B}(1^n, G(U_n)) = 1] - \Pr[\mathcal{B}(1^n, U_{n+1}) = 1]\big|\\
+=& \big|\Pr[\ma(1^n,H_k) = 1] - \Pr[\ma(1^n,H_{k+1}) = 1]\big|\\
+=&
+|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
+\end{align*}
+\qed
+
+\subsection{PRG from OWP (One-Way Permutations)}
+In this section we show how to construct pseudorandom generators under the assumption that one-way permutations exist.
+
+\begin{construction}
+Let $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ be a OWP. We construct $G: \{0, 1\}^{2n} \rightarrow \{0, 1\}^{2n+1}$ as
+\[
+G(x, r) = f(x) || r || B(x, r),
+\]
+where $x, r \in \{0, 1\}^n$, and $B(x, r)$ is a hard core bit for the function $g(x,r) = f(x) || r$.
+\end{construction}
+
+\begin{remark}
+The hard core bit $B(x,r)$ always exists. Recall Theorem~\ref{thm:hard-core-bit},
+\[B(x,r) = \left(\sum_{i=1}^n x_i r_i\right)\mod 2\]
+is a hard core bit.
+\end{remark}
+
+\begin{theorem}
+The $G$ constructed above is a PRG.
+\end{theorem}
+
+\proof
+Assume for the sake of contradiction that $G$ is not PRG.
+We construct three ensembles of probability distributions:
+\[H_0 := G(U_{2n}) = f(x) || r || B(x, r), \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n;\]
+\[H_1 := f(x) || r || \sigma, \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n, \sigma \xleftarrow{\$} \{0, 1\};\]
+\[H_2 := U_{2n+1}.\]
+
+Since $G$ is not PRG, there exists a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ from $H_2$.
+Since $f$ is a permutation, $H_1$ is uniformly distributed in $\{0, 1\}^{2n+1}$, i.e., $H_1 \equiv H_2$.
+Therefore, $\ma$ can distinguish $H_0$ from $H_1$,
+that is, there exists a non-negligible function $v(n)$ satisfying
+\[
+\big| \Pr[\ma(H_0)=1] - \Pr[\ma(H_1)=1] \big| \geq v(n).
+\]
+
+Next we will construct an adversary $\mathcal{B}$ that ``breaks'' the hard core bit (which leads to a contradiction).
+Define a new ensemble of probability distribution
+\[
+H_1' = f(x) || r || (1-B(x, r)) , \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n.
+\]
+Then we have
+\begin{align*}
+\Pr[\ma(H_1) = 1]
+=& \Pr[\sigma = B(x, r)] \Pr[A(H_0) = 1] + \Pr[\sigma = 1 - B(x, r)] \Pr[A(H_1') = 1]\\
+=& \frac{1}{2} \Pr[A(H_0) = 1] + \frac{1}{2}\Pr[A(H_1') = 1].
+\end{align*}
+Hence
+\begin{align*}
+&\Pr[A(H_1) = 1] - \Pr[A(H_0) = 1]
+=  \frac{1}{2}\Pr[A(H_1') = 1] - \frac{1}{2} \Pr[A(H_0) = 1],
+\\
+&\frac{1}{2} \left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
+= \left| \Pr[A(H_1) = 1] - \Pr[A(H_0) = 1] \right|
+\geq v(n),
+\\
+&\left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
+\geq 2v(n).
+\end{align*}
+
+Without loss of generality, we assume that
+\[
+\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1]
+\geq 2v(n).
+\]
+Then we construct $\mathcal{B}$ as follows:
+\[
+\mathcal{B}(f(x)|| r) :=
+\begin{cases}
+\sigma, & \text{if } \ma(f(x)|| r||\sigma) = 1\\
+1 - \sigma, & \text{if } \ma(f(x)||r|| \sigma) = 0
+\end{cases},
+\]
+where $\sigma \xleftarrow{\$} \{0, 1\}$.
+Then we have
+\begin{align*}
+& \Pr[\mathcal{B}(f(x)|| r) = B(x, r)]\\
+=& \Pr[\sigma = B(x, r)] \Pr[ \ma(f(x)|| r||\sigma)=1 | \sigma = B(x, r)] + \\
+& \Pr[\sigma = 1 - B(x, r)] \Pr[ \ma(f(x)|| r||\sigma) = 0 | \sigma = 1- B(x, r)] + \\
+=& \frac{1}{2} \big( \Pr[\ma(f(x)||r||B(x, r)) = 1] + 1 - \Pr[\ma(f(x)|| r|| 1- B(x, r)) = 1] \big)\\
+=& \frac{1}{2} + \frac{1}{2} \big( \Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \big)\\
+\geq & \frac{1}{2} + v(n).
+\end{align*}
+Contradiction with the fact that $B$ is a hard core bit.
+\qed
+

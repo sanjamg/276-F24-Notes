@@ -1,0 +1,86 @@
+\section{Pseudorandom Functions}
+In this section, we first define pseudorandom functions, and then show how to  construct a pseudorandom function from a pseudorandom generator.
+
+Considering the set of all functions $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$, there are $(2^n)^{2^n}$ of them.
+To describe a random function in this set we need $n \cdot 2^n$ bits.
+Intuitively, a pseudorandom function is one that cannot be distinguished from a random one,
+but needs much fewer bits (e.g., polynomial in $n$) to be described.
+Note that we restrict the distinguisher to only being allowed to ask the function poly($n$) times and decide whether it is random or pseudorandom.
+
+\subsection{Definitions}
+
+\begin{definition}[Function Ensemble]
+A \emph{function ensemble} is a sequence of random variables $F_1, F_2, \cdots, F_n, \cdots$ denoted as $\{F_n\}_{n \in \mathbb{N}}$ such that
+$F_n$ assumes values in the set of functions mapping $n$-bit input to $n$-bit output.
+\end{definition}
+
+\begin{definition}[Random Function Ensemble]
+We denote a random function ensemble by $\{R_n\}_{n \in \mathbb{N}}$.
+\end{definition}
+
+\begin{definition}[Efficiently Computable Function Ensemble]
+A function ensemble is called \emph{efficiently computable} if
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Succinct}:
+        $\exists$ a PPT algorithm $I$ and a mapping $\phi$ from strings to functions such that
+        $\phi(I(1^n))$ and $F_n$ are identically distributed.
+        Note that we can view $I$ as the description of the function.
+    \item \textbf{Efficient}:
+        $\exists$ a poly-time machine $V$ such that
+        $V(i, x) = f_i(x)$ for every $x \in \{0, 1\}^n$, where $i$ is in the range of $I(1^n)$, and $f_i = \phi(i)$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Pseudorandom Function Ensemble]
+A function ensemble $F = \{F_n\}_{n \in \mathbb{N}}$ is \emph{pseudorandom} if
+for every non-uniform PPT oracle adversary $\ma$, there exists a negligible function $\epsilon(n)$ such that
+\[
+\big| \Pr[\ma^{F_n} (1^n) = 1] - \Pr[\ma^{R_n} (1^n) = 1]  \big| \leq \epsilon(n).
+\]
+Here by saying ``oracle'' it means that $\ma$ has ``oracle access'' to a function (in our definition, the function is $F_n$ or $R_n$), and each call to that function costs 1 unit of time.
+\end{definition}
+
+Note that we will only consider efficiently computable pseudorandom ensembles in the following.
+
+\subsection{Construction of PRF from PRG}
+
+\begin{construction}
+Given a PRG $G: \{0, 1\}^n \rightarrow \{0, 1\}^{2n}$,
+let $G_0(x)$ be the first $n$ bits of $G(x)$, $G_1(x)$ be the last $n$ bits of $G(x)$.
+We construct $F^{(K)}: \{0, 1\}^n \rightarrow \{0, 1\}^n$ as follows.
+\[
+F^{(K)}_n(x_1 x_2 \cdots x_n) := G_{x_n}(G_{x_{n-1}} (\cdots(G_{x_1}(K)) \cdots  )),
+\]
+where $K \in \{0,1\}^n$ is the key to the pseudorandom function. Here $i$ is an $n$-bit string, which is the seed of the pseudorandom function.
+\end{construction}
+The construction can be viewed as a binary tree of depth $n$, as shown in Figure \ref{fig:binary-tree}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Old Scribe Notes/binary-tree.pdf}
+    \caption{View the construction as a binary tree}
+    \label{fig:binary-tree}
+\end{figure}
+
+\begin{theorem}\label{theorem:ggm}
+The function ensemble $\{F_n\}_{n \in \mathbb{N}}$ constructed above is pseudorandom.
+\end{theorem}
+
+\proof
+Assume for the sake of contradiction that $\{F_n\}_{n \in \mathbb{N}}$ is not PRG.
+Then there exists a non-uniform PPT oracle adversary $\ma$ that can distinguish $\{F_n\}_{n \in \mathbb{N}}$ from $\{R_n\}_{n \in \mathbb{N}}$. Below, via a hybrid argument, we prove that this contradicts the fact that $G$ is a PRG.
+
+Consider the sequence of hybrids $H_i$ for $i \in \{ 0, 1, \cdots, n\}$ where the hybrid $i$ is defined as follows:
+\[H_{n,i}^{(K)} (x_1x_2\ldots x_n ):= G_{x_n}(G_{x_{n-1}} (\cdots(G_{x_{i+1}}(K(x_ix_{i-1}\ldots x_1))) \cdots  )), \]
+where $K$ is a random function from $\{0,1\}^{i}$ to $\{0,1\}^n$. Intuitively, hybrid $H_i$ corresponds to a binary tree of depth $n$ where the nodes of levels $0$ to $i$ correspond to random values and the nodes at levels $i+1$ to $n$ correspond to pseudorandom values. By inspection, observe that hybrids $H_0$ and $H_n$ are identical to a pseudorandom function and a random function, respectively. There it suffices to prove that hybrids $H_i$ and $H_{i+1}$ are computationally indistinguishable for each $i \in \{ 0, 1, \cdots, n\}$.
+
+We show that $H_{i}$ and $H_{i+1}$ are indistinguishable by considering a sequence of sub-hybrids $H_{i,j}$ for $j \in \{0,\ldots q_{i+1}\}$, where $q_{i+1}$ is the number of the distinct $i-bit$ prefixes of the queries of $\mathcal{A}$.\footnote{Observe that $q_{i+1}$ for each appropriate choice of $i$ is bounded by the running time of $\mathcal{A}$. Hence, this value is bounded by a polynomial in the security parameter.}
+
+We define hybrid $H_{i,j}$ for $j =0$ to be same as hybrid $H_{i}$. Additionally, for $j >0$ hybrid $H_{i,j}$ is defined to be exactly the same as hybrid $H_{i,j-1}$ except the response provided to the attacker for the $j^{th}$ distinct $i-bit$ prefix query of $\mathcal{A}$. Let this prefix be $x^*_n x^*_{n-1} \ldots x^*_{i}$. Note that in hybrid $H_{i,j-1}$ the children of the node $x^*_n x^*_{n-1} \ldots x^*_{i}$ correspond to two pseudorandom values. In hybrid $H_{i,j}$ we replace these two children with random values. By careful inspection, it follows that hybrid $H_{i,q_{i+1}}$ is actually $H_{i+1}$. All we are left to prove is that hybrid $H_{i,j}$ and $H_{i,j+1}$ are indistinguishable for the appropriate choices of $j$ and we prove this below.
+
+
+Now we are ready to construct an adversary $\mathcal{B}$ that  distinguishes $U_{2n}$ from $G(U_n)$: On input $T \in\{0, 1\}^{2n}$ ($T$ could be either from $U_{2n}$ or $G(U_n)$),
+construct a full binary tree of depth $n$ that is exactly the same as $H_{i,j}$ except replacing the children of  $x^*_n x^*_{n-1} \ldots x^*_{i}$ by the value $T$.
+Observe that the only difference between $H_{i,j}$ and $H_{i,j+1}$ is that values corresponding to nodes $x_n^*\ldots x_i^* 0$ and $x_n^*\ldots x_i^* 1$ are pseudorandom or random respectively. $\mathcal{B}$ uses the value $T$ to generate these two nodes. Hence success in  distinguishing hybrids $H_{i,j}$ and $H_{i,j+1}$ provides a successful attack for $\mathcal{B}$ in violating security of the pseudorandom generator.
+\qed
+
