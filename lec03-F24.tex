@@ -60,11 +60,11 @@ $|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note t
 
 
 \iffalse
-\section{Hard Core Bit}
+\section{Hard Concentrate Bit}
 We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
-\begin{definition}[Hard Core Bit]
+\begin{definition}[Hard Concentrate Bit]
 Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
-$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard concentrate bit of $f$ if:
 \begin{itemize}
 \item[-] $B$ is computable by a PPT machine, and
 \item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
@@ -73,17 +73,17 @@ $B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
 \end{definition}
 
 \noindent\textbf{A simple example.}
-Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard concentrate bit $B(b, x) = b$.
 Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
 \begin{remark}
-Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard concentrate bit. However, we may not be able to find a hard concentrate bit for $f$. In fact, it is an open question whether a hard concentrate bit exists for every one-way function.
 \end{remark}
 
 
 \bigskip
 Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
 \begin{claim}
-If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
 \end{claim}
 \proof
 Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
@@ -91,7 +91,7 @@ $$g(x,y) = f(x_{\bar y}) || x_y || y,$$
 where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
 
 First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
-We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+We next show that $B_i$ is not a hard concentrate bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard concentrate bit for $n+1 \leq i \leq n+\log n$).
 Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
 \begin{itemize}
 \item[-] If $y \not= i$ then output a random bit;
@@ -108,9 +108,9 @@ Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{
 \bigskip
 \noindent\textbf{Application: Coin tossing over the phone.}
 Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
-A hard core bit of a one-way permutation can resolve this issue.
+A hard concentrate bit of a one-way permutation can resolve this issue.
 
-Let $f$ be a one-way permutation and $B$ be a hard core bit for $f$. Consider the following protocol:
+Let $f$ be a one-way permutation and $B$ be a hard concentrate bit for $f$. Consider the following protocol:
 \begin{itemize}
 \item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
 \item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
@@ -119,21 +119,21 @@ Let $f$ be a one-way permutation and $B$ be a hard core bit for $f$. Consider th
 On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
 On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
 
-\section{One-Way Permutations with Hard Core Bits}
+\section{One-Way Permutations with Hard Concentrate Bits}
 We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
-Before delving into important characteristics of hard core bits for one-way permutations, we consider an interesting application of hard core bits and one-way permutations.
+Before delving into important characteristics of hard concentrate bits for one-way permutations, we consider an interesting application of hard concentrate bits and one-way permutations.
 
 
 
 
 
 \bigskip
-Given a one-way permutation, we can construct a one-way permutation with a hard core bit:
+Given a one-way permutation, we can construct a one-way permutation with a hard concentrate bit:
 \begin{theorem}
 Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
 Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
 $$f'(x,r) = f(x) || r,$$
-where $|x| = |r| =n$. It has the hard core bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+where $|x| = |r| =n$. It has the hard concentrate bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
 \end{theorem}
 \proof
 \peihan{TODO...}
@@ -253,11 +253,11 @@ For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in
 \fi
 
 
-\section{Hard Core Bit}
+\section{Hard Concentrate Bit}
 We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
-\begin{definition}[Hard Core Bit]
+\begin{definition}[Hard Concentrate Bit]
 Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
-$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard concentrate bit of $f$ if:
 \begin{itemize}
 \item[-] $B$ is computable by a polynomial time machine, and
 \item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
@@ -266,17 +266,17 @@ $B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard core bit of $f$ if:
 \end{definition}
 
 \noindent\textbf{A simple example.}
-Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard core bit $B(b, x) = b$.
-Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard core bit is hidden because of computational hardness and not information theoretic hardness.
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard concentrate bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard concentrate bit is hidden because of computational hardness and not information theoretic hardness.
 \begin{remark}
-Given a one-way function $f$, we can construct another one-way function $g$ with a hard core bit. However, we may not be able to find a hard core bit for $f$. In fact, it is an open question whether a hard core bit exists for every one-way function.
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard concentrate bit. However, we may not be able to find a hard concentrate bit for $f$. In fact, it is an open question whether a hard concentrate bit exists for every one-way function.
 \end{remark}
 
 
 \bigskip
 Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
 \begin{claim}
-If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard core bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
 \end{claim}
 \proof
 Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
@@ -284,7 +284,7 @@ $$g(x,y) = f(x_{\bar y}) || x_y || y,$$
 where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
 
 First, one can show that $g$ is still a one-way function. (We leave this as an exercise!)
-We next show that $B_i$ is not a hard core bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard core bit for $n+1 \leq i \leq n+\log n$).
+We next show that $B_i$ is not a hard concentrate bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard concentrate bit for $n+1 \leq i \leq n+\log n$).
 Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
 \begin{itemize}
 \item[-] If $y \not= i$ then output a random bit;
@@ -300,10 +300,10 @@ Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{
 
 
 
-\paragraph{Application: Coin tossing over the phone.} We next describe an application of hard core bits to coin tossing.
-Consider two parties trying to perform a coin tossing over the phone. In this setting the first party needs to declare its choice as the second one flips the coin. However, how can the first party trust the win/loss response from the second party?  In particular, if the first party calls out ``head'' and then the second party can just lie that it was ``tails.'' We can use hard core bit of a (one-to-one) one-way function to  enable this applications.
+\paragraph{Application: Coin tossing over the phone.} We next describe an application of hard concentrate bits to coin tossing.
+Consider two parties trying to perform a coin tossing over the phone. In this setting the first party needs to declare its choice as the second one flips the coin. However, how can the first party trust the win/loss response from the second party?  In particular, if the first party calls out ``head'' and then the second party can just lie that it was ``tails.'' We can use hard concentrate bit of a (one-to-one) one-way function to  enable this applications.
 
-Let $f$ be a (one-to-one) one-way function and $B$ be a hard core bit for $f$. Consider the following protocol:
+Let $f$ be a (one-to-one) one-way function and $B$ be a hard concentrate bit for $f$. Consider the following protocol:
 \begin{itemize}
 \item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $y$, where $y = f(x)$, to party $P_2$.
 \item[-] $P_2$ sends back a random bit $b$ sampled from $\{0,1\}$.
@@ -314,19 +314,19 @@ Note that $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$ a
 On the other hand, $P_1$ cannot flip the value $B(x)$ once it has sent $f(x)$ to $P_2$ because $f$ is one-to-one.
 
 
-\section{Hard Core Bit of any One-Way Functions}
-We now show that a slight modification of every one-way function has a hard core bit. More formally,
-\begin{theorem}\label{thm:hard-core-bit}
+\section{Hard Concentrate Bit of any One-Way Functions}
+We now show that a slight modification of every one-way function has a hard concentrate bit. More formally,
+\begin{theorem}\label{thm:hard-concentrate-bit}
 Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
 Define a function $g:\binset{2n} \rightarrow \binset{2n}$ as follows:
 $$g(x,r) = f(x) || r,$$
-where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard core bit, namely $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard concentrate bit, namely $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
 \end{theorem}
 \begin{remark}
-If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard core bit $B(\cdot)$.
+If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard concentrate bit $B(\cdot)$.
 \end{remark}
 \proof
-We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard core bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
+We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard concentrate bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
 
 \medskip
 \noindent\textbf{\underline{Super simple case.}}
