@@ -107,13 +107,13 @@ Finally, we will show that using an adversary that can distinguish between $F_n^
 \begin{exercise}
 \newcommand{\bit}{\{0,1\}}
 
-Prove or disprove: If $f$ is a one-way function, then the following function $B:\bit^*\to\bit$ is a hardcore predicate for $f$. The function $B(x)$ outputs the inner product modulo 2 of the first $\lfloor |x|/2\rfloor$ bits of $x$ and the last $\lfloor |x|/2\rfloor$ bits of $x$.
+Prove or disprove: If $f$ is a one-way function, then the following function $B:\bit^*\to\bit$ is a hardconcentrate predicate for $f$. The function $B(x)$ outputs the inner product modulo 2 of the first $\lfloor |x|/2\rfloor$ bits of $x$ and the last $\lfloor |x|/2\rfloor$ bits of $x$.
 \end{exercise}
 
 \begin{exercise}
 Let $\phi(n)$ denote the first $n$ digits of $\pi = 3.141592653589\ldots$ after the decimal in binary ($\pi$ in its binary notation looks like $11.00100100001111110110101010001000100001\ldots$).
 
-   Prove the following: if one-way functions exist, then there exists a one-way function $f$ such that the function $B:\{0,1\}^* \rightarrow \{0,1\}$ is not a hard core bit of $f$. The function $B(x)$ outputs $\langle x, \phi(|x|)\rangle$, where
+   Prove the following: if one-way functions exist, then there exists a one-way function $f$ such that the function $B:\{0,1\}^* \rightarrow \{0,1\}$ is not a hard concentrate bit of $f$. The function $B(x)$ outputs $\langle x, \phi(|x|)\rangle$, where
     \[\langle a, b\rangle := \sum_{i=1}^n a_i b_i \mod 2\]
     for the bit-representation of $a = {a_1a_2\cdots a_n}$ and $b= {b_1b_2\cdots b_n}$.
 \end{exercise}

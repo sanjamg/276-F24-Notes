@@ -82,13 +82,13 @@ Let $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ be a OWP. We construct $G: \{0, 1\}^{
 \[
 G(x, r) = f(x) || r || B(x, r),
 \]
-where $x, r \in \{0, 1\}^n$, and $B(x, r)$ is a hard core bit for the function $g(x,r) = f(x) || r$.
+where $x, r \in \{0, 1\}^n$, and $B(x, r)$ is a hard concentrate bit for the function $g(x,r) = f(x) || r$.
 \end{construction}
 
 \begin{remark}
-The hard core bit $B(x,r)$ always exists. Recall Theorem~\ref{thm:hard-core-bit},
+The hard concentrate bit $B(x,r)$ always exists. Recall Theorem~\ref{thm:hard-concentrate-bit},
 \[B(x,r) = \left(\sum_{i=1}^n x_i r_i\right)\mod 2\]
-is a hard core bit.
+is a hard concentrate bit.
 \end{remark}
 
 \begin{theorem}
@@ -110,7 +110,7 @@ that is, there exists a non-negligible function $v(n)$ satisfying
 \big| \Pr[\ma(H_0)=1] - \Pr[\ma(H_1)=1] \big| \geq v(n).
 \]
 
-Next we will construct an adversary $\mathcal{B}$ that ``breaks'' the hard core bit (which leads to a contradiction).
+Next we will construct an adversary $\mathcal{B}$ that ``breaks'' the hard concentrate bit (which leads to a contradiction).
 Define a new ensemble of probability distribution
 \[
 H_1' = f(x) || r || (1-B(x, r)) , \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n.
@@ -157,6 +157,6 @@ Then we have
 =& \frac{1}{2} + \frac{1}{2} \big( \Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \big)\\
 \geq & \frac{1}{2} + v(n).
 \end{align*}
-Contradiction with the fact that $B$ is a hard core bit.
+Contradiction with the fact that $B$ is a hard concentrate bit.
 \qed
 
