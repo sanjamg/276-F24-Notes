@@ -101,7 +101,7 @@ where $|D_n| < |R_n|$ is a family of collision resistant hash function ensemble 
 \end{enumerate}
 
 
-\subsection{Collison Resistant Hash functions from Discrete Log}
+\subsection{Collision Resistant Hash functions from Discrete Log}
 We will now give a construction of collision resistant hash functions from the discrete log assumption. We first recall the discrete log assumption:
 \begin{definition}[Discrete-Log Assumption]
 We say that the discrete-log assumption holds for the group ensemble $\mathcal{G} =\{ \mathbb{G}_n\}_{n \in \mathbb{N}}$, if for every non-uniform PPT algorithm $\mathcal{A}$ we have that
@@ -167,4 +167,3 @@ To prove security, we will first use the security of the PRF to replace the outp
 \begin{exercise}
 \textbf{Digital signature schemes can be made deterministic.} Given a digital signature scheme $(\mathsf{Gen}, \mathsf{Sign}, \mathsf{Verify})$ for which $\mathsf{Sign}$ is probabilistic, provide a construction of a digital signature scheme $(\mathsf{Gen}', \mathsf{Sign}', \mathsf{Verify}')$ where $\mathsf{Sign}'$ is deterministic.
 \end{exercise}
-
