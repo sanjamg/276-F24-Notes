@@ -21,7 +21,7 @@ If there exists a weak one-way function, then there exists a (strong) one-way fu
 
 \proof We prove the above theorem constructively. Suppose $f : \binset{n} \rightarrow \binset{m}$ is a weak one-way function, then we prove that the function $g: \binset{nq} \rightarrow \binset{mq}$ for $q = \lceil \frac{2n}{\alpha_{f}(n)} \rceil$ where 
 $$g(x_1, x_2, \cdots, x_q) = f(x_1) || f(x_2) || \cdots || f(x_q),$$
- is a strong one-way function.
+ is a strong one-way function. Let us discuss the intuition. A weak one-way function is "strong" in a small part of its domain. For this construction to result in a strong one-way function, we need just one of the $q$ instantiations to be in the part of the domain where our weak one-way function is strong. If we pick a large enough $q$, this is guaranteed to happen.
 
 Assume for the sake of contradiction that there exists an adversary $\mathcal{B}$ such that $\mu_{\mathcal{B},g}(nq) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{nq}}[ \mathcal{B}(1^{nq}, g(x)) \in g^{-1}(g(x))]$ is non-negligible.
 %Suppose $\mu_{\mathcal{A},g}(nq) \geq \tilde \mu_{\mathcal{A},g}(nq)$ for arbitrarily large $n$, where $\tilde  \mu_{\mathcal{A},g}$ is a noticeable function.\peihan{to ensure that $T$ is poly}
@@ -159,4 +159,3 @@ Observe that for sufficiently large $n$ it holds that
 \end{align*}
 Hence $\mu_{\mathcal{B},\tilde M}(n-\log n) \geq \frac{n-1}{n}$  for sufficiently large $n$ which is a contradiction.
 \qed
-
