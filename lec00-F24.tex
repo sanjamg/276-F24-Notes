@@ -92,3 +92,75 @@ $ $
 %
 %\proof If $h(n)$ was negligible, then $f(n) = g(n) + h(n)$ would be the sum of two negligible functions, but would be non-negligible, which is a contradiction.  \qed
 
+\section{Computationally  Hard Problems}\label{sec:assumptions}
+%So far, much of our investigation relied on the existence of one-way-functions or in certain cases on the existence of one-one one-way functions. However, just the mere existence of an object is not enough for real-world implementations. 
+We will next provide certain number theoretical problems that are conjectured to be computationally intractable. We will use the conjectured hardness of these problems in subsequent chapters to o provide concrete instantiations.
+
+\subsection{The Discrete-Log Family of Problem}
+Consider a group $\mathbb{G}$ of prime order. For example, consider the group $\mathbb{Z}_p^*$ where $p$ is a large prime. Let $g$ be a generator of this group $\mathbb{G}$. In this group, given $g^x$ for a random $x \in \{1,\ldots p-1\}$ consider the problem of finding $x$. This problem, referred to as the discrete-log problem, is believed to be computationally hard.
+
+The asymptotic definition of the discrete-log problem needs to consider an infinite family of groups or what we will a group ensemble. 
+
+\paragraph{Group Ensemble.} A group ensemble is a set of finite cyclic groups $\mathcal{G} =\{ \mathbb{G}_n\}_{n \in \mathbb{N}}$. For the group $G_n$, we assume that given two group elements in $G_n$, their sum can be computed in polynomial in $n$ time. Additionally, we assume that given $n$ the generator $g$ of $\mathbb{G}_n$ can be computed in polynomial time. 
+
+\begin{definition}[Discrete-Log Assumption]\label{def:dl}
+We say that the discrete-log assumption holds for the group ensemble $\mathcal{G} =\{ \mathbb{G}_n\}_{n \in \mathbb{N}}$, if for every non-uniform PPT algorithm $\mathcal{A}$ we have that
+\[\mu_\mathcal{A}(n) := \Pr_{x \leftarrow |G_n|}[\mathcal{A}(g,g^x) = x]\]
+is a negligible function.
+\end{definition}
+
+\paragraph{The Diffie-Hellman Problems.} In addition to the discrete-log assumption, we also define the Computational Diffie-Hellman Assumption and the Decisional Diffie-Hellman Assumption. 
+
+\begin{definition}[Computational Diffie-Hellman (CDH) Assumption]\label{def:cdh}
+We say that the Computational Diffie-Hellman Assumption holds for the group ensemble $\mathcal{G} =\{ \mathbb{G}_n\}_{n \in \mathbb{N}}$, if for every non-uniform PPT algorithm $\mathcal{A}$ we have that
+\[\mu_\mathcal{A}(n) := \Pr_{x,y \leftarrow |G_n|}[\mathcal{A}(g,g^x,g^y) = g^{xy}]\]
+is a negligible function.
+\end{definition}
+
+\begin{definition}[Decisional Diffie-Hellman (DDH) Assumption]\label{def:ddh}
+We say that the Computational Diffie-Hellman Assumption holds for the group ensemble $\mathcal{G} =\{ \mathbb{G}_n\}_{n \in \mathbb{N}}$, if for every non-uniform PPT algorithm $\mathcal{A}$ we have that
+\[\mu_\mathcal{A}(n) = \mid\Pr_{x,y \leftarrow |G_n|}[\mathcal{A}(g,g^x,g^y,g^{xy}) = 1] - \Pr_{x,y,z \leftarrow |G_n|}[\mathcal{A}(g,g^x,g^y,g^{z}) = 1]\mid\]
+is a negligible function.
+\end{definition}
+
+It is not hard to observe that the discrete-log assumption is the weakest of the three assumptions above. In fact, it is not difficult to show that the Discrete-Log Assumption for $\mathcal{G}$ implies the CDH and the DDH Assumptions for $\mathcal{G}$.  Additionally, we leave it as an exercise to show that the CDH Assumption for $\mathcal{G}$ implies the  DDH Assumptions for $\mathcal{G}$.
+
+\paragraph{Examples of Groups where these assumptions hold.} Now we provide some examples of group where these assumptions hold. 
+\begin{enumerate}
+    \item Consider the group $\mathbb{Z}_p^*$ for a prime $p$.\footnote{Since the number of primes is infinite we can define an infinite family of such groups. For the sake of simplicity, here we only consider a single group.} For this group the CDH Assumption is conjectured to be true. However, using the Legendre symbol,\footnote{Let $p$ be an odd prime number. An integer $a$ is said to be a \emph{quadratic residue} modulo $p$ if it is congruent to a perfect square modulo $p$ and  is said to be a \emph{quadratic non-residue} modulo $p$ otherwise. The \emph{Legendre symbol} is a function of $a$ and $p$ defined as
+    \begin{equation*}
+        \left(\frac{a}{p}\right) = \begin{cases}
+    1 &\text{if $a$ is quadration residue mod $p $ and $a \not\equiv 0 \mod p$}\\
+    -1 &\text{if $a$ is quadration non-residue mod $p $}\\
+    0 &\text{if $a \equiv 0 \mod p $}
+    \end{cases}
+    \end{equation*}
+    
+Legendre symbol can be efficiently computed as $\left(\frac{a}{p}\right) = a^{\frac{p-1}{2}}\mod p$.} 
+the DDH Assumption in this group can be shown to be false. Can you show how?\footnote{This is because given $g^x, g^y$ one can easily compute deduce the Legendre symbol of $g^{xy}$.  Observe that if $\left(\frac{g}{p}\right) = -1$ then we have that $\left(\frac{g^{xy}}{p}\right) = 1$ if and only if $ \left(\frac{g^x}{p}\right) =1 $ or $\left(\frac{g^y}{p}\right) = 1$. Using this fact, we can construct an adversary that breaks the DDH problem with a non-negligible (in fact, noticeable) probability.}
+\item Let $p = 2q+1$ where both $p$ and $q$ are prime.\footnote{By Dirichet's Theorem on primes in arithmetic progression, we have that there are infinite choices of primes $(p,q)$ for which $p = 2q+1$. This allows us to generalize this group to a group ensemble.} Next, let $\mathbb{Q}$ be the order-$q$ subgroup of quadratic residues in $\mathbb{Z}^*_p$. For this group, the DDH assumption is believed to hold. 
+\item Let $N = pq$ where $p,q, \frac{p-1}{2}$ and $\frac{q-1}{2}$ are primes. Let $\mathbb{QR}_N$ be the cyclic subgroup of qudratic resides of order $\phi(N) = (p-1)(q-1)$. For this group $\mathbb{QR}_N$, the DDH assumption is also believed to hold.
+%\item Pairings:
+\end{enumerate}
+
+\paragraph{Is DDH strictly stronger than Discrete-Log?} In the example cases above, where DDH is known believed to be hard, the
+best known algorithms for DDH are no better than the best known algorithms for the discrete-log problem. Whether the DDH assumption is strictly stronger than the discrete-log assumption is an open problem. 
+
+
+
+\subsection{CDH in $\mathbb{QR}_N$ implies Factoring}
+
+In this section, we will show that the CDH assumption in $\mathbb{QR}_N$ implies the factoring assumption. 
+\begin{lemma}
+Given an algorithm $\mathcal{A}$ that breaks the CDH assumption in $\mathbb{QR}_N$, we construct an non-uniform PPT adversary $\mathcal{B}$ that on input $N$ outputs its prime factors $p$ and $q$.
+\end{lemma}
+\begin{proof}
+Given that $\mathcal{A}$ is an algorithm that solves the CDH problem in $\mathbb{QR}_N$ with a non-negligible probability, we construct an algorithm $\mathcal{B}$ that can factor $N$. Specifically, $\mathcal{B}$ on input $N$ proceeds as follows:
+\begin{enumerate}
+\item Sample $v \leftarrow \mathbb{QR}_N$ (such a $v$ can be obtained by sampling a random value in $\mathbb{Z}_N^*$ and squaring it) and compute $g := v^2 \mod N$.
+\item Sample $x, y \leftarrow [N]$.\footnote{Note that sampling $x,y$ uniformly from $[N]$ is statistically close to sampling $x,y$ uniformly from $[\phi(N)]$.}
+\item Let $ u := \mathcal{A}(g, g^{x}\cdot v, g^y\cdot v)$\footnote{Note that $g^x\cdot v$ where $x \leftarrow [N]$ is statistically close to $g^x$ where $x \leftarrow [N]$.} and compute $w := \frac{u}{g^{xy}\cdot v^{x+y}}$.
+\item If $w^2 = v^2 \mod N$ and $u \neq \pm v$, then compute the factors of $N$ as $\mathsf{gcd}(N,u+v)$ and $N/\mathsf{gcd}(N,u+v)$. Otherwise, output $\bot$.
+\end{enumerate}
+Observe that if $\mathcal{A}$ solves the CDH problem then the returned values $u = g^{(x+ 2^{-1})(y + 2^{-1})} = v^{2xy + x+ y + 2^{-1}}$. Consequently, the computed value $w = v^{2^{-1}}$. Furthermore, with probability $\frac12$ we have that $w \neq v$. In this case, $\mathcal{B}$ can factor $N$.
+\end{proof}

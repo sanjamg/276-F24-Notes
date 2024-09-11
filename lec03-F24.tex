@@ -83,13 +83,15 @@ We  now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
 Let $e^i$ be an $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
 On input $f(x)||R$, $\mathcal{B}$ does the following:
 
-\medskip
+\begin{marginfigure}
 \begin{algorithmic}
 \For {$i=1$ \textbf{to} $n$}
     \State $x'_i \gets \ma(1^{2n}, f(x)||e^i)$
 \EndFor
 \State \Return $x'_1\cdots x'_n || R$
 \end{algorithmic}
+\caption{Description of Super-Simple Case $\mathcal{B}$}
+\end{marginfigure}
 Observe that $B(x,e^i) = \sum_{j=1}^n x_je^i_j = x_i$. Therefore, the probability that $\mathcal{B}$ inverts a single bit successfully is,
 $$\Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=x_i\right] =  \Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=B(x,e^i)\right] = 1.$$
 Hence $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)] = 1$.
@@ -103,7 +105,7 @@ $$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$
 Just like the super simple case, we describe our algorithm of $\mathcal{B}$ for inverting $g$.
 On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
 
-\medskip
+\begin{marginfigure}
 \begin{algorithmic}
 \For {$i = 1$ \textbf{to} $n$}
 	\For {$t = 1$ \textbf{to} $T = \frac{n}{2\epsilon(n)^2}$}
@@ -114,6 +116,9 @@ On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
 \EndFor
 \State \Return $x'_1\cdots x'_n||R$
 \end{algorithmic}
+
+\caption{Description of Simple Case $\mathcal{B}$}
+\end{marginfigure}
 Correctness of $\mathcal{B}$ given that $\ma$ calls output the correct answer follows by observing that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$:
 \begin{align*}
 &B(x,r) \oplus B(x, r\oplus e^i)\\
@@ -168,7 +173,8 @@ Then, completing the argument,  we have
  where $\epsilon(\cdot)$ is a non-negligible function. The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above. However, just using one call to $\ma$ seems insufficient. The key idea is to just guess one of those values. Very surprisingly this idea along with careful analysis magically works out.
 Just like the previous two case we start by describing the algorithm $\mathcal{B}$. On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
 
-\medskip
+
+\begin{marginfigure}
 \begin{algorithmic}
 \State $T = \frac{2n}{\epsilon(n)^2}$
 	\For {$\ell = 1$ \textbf{to} $\log T$}
@@ -185,6 +191,9 @@ Just like the previous two case we start by describing the algorithm $\mathcal{B
 \EndFor
 \State \Return $x'_1\cdots x'_n||R$
 \end{algorithmic}
+
+\caption{Description of Real Case $\mathcal{B}$}
+\end{marginfigure}
 
 \medskip
 The idea is the following. Let $b_\ell$ guess the value of $B(x,s_\ell)$, and with probability $\frac{1}{T}$ all the $b_{\ell}$'s are correct. In that case, it is easy to see that $B_L = B(x, S_L)$ for every $L$. If we follow the same argument as above, then it remains to bound the probability that $\ma(f(x) || S_L+e^i)=B(x, S_L + e^i)$. However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are not independent any more. But we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof. \\
