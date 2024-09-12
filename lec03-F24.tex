@@ -1,5 +1,80 @@
 \newcommand{\ma}{\mathcal{A}}
 
+\section{Levin's One-Way Function}
+
+In this section, we discuss Levin's one-way function, which is an explicit construction of a one-way function that is secure as long as a one-way function exists.
+This is interesting because unlike a typical cryptographic primitive that relies on a specific hardness assumption (which may or may not hold in the future), Levin's one-way function is future-proof in the sense that it will be secure as long as atleast one hardness assumption holds (which we may or may not discover).
+
+The high-level intuition behind Levin's construction is as follows: since we assume one-way functions exist, there exists a uniform machine $\tilde M$ such that $|\tilde M|$ is a constant and $\tilde M(x)$ is hard to invert for a random input $x$.
+Now, consider a function $h$ that parses the first $\log(n)$ bits of its $n$-bit input as the code of a machine $M$ and the remaining bits as the input to $M$.
+For a large enough $n$ that is exponential in $|\tilde{M}|$, note that we will hit the code of $\tilde{M}$ with noticeable probability in $n$, and for those instances, $h$ will be hard to invert.
+% that if you parse the input to the function as the code of a uniform machine $M$ followed by the input to the machine, for large enough input length $n$ that is exponential in $|M|$, you'll get the code of a one-way function with some noticeable probability.
+It is easy to see that this gives us a weak one-way function which has a noticeable probability of being hard to invert, and we can amplify the hardness of this weak one-way function to get an explicit construction of a one-way function.
+
+\begin{theorem}\label{thm:levin}
+If there exists a one-way function, then there exists an explicit function $f$ that is one-way  (constructively).
+\end{theorem}
+
+Before we look at the construction and the proof in detail, we first prove a lemma that will be useful in the proof.
+In particular, we need a bound on the running time of the one-way function $\tilde M$ so that we can upper bound the execution time of $h$, since there could be inputs to $g$ that do not terminate in polynomial time.
+To this end, we prove the following lemma which shows that if a one-way function exists, then there is also a one-way function that runs in time $n^2$, and thus, we can bound $h$ to $n^2$ steps.
+
+\begin{lemma}\label{lem:n2owf}
+If there exists a one-way function computable in time $n^c$ for a constant $c$, then there exists a one-way function computable in time $n^2$.
+\end{lemma}
+\proof
+Let $f: \binset{n} \rightarrow \binset{n}$ be a one-way function computable in time $n^c$.
+Construct $g: \binset{n+n^c} \rightarrow \binset{n+n^c}$ as follows:
+$$g(x,y) = f(x) || y$$
+where $x \in \binset{n}, y \in \binset{n^c}$.
+$g(x,y)$ takes time $2n^c$, which is linear in the input length.
+
+We next show that $g(\cdot)$ is one-way.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},g}(n+n^c) = \Pr_{(x,y) \stackrel{\$}{\leftarrow} \binset{n+n^c}}[ \mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))]$ is non-negligible. Then we use $\mathcal{A}$ to construct $\mathcal{B}$ such that $\mu_{\mathcal{B},f}(n) = \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{B}(1^n, f(x)) \in f^{-1}(f(x))]$ is also non-negligible.
+
+$\mathcal{B}$ on input $z \in\{0,1\}^n$, samples $y \stackrel{\$}{\leftarrow} \binset{n^c}$, and outputs the $n$ higher-order bits of  $\mathcal{A}(1^{n+n^c}, z||y)$. Then we have
+\begin{align*}
+\mu_{\mathcal{B},g}(n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n}, y \stackrel{\$}{\leftarrow} \binset{n^c}}\left[\mathcal{A}(1^{n+n^c}, f(x) || y) \in f^{-1}(f(x)) || \binset{n^c}\right]\\
+\geq&\Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in f^{-1}(f(x)) || y\right]\\
+=& \Pr_{x,y}\left[\mathcal{A}(1^{n+n^c}, g(x,y)) \in g^{-1}(g(x,y))\right]
+\end{align*}
+is non-negligible.
+\qed
+
+\bigskip
+Now, we provide the explicit construction of $h$ and prove that it is a weak one-way function.
+Since $h$ is an (explicit) weak one-way function, we can construct an (explicit) one-way function from $h$ as we discussed in Section~\ref{sec:owf:amplify}, and this would prove Theorem~\ref{thm:levin}.
+\proof[Proof of Theorem~\ref{thm:levin}]
+$h: \binset{n} \rightarrow \binset{n}$ is defined as follows:
+$$
+h(M,x) = \left\{
+\begin{array}{ll}
+M || M(x) & \text{if $M(x)$ takes no more than $|x|^2$ steps} \\
+M || 0 & \text{otherwise}
+\end{array}
+\right.
+$$
+where $|M| = \log n, |x| = n - \log n$ (interpreting $M$ as the code of a machine  and $x$ as its input).
+
+It remains to show that if one-way functions exist, then $h$ is a weak one-way function, with $\alpha_h(n) = \frac{1}{n^2}$.
+Assume for the purpose of contradiction that there exists an adversary $\mathcal{A}$ such that $\mu_{\mathcal{A},h}(n) = \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))]\geq 1-\frac{1}{n^2}$ for all sufficiently large $n$.
+By the existence of one-way functions and Lemma~\ref{lem:n2owf}, there exists a one-way function $\tilde M$ that can be computed in time $n^2$. Let $\tilde M$ be the uniform machine that computes this one-way function.
+We will consider values $n$ such that $n > 2^{|\tilde M|}$. In other words for these choices of $n$, $\tilde M$ can be described using $\log n$ bits.
+We construct $\mathcal{B}$ to invert $\tilde M$: on input $y$ outputs the $(n-\log n)$ lower-order bits of $\mathcal{A}(1^n, \tilde M||y)$. Then
+\begin{align*}
+\mu_{\mathcal{B},\tilde M}(n-\log n) =& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \binset{\log n} || \tilde M^{-1}(\tilde M((x))\right]\\
+\geq& \Pr_{x \stackrel{\$}{\leftarrow} \binset{n-\log n}}\left[\mathcal{A}(1^{n}, \tilde M || \tilde M(x)) \in \tilde{M} || \tilde M^{-1}(\tilde M((x))\right].
+\end{align*}
+Observe that for sufficiently large $n$ it holds that
+\begin{align*}
+1-\frac{1}{n^2} \leq& \mu_{\mathcal{A},h}(n)\\
+=& \Pr_{(M,x) \stackrel{\$}{\leftarrow} \binset{n}}\left[ \mathcal{A}(1^{n}, h(M,x)) \in h^{-1}(h(M,x))\right]\\
+\leq& \Pr_{M }[M = \tilde M] \cdot \Pr_{x }\left[ \mathcal{A}(1^{n}, \tilde M||\tilde M(x)) \in  \tilde{M} || \tilde M^{-1}(\tilde M((x))\right] + \Pr_{M }[M \neq \tilde M]  \\
+\leq&  \frac{1}{n} \cdot \mu_{\mathcal{B},\tilde M}(n-\log n) +\frac{n-1}{n}.
+\end{align*}
+Hence $\mu_{\mathcal{B},\tilde M}(n-\log n) \geq \frac{n-1}{n}$  for sufficiently large $n$ which is a contradiction.
+\qed
+
 \section{Hardness Concentrate Bit}
 We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
 \begin{definition}[Hard Concentrate Bit]
@@ -15,23 +90,24 @@ $B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard concentrate bit of $f$ if:
 \noindent\textbf{A simple example.}
 Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard concentrate bit $B(b, x) = b$.
 Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess. However, we are more interested in the case where the hard concentrate bit is hidden because of computational hardness and not information theoretic hardness.
+
+\bigskip
 \begin{remark}
 Given a one-way function $f$, we can construct another one-way function $g$ with a hard concentrate bit. However, we may not be able to find a hard concentrate bit for $f$. In fact, it is an open question whether a hard concentrate bit exists for every one-way function.
 \end{remark}
 
-
 \bigskip
-Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+Intuitively, if a function $f$ is one-way, it seems that there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. However, we show that is not true:
 \begin{claim}
-If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall i \in [1, n+\log n]$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
 \end{claim}
 \proof
 Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
 $$g(x,y) = f(x_{\bar y}) || x_y || y,$$
-where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, and $x_y$ is the $y^\text{th}$ bit of $x$.
 
 First, one can show that $g$ is still a one-way function. (We leave this as an exercise!)
-We next show that $B_i$ is not a hard concentrate bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard concentrate bit for $n+1 \leq i \leq n+\log n$).
+Next, we show that $B_i$ is not a hard concentrate bit for $\forall i \in [1, n]$ (clearly $B_i$ is not a hard concentrate bit for $i \in [n+1, n+\log n]$).
 Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
 \begin{itemize}
 \item[-] If $y \not= i$ then output a random bit;
@@ -73,24 +149,30 @@ where $|x| = |r| =n$. Then we have that $g$ is one-way and that it has a hard co
 If $f$ is a (one-to-one) one-way function, then $g$ is also a (one-to-one) one-way function with hard concentrate bit $B(\cdot)$.
 \end{remark}
 \proof
-We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard concentrate bit of $g$. More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible. Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$. We will provide our proof in a sequence of three steps of complexity: (1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$, (2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$, and finally (3) the general case with $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
+We leave it as an exercise to show that $g$ is a one-way function and below we will prove that the function $B(\cdot)$ describe a hard concentrate bit of $g$.
+More specifically, we need to show that if there exists a non-uniform PPT  $\ma$ s.t. $\Pr_{x,r}[\ma(1^{2n},g(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-negligible, then there exists a non-uniform PPT $\mathcal{B}$ such that $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) \in g^{-1}(g(x,r))]$ is non-negligible.
+Below we use $E$ to denote the event that $\ma(1^{2n},g(x,r)) = B(x,r)$.
+We will present our proof in three steps, where each step progressively increases in complexity:
+(1) the super simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] = 1$,
+(2) the simple case where we restrict to $\ma$ such that $\Pr_{x,r}[E] \geq \frac34 + \epsilon(n)$,
+and finally (3) the general case where $\Pr_{x,r}[E] \geq \frac12 + \epsilon(n)$.
 
 \medskip
 \noindent\textbf{\underline{Super simple case.}}
-Suppose that $\ma$ breaks the $B$ with perfect accuracy:
+Suppose $\ma$ guesses $B(\cdot)$ with perfect accuracy:
 $$\Pr_{x,r}[E] =1.$$
-We  now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
-Let $e^i$ be an $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
-On input $f(x)||R$, $\mathcal{B}$ does the following:
+We now construct $\mathcal{B}$ that inverts $g$ with perfect accuracy.
+Let $e^i$ denote the one-hot $n$-bit string $0\cdots 0 1 0 \cdots0$, where only the $i$-th bit is $1$, the rest are all $0$.
+$\mathcal{B}$ gets $f(x)||r$ as input, and its algorithm is described in Figure~\ref{alg:super-simple-case}.
 
 \begin{marginfigure}
 \begin{algorithmic}
 \For {$i=1$ \textbf{to} $n$}
     \State $x'_i \gets \ma(1^{2n}, f(x)||e^i)$
 \EndFor
-\State \Return $x'_1\cdots x'_n || R$
+\State \Return $x'_1\cdots x'_n || r$
 \end{algorithmic}
-\caption{Description of Super-Simple Case $\mathcal{B}$}
+\caption{Super-Simple Case $\mathcal{B}$} \label{alg:super-simple-case}
 \end{marginfigure}
 Observe that $B(x,e^i) = \sum_{j=1}^n x_je^i_j = x_i$. Therefore, the probability that $\mathcal{B}$ inverts a single bit successfully is,
 $$\Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=x_i\right] =  \Pr_{x}\left[\ma(1^{2n}, f(x)||e^i)=B(x,e^i)\right] = 1.$$
@@ -100,78 +182,89 @@ Hence $\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)] = 1$.
 \bigskip
 \noindent\textbf{\underline{Simple case.}}
 Next moving on to the following more demanding case.
-$$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$
- where $\epsilon$ is non-negligible.
-Just like the super simple case, we describe our algorithm of $\mathcal{B}$ for inverting $g$.
-On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
-
+$$\Pr_{x,r}[E] \geq \frac{3}{4} + \epsilon(n),$$ where $\epsilon(\cdot)$ is non-negligible.
+We describe $\mathcal{B}$'s algorithm for inverting $g$ in Figure~\ref{alg:simple-case}.
+Here we can no longer use the super simple case algorithm because we no longer know if $\ma$ outputs the correct bit on input $f(x) \| e^i$.
+Instead, we introduce randomness to $\ma$'s input expecting that it should be able to guess the right bit on majority of those inputs since it has a high probability of guessing $B(\cdot)$ in general.
+We now also need to make two calls to $\ma$ to isolate the $i$-th bit of $x$.
+% On input $f(x)||r$, $\mathcal{B}$ proceeds as follows:
+Note that an iteration of $\mathcal{B}$ outputs the right bit if calls to $\ma$ output the correct bit because $B(x,s) \oplus B(x, s\oplus e^i) = x_i$:
 \begin{marginfigure}
 \begin{algorithmic}
 \For {$i = 1$ \textbf{to} $n$}
 	\For {$t = 1$ \textbf{to} $T = \frac{n}{2\epsilon(n)^2}$}
-		\State $r \stackrel{\$}{\leftarrow} \binset{n}$
-    	\State $x_i^t \leftarrow \ma(f(x)|| r) \oplus \ma(f(x) || r+e^i)$
+		\State $s \stackrel{\$}{\leftarrow} \binset{n}$
+    	% \State $x_i^t \leftarrow \ma(f(x)|| s) \oplus \ma(f(x) || s+e^i)$
+		\State $\begin{array}{l@{}l}
+		x_i^t \leftarrow& \ma(f(x)|| s) \\
+		& \oplus~ \ma(f(x) || (s\oplus e^i))
+		\end{array}$
 	\EndFor
 	\State $x'_i \gets $ the majority of $\{x_i^1, \cdots, x_i^T\}$
 \EndFor
 \State \Return $x'_1\cdots x'_n||R$
 \end{algorithmic}
-
-\caption{Description of Simple Case $\mathcal{B}$}
+\caption{Simple Case $\mathcal{B}$} \label{alg:simple-case}
 \end{marginfigure}
-Correctness of $\mathcal{B}$ given that $\ma$ calls output the correct answer follows by observing that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$:
 \begin{align*}
-&B(x,r) \oplus B(x, r\oplus e^i)\\
-=& \sum_j x_j r_j + \sum_j x_j (r_j \oplus e^i_j) \mod 2\\
-=& \sum_{j \not= i} (x_j r_j + x_j r_j) + x_i r_i + x_i (r_i+1) \mod 2\\
-=& x_i.
+B(x,s) \oplus B(x, s\oplus e^i) =& \sum_j x_j s_j \oplus \sum_j x_j (s_j \oplus e^i_j)\\
+=& \sum_{j \not= i} (x_j s_j \oplus x_j s_j) \oplus x_i s_i \oplus x_i (s_i \oplus 1)\\
+=& ~x_i
 \end{align*}
-The key technical challenge in proving that $\mathcal{B}$ inverts $g$ with non-negligible probability arises from the fact that the calls to $\ma$ made during one execution of $\mathcal{B}$ are not independent. In particular, all calls to $\ma$ share the same $x$ and the class $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ use correlated randomness as well. We solve the first issue by showing that exists a large choices of values of $x$ for which $\ma$ still works with large probability. The later issue of lack of independent of $\ma(f(x)|| r)$ and $\ma(f(x) || r+e^i)$ will be solved using a union bound.
+The key technical challenge in proving that $\mathcal{B}$ inverts $g$ with non-negligible probability arises from the fact that the calls to $\ma$ made during one iteration of $\mathcal{B}$ are not independent.
+In particular, all calls to $\ma$ share the same $x$ and the calls $\ma(f(x)|| s)$ and $\ma(f(x) || (s \oplus e^i))$ use correlated randomness as well.
 
-\noindent Formally, define the set $G$ of ``good'' $x$'s, which are easy for $\ma$  to predict:
+We solve the first issue by showing that there exists a large set of $x$ values for which $\ma$ still works with large probability.
+The latter issue of lack of independence between $\ma(f(x)|| s)$ and $\ma(f(x) || (s \oplus e^i))$ can be solved using a union bound since the success probability of the adversary $\ma$ is high enough.
+
+Formally, define the set $G$ of ``good'' $x$'s, for which it is easy for $\ma$ to predict the right bit:
 $$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{3}{4} + \frac{\epsilon(n)}{2} \right. \right\}.$$
-We start by proving that the size of $G$ is not small. More formally we claim that,
+Now we prove that $G$ is not a small set. More formally, we claim that:
 $$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$
-Assume, that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] < \frac{\epsilon(n)}{2}$. Then we have the following contradiction:
+Assume that $\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] < \frac{\epsilon(n)}{2}$. Then we have the following contradiction:
 \begin{align*}
-\frac{3}{4} + \epsilon(n) \leq& \Pr_{x,r}[E]\\
-=& \Pr_x [x \in G] \Pr_{r}[E| x\in G] + \Pr_x [x \notin G] \Pr_{r}[E | x\notin G]\\
-< & \frac{\epsilon(n)}{2} \cdot 1 + 1\cdot \left(\frac{3}{4}+\frac{\epsilon(n)}{2}\right)  = \frac{3}{4} + \epsilon(n).
+\frac{3}{4} + \epsilon(n) \leq&~ \Pr_{x,r}[E]\\
+=&~ \Pr_x [x \in G] \Pr_{r}[E| x\in G] + \Pr_x [x \notin G] \Pr_{r}[E | x\notin G]\\
+< &~ \frac{\epsilon(n)}{2} \cdot 1 + 1\cdot \left(\frac{3}{4}+\frac{\epsilon(n)}{2}\right)  = \frac{3}{4} + \epsilon(n).
 \end{align*}
-For and fixed $x \in G$:
+Now consider a single iteration for a fixed $x \in G$:
 \begin{align*}
-&\Pr_{r} \left[ \ma(f(x), r) \oplus \ma(f(x), r+e^i) = x_i \right]\\
-=& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right] + \Pr_{r} \left[ \text{Both $\ma$'s are wrong} \right]\\
-\geq& \Pr_{r} \left[ \text{Both $\ma$'s are correct} \right]\\
-\geq& 1-2 \cdot \Pr_{r} \left[ \text{Either $\ma$ is correct} \right]\\
-\geq& 1-2\left(\frac{1}{4} - \frac{\epsilon(n)}{2} \right)
+&\Pr_{s} \left[ \ma(f(x), s) \oplus \ma(f(x), s\oplus e^i) = x_i \right]\\
+&=~ \Pr_{s} \left[ \text{Both $\ma$'s are correct} \right] + \Pr_{s} \left[ \text{Both $\ma$'s are wrong} \right]\\
+&\geq~ \Pr_{s} \left[ \text{Both $\ma$'s are correct} \right] = 1- \Pr_{s} \left[ \text{Either $\ma$ is wrong} \right]\\
+&\geq~ 1- 2\cdot\Pr_{s} \left[ \text{$\ma$ is wrong} \right]\\
+&\geq~ 1-2\left(\frac{1}{4} - \frac{\epsilon(n)}{2} \right) 
 = \frac{1}{2} + \epsilon(n).
 \end{align*}
-Let $Y_i^t$ be the indicator random variable that $x_i^t = x_i$ (namely, $Y_i^t=1$ with probability  $\Pr[x_i^t = x_i]$ and $Y_i^t=0$ otherwise).
-Note that $Y_i^1, \cdots, Y_i^T$ are independent and identical random variables, and for all $t \in \{1,\ldots, T\}$ we have that $\Pr[Y_i^t=1] = \Pr[x_i^t = x_i] \geq \frac{1}{2} + \epsilon(n)$. Next we argue that majority of $x_i^1, \ldots x_i^T$ coincides with $x_i$ with high probability.
+Let $Y_i^t$ be the indicator random variable that $x_i^t = x_i$ (namely, $Y_i^t=1$ with probability $\Pr[x_i^t = x_i]$ and $Y_i^t=0$ otherwise).
+Note that $Y_i^1, \cdots, Y_i^T$ are independent and identical random variables, and for all $t \in \{1,\ldots, T\}$, we have $\Pr[Y_i^t=1] = \Pr[x_i^t = x_i] \geq \frac{1}{2} + \epsilon(n)$.
+Next we argue that majority of $x_i^t$ coincide with $x_i$ with high probability.
 \begin{align*}
 \Pr[x'_i \neq x_i]
-=& \Pr\left[\sum_{t=1}^T Y_i^t \leq \frac{T}{2} \right]\\
-=& \Pr\left[\sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \leq \frac{T}{2} - \left(\frac{1}{2} + \epsilon(n) \right)T \right]\\
-\leq& \Pr\left[ \left| \sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \right| \geq \epsilon(n)T \right]\\
+=&~ \Pr\left[\sum_{t=1}^T Y_i^t \leq \frac{T}{2} \right]\\
+=&~ \Pr\left[\sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \leq \frac{T}{2} - \left(\frac{1}{2} + \epsilon(n) \right)T \right]\\
+\leq&~ \Pr\left[ \left| \sum_{t=1}^T  Y_i^t- \left(\frac{1}{2} + \epsilon(n) \right)T \right| \geq \epsilon(n)T \right]\\
 & \text{Let $X_1,\cdots,X_m$ be i.i.d. random variables taking values 0 or 1. Let $\Pr[X_i=1] = p$.}\\
 & \text{By Chebyshev's Inequality, $\Pr\left[ \left| \sum X_i - pm \right| \geq \delta m \right] \leq \frac{1}{4\delta^2 m}$.}\\
-\leq& \frac{1}{4\epsilon(n)^2T} = \frac{1}{2n}.
+\leq&~ \frac{1}{4\epsilon(n)^2T} = \frac{1}{2n}.
 \end{align*}
-Then, completing the argument,  we have
+Then, completing the argument, we have
 \begin{align*}
 &\Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
-\geq& \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | x \in G]\\
-\geq& \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | x \in G]\right)\\
-\geq& \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)}{4}.
+&\geq~ \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | x \in G]\\
+&\geq~ \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | x \in G]\right)\\
+&\geq~ \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)}{4}.
 \end{align*}
 
 
 
 \bigskip
-\noindent\textbf{\underline{Real Case.}} Now, we describe the final case where $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n),$
- where $\epsilon(\cdot)$ is a non-negligible function. The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above. However, just using one call to $\ma$ seems insufficient. The key idea is to just guess one of those values. Very surprisingly this idea along with careful analysis magically works out.
-Just like the previous two case we start by describing the algorithm $\mathcal{B}$. On input $f(x)||R$, $\mathcal{B}$ proceeds as follows:
+\noindent\textbf{\underline{Real Case.}} Now, we describe the final case where $\Pr_{x,r}[E] \geq \frac{1}{2} + \epsilon(n)$ and $\epsilon(\cdot)$ is a non-negligible function.
+The key technical challenge in this case is that we cannot make two related calls to $\ma$ as was done in the simple case above since we can't argue that both calls to $\ma$ will be correct with high enough probability.
+However, just using one call to $\ma$ seems insufficient.
+The key idea is to just guess one of those values.
+Very surprisingly, this idea along with careful analysis magically works out.
+Just like the previous two cases, we start by describing the algorithm $\mathcal{B}$ in Figure~\ref{alg:real-case}.
 
 
 \begin{marginfigure}
@@ -185,32 +278,42 @@ Just like the previous two case we start by describing the algorithm $\mathcal{B
 	\ForAll {$L \subseteq \{1,2,\cdots, \log T\}$}
 		\State $S_L :=\bigoplus_{j \in L} s_j$
 		\State $B_L := \bigoplus_{j \in L} b_j$
-		\State $x_i^L \leftarrow B_L \oplus \ma(f(x) || S_L+e^i)$
+		\State $x_i^L \leftarrow B_L \oplus \ma(f(x) || S_L\oplus e^i)$
 	\EndFor
-	\State $x'_i \gets $ the majority of $\{x_i^\emptyset, \cdots, x_i^{[\log T]}\}$
+	\State $x'_i \gets $ majority of $\{x_i^\emptyset, \cdots, x_i^{[\log T]}\}$
 \EndFor
 \State \Return $x'_1\cdots x'_n||R$
 \end{algorithmic}
-
-\caption{Description of Real Case $\mathcal{B}$}
+\caption{Real Case $\mathcal{B}$} \label{alg:real-case}
 \end{marginfigure}
 
 \medskip
-The idea is the following. Let $b_\ell$ guess the value of $B(x,s_\ell)$, and with probability $\frac{1}{T}$ all the $b_{\ell}$'s are correct. In that case, it is easy to see that $B_L = B(x, S_L)$ for every $L$. If we follow the same argument as above, then it remains to bound the probability that $\ma(f(x) || S_L+e^i)=B(x, S_L + e^i)$. However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are not independent any more. But we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof. \\
+In the beginning of the algorithm, $\mathcal{B}$ samples $\log T$ random strings $\{ s_\ell \}_{\ell}$ and bits $\{ b_\ell \}_{\ell}$.
+Since there are only $\log T$ values, with probability $\frac{1}{T}$ (which is polynomial in $n$) all the $b_{\ell}$'s are correct, i.e., $b_\ell = B(x, s_\ell)$. In the rest of this proof, we denote this event as $F$.
+Now note that if $F$ happens, then $B_L$ as defined in the algorithm is also equal to $B(x, S_L)$ (we denote the $k^{\text{th}}$-bit of $s$ with $(s)_k$): 
+\begin{align*}
+B(x,S_L) &=~ \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k \\
+&=~ \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L
+\end{align*}
+Thus, with probability $\frac{1}{T}$, we have all the right guesses for one of the invocations, and we just need to bound the probability that $\ma(f(x) || S_L \oplus e^i) = B(x, S_L \oplus e^i)$.
+However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are no longer independent.
+Nevertheless, we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof.
+
 Just as in the simple case, we define the set $G$ as
 $$G := \left\{x \left| \Pr_r \left[ E \right]\geq \frac{1}{2} + \frac{\epsilon(n)}{2} \right. \right\},$$
-and with an identical argument we obtain that
-$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}.$$\\
-Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that (we use the notation $(s)_k$ to denote the $k^{th}$ bit of $s$)
-$$B(x,S_L) = \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k = \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L.$$
-Next given that $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$ we bound the probability,
+and with an identical argument we obtain that:
+
+$$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}$$
+
+% Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that
+Next, given $\{ b_\ell = B(x,s_\ell) \}_{\ell \in [\log T]}$ and $x\in G$, we have:
 \begin{align*}
-\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L+e^i) = x_i \right]
-=& \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L+e^i) = x_i \right]\\
-=& \Pr_{r} \left[ \ma(f(x) || S_L+e^i) =  B(x,S_L +e^i) \right]\\
-\geq& \frac{1}{2} + \frac{\epsilon(n)}{2}.
+&\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right] \\
+&=~ \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right]\\
+&=~ \Pr_{r} \left[ \ma(f(x) || S_L \oplus e^i) =  B(x,S_L \oplus e^i) \right]\\
+&\geq~ \frac{1}{2} + \frac{\epsilon(n)}{2}
 \end{align*}
-For $b_\ell = B(x,s_\ell), \forall \ell \in [\log T]$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
+For the same $\{ b_\ell \}_\ell$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
 Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
 \begin{align*}
 \Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
@@ -219,20 +322,20 @@ Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and
 & \text{(By Theorem~\ref{thm:Chebyshev})}\\
 \leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
 \end{align*}
-Then, completing the proof, we have that
+Completing the proof, we have that:
 \begin{align*}
-\Pr_{x,r}[&\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
-\geq&  \Pr\left[\forall \ell \in [\log T], b_\ell = B(x,s_\ell)\right] \\& \cdot  \Pr_x [x \in G] \Pr[x'_1 = x_1, \cdots x'_n = x_n | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\\
-\geq& \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i | \forall \ell \in [\log T], b_\ell = B(x,s_\ell), x \in G]\right)\\
-\geq& \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}.
+& \Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+&\geq~  \Pr_{\{ b_\ell, s_\ell \}_\ell}\left[ F \right] \cdot  \Pr_x [x \in G] \cdot \Pr[x'_1 = x_1, \cdots x'_n = x_n ~|~ x \in G ~\wedge~ F]\\
+&\geq~ \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i ~|~  x \in G ~\wedge~ F]\right)\\
+&\geq~ \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}
 \end{align*}
 \qed
 
 \marginnote[-17cm]{%
-\noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} Here, for the sake of completeness, we prove the Chebyshev's Inequality.
+\noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} For the sake of completeness, we prove the Chebyshev's Inequality here.
 \begin{definition}[Pairwise Independence]
 A collection of random variables $\{X_1,\cdots,X_m\}$ is said to be \emph{pairwise independent} if for every pair of random variables $(X_i, X_j), i \neq j$  and every pair of values $(v_i,v_j)$, it holds that
-$$\Pr[X_i = v_i, X_j = v_j] = \Pr[X_i = v_i]\Pr[X_j = v_j].$$
+\[\Pr[X_i = v_i, X_j = v_j] = \Pr[X_i = v_i]\Pr[X_j = v_j]\]
 \end{definition}
 
 \begin{theorem}[Chebyshev's Inequality]\label{thm:Chebyshev}
@@ -243,17 +346,16 @@ $$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq \delta m\right] \leq \frac{1}
 \proof
 Let $Y = \sum_i X_i$. Then
 \begin{align*}
-\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| > \delta m\right] &=
-\Pr\left[\left(\sum_{i=1}^m X_i - pm\right)^2> \delta^2 m^2\right]\\
-&\leq \frac{\mathbb{E}\left[\left|Y - pm\right|^2\right]}{\delta^2m^2}\\
-&= \frac{\text{Var}(Y)}{\delta^2m^2}\\
+&\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| > \delta m\right] \\
+&=~ \Pr\left[\left(\sum_{i=1}^m X_i - pm\right)^2> \delta^2 m^2\right]\\
+&\leq~ \frac{\mathbb{E}\left[\left|Y - pm\right|^2\right]}{\delta^2m^2} = \frac{\text{Var}(Y)}{\delta^2m^2} \\
 \end{align*}
 Observe that
 \begin{align*}
 \text{Var}(Y) &= \mathbb{E}\left[Y^2\right] - \left(\mathbb{E}[Y]\right)^2\\
 &= \sum_{i=1}^m \sum_{j=1}^m \left( \mathbb{E}\left[X_iX_j\right] - \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]\right)\\
-& \text{By pairwise independence, for $i \neq j$,  
-$\mathbb{E}\left[X_iX_j\right] = \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]$.}\\
+& \text{By pairwise independence, for $i \neq j$,} \\  
+& \text{$\mathbb{E}\left[X_i X_j\right] = \mathbb{E}\left[X_i\right] \mathbb{E}\left[X_j\right]$.}\\
 &= \sum_{i=1}^m \mathbb{E}\left[X_i^2\right] - \mathbb{E}\left[X_i\right]^2\\
 &= mp(1-p).
 \end{align*}
