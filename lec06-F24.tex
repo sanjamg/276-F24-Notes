@@ -1,1 +1,18 @@
-\chapter{Private-Key Encryption}
+\chapter{Private-Key Cryptography}
+%\newcommand{\key}{\mathsf{k}}
+\newcommand{\gen}{\mathsf{Gen}}
+
+\begin{definition}[$\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$] A private-key encryption scheme $\Pi = (\gen,\enc,\dec)$ is $\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$-secure if 
+$$ \advantage{\indcpa}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
+is a negligible function. 
+\end{definition}
+
+\marginnote[-1.5in]{
+\procedureblock[linenumbering]{$ \pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_{\Pi}^{\adv}(\secpar)$}{
+ b \sample \bin \\
+  \key  \sample \gen ( \secparam ) \\
+ ( \state ,m_0 ,m_1) \sample \adv^{\enc ( \key ,\cdot )} ( \secparam) \\
+ c \sample \enc ( \key ,m_b ) \\
+ b' \sample \adv^{\enc ( \key ,\cdot )} ( \state , c ) \\
+ \pcreturn b = b' }
+ }
