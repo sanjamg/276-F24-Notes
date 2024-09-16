@@ -1,4 +1,4 @@
-\newcommand{\ma}{\mathcal{A}}
+
 
 \section{Levin's One-Way Function}
 
@@ -291,10 +291,16 @@ Just like the previous two cases, we start by describing the algorithm $\mathcal
 In the beginning of the algorithm, $\mathcal{B}$ samples $\log T$ random strings $\{ s_\ell \}_{\ell}$ and bits $\{ b_\ell \}_{\ell}$.
 Since there are only $\log T$ values, with probability $\frac{1}{T}$ (which is polynomial in $n$) all the $b_{\ell}$'s are correct, i.e., $b_\ell = B(x, s_\ell)$. In the rest of this proof, we denote this event as $F$.
 Now note that if $F$ happens, then $B_L$ as defined in the algorithm is also equal to $B(x, S_L)$ (we denote the $k^{\text{th}}$-bit of $s$ with $(s)_k$): 
+
 \begin{align*}
-B(x,S_L) &=~ \sum_{k=1}^n x_k \left(\bigoplus_{j \in L} s_j\right)_k =  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k \\
-&=~ \sum_{j \in L} \sum_{k=1}^n x_k \left(s_j\right)_k = \sum_{j \in L}B(x,s_j) = \sum_{j\in L} b_j  = B_L
+B(x,S_L) &= \sum_{k=1}^n x_k (\bigoplus_{j \in L} s_j)_k \\ 
+         &=  \sum_{k=1}^n x_k \sum_{j \in L} \left(s_j\right)_k \\
+         &= \sum_{j \in L} \sum_{k=1}^n x_k (s_j)_k \\
+         &= \sum_{j \in L} B(x,s_j) \\
+         &= \sum_{j\in L} b_j  \\
+         &= B_L
 \end{align*}
+
 Thus, with probability $\frac{1}{T}$, we have all the right guesses for one of the invocations, and we just need to bound the probability that $\ma(f(x) || S_L \oplus e^i) = B(x, S_L \oplus e^i)$.
 However there is a subtle issue. Now the events $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are no longer independent.
 Nevertheless, we can still show that they are pairwise independent, and the Chebyshev's Inequality still holds. Now we give the formal proof.

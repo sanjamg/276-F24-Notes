@@ -14,6 +14,9 @@
 \usepackage{enumitem}
 \floatstyle{boxed}
 \restylefloat{figure}
+
+\usepackage[n,advantage,operators,sets,adversary,landau,probability,notions,logic,ff,mm,primitives,events,complexity,oracles,asymptotics,keys]{cryptocode} 
+
 \usepackage[most]{tcolorbox}
 \newcommand{\heading}[5]{
    \renewcommand{\thepage}{#1-\arabic{page}}
@@ -60,20 +63,20 @@ Sanjam Garg}{GSI: #4}{Lecture #1: #3}}
 %\newcommand{\binset}[1]{\{ 0, 1 \}^{#1}}
 %\newcommand{\binfunc}[2]{\binset{#1} \rightarrow \binset{#2}}
 \newcommand{\marginnote}[2][1]{#2}
-
-\newcommand{\concat}[0]{\; || \;}
+\input{macros}
+%\newcommand{\concat}[0]{\; || \;}
 
 %\newcommand{\bin}{\{0,1\}}
 %\newcommand{\adv}{\mathcal{A}}
 %\newcommand{\advb}{\mathcal{B}}
 %\newcommand{\advc}{\mathcal{C}}
 
-\newcommand{\gen}{\mathsf{Gen}}
-\newcommand{\enc}{\mathsf{Enc}}
-\newcommand{\dec}{\mathsf{Dec}}
-\newcommand{\pk}{\mathsf{pk}}
-\newcommand{\sk}{\mathsf{sk}}
-\newcommand{\fake}{\mathsf{FAKE}}
+%\newcommand{\gen}{\mathsf{Gen}}
+%\newcommand{\enc}{\mathsf{Enc}}
+%\newcommand{\dec}{\mathsf{Dec}}
+%\newcommand{\pk}{\mathsf{pk}}
+%\newcommand{\sk}{\mathsf{sk}}
+%\newcommand{\fake}{\mathsf{FAKE}}
 \newcommand{\mright}[3]{
     $#1$ & \quad$\xrightarrow{\parbox{3cm}{\centering$#2$}}$\quad & $#3$ \\
 }
