@@ -100,6 +100,8 @@ arbitrarily large message by just comparing their sizes. It is possible to work 
 this requirement by having an encryption scheme pad messages so that they are all
 of equal size if an upper bound is known.
 
+
+
 \subsection{Semantic Security}
 An alternate definition, which we will later prove is identical, is semantic security.
 This definition intuitively states that given a ciphertext, you should learn nothing about
@@ -162,7 +164,6 @@ By the indistinguishability property, $A$ cannot distinguish $(\pk, \enc(\pk, 0^
  \qed
 
 
-
 \section{Public Key Encryption from Trap-Door OWP}
 
 We now show how it is possible to create a public key encryption scheme from a trapdoor
@@ -188,6 +189,7 @@ Hence they are indistinguishable.
 \qed
 
 
+
 \section{Indistinguishability in a Chosen Plaintext Attack}
 
 We now define a new security requirement, IND-CPA, which is stronger than indistinguishability
@@ -207,10 +209,6 @@ an attacker which can ask the user to encrypt specific messages after learning t
 public keys can still not learn anything about the values of the encrypted messages. In
 particular, there can not be any easy-to-identify weak messages for a given public key.
 
-\begin{definition}
-A public key encryption scheme (PKE) given by the three efficient procedures $(G,E,D)$ is
-IND-CPA-secure if no adversary $A$ has a significant advantage in the game
-represented in Table~\ref{tab:cpa}.
 \begin{table}[ht]
 \centering
 \begin{tabular}{r c l}
@@ -224,6 +222,11 @@ Output 1 if $(b'=b)$ & & \\
 \end{tabular}
 \caption{CPA security.}\label{tab:cpa}
 \end{table}
+
+\begin{definition}
+A public key encryption scheme (PKE) given by the three efficient procedures $(G,E,D)$ is
+IND-CPA-secure if no adversary $A$ has a significant advantage in the game
+represented in Table~\ref{tab:cpa}.
 
 This means that every probabilistic polynomial-time (PPT) adversary $A$ has only a
 negligible advantage (over a random guess)
@@ -263,7 +266,7 @@ knows exactly to pick values $x_0$ and $x_1$ will be able to distinguish between
 those two with probability $1$. \qed
 
 
-
+\iffalse
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Chosen Ciphertext Attack for Public Key Encryption}
 
@@ -498,3 +501,4 @@ They are indistinguishable by reduction to the zero-knowledge property of the pr
 \qed
 
 
+\fi
