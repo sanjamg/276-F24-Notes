@@ -16,9 +16,6 @@ In this definition, $n$ is a parameter.
 Sometimes, we write $\{X_n\}_n$ or even simply $X_n$, when it is clear from context that we are talking about an ensemble.
 
 \begin{definition}[Statistical Indistinguishability]
-
-    Let
-
     Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ are said to be \emph{statistically indistinguishable} if for all adversaries $\ma$, the quantities
     $$p(n) := \Pr[\ma(X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
     and
@@ -42,7 +39,7 @@ where $S = Support(X_n) \cup Support(Y_n)$.
 In fact, we can show that $\Delta_{\ma}(n) \le SD(X_n, Y_n)$.
 \begin{lemma}[Relationship between $SD$ and $\Delta_\ma$]
     For any adversary $\ma$,
-    $$\Delta_{\ma}(n) = SD(X_n, Y_n)$$
+    $$\Delta_{\ma}(n) \le SD(X_n, Y_n)$$
 \end{lemma}
 
 \proof
@@ -78,13 +75,11 @@ Now we will show the main result of the lemma.
     &\le \sum\limits_{v \in T} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
     &= SD(X_n, Y_n)
 \end{align*}
-
 \qed
-
 
 \section{Computational Indistinguishability}
 We now turn to a more reasonable definition of indistinguishability.
-In particular, this definition imposes the usual limits on the adversary $\ma$. 
+In particular, this definition imposes the usual computational limits on the adversary $\ma$. 
 It also requires that the ensembles of distributions in question be efficiently samplable.
 Besides those changes, however, the definition of \emph{computational indistinguishability} is quite similar to that of \emph{statistical indistinguishability}.
 
@@ -153,10 +148,10 @@ By the Pigeonhole Principle, there must exist some index $k$ for which
 \end{align*}
 This implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are distinguishable.
 
-Using this information, we can construct an attacker $\mb$ that can distinguish $X_n$ from $Y_n$.
+Using this information, we can construct an adversary $\mb$ that can distinguish $X_n$ from $Y_n$.
 Given an input $Z_n$, which is either $X_n$ or $Y_n$, $\mb$ works as follows:
 $$\mb(Z_n) = \ma(X_1, ..., X_{k-1}, Z, Y_{k+1}, ..., Y_t)$$
-By the argument above, for some value\footnote{$\mb$ is non-uniform, so it can ``know" which value of $k$ it should use.} of $k$, this computation gives $|\Pr[\mb(X_n)=1] - \Pr[B(Y_n) = 1]| \ge \frac{\varepsilon(n)}{t}$.
+By the argument above, for some value\footnote{$\mb$ is non-uniform, so it can ``know" which value of $k$ it should use.} of $k$, this computation gives $|\Pr[\mb(X_n)=1] - \Pr[\mb(Y_n) = 1]| \ge \frac{\varepsilon(n)}{t}$.
 
 
 %However, using the Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. 
@@ -166,7 +161,7 @@ This is a contradiction.
 Intuitively, the idea behind proofs by hybrid argument is to create a chain of polynomially many hybrids such that the hybrids are pairwise indistinguishable at each step.
 Visually:
 $$H^{(0,t)}_n \approx H^{(1,t)}_n \approx H^{(2,t)}_n \approx ... \approx H^{(t-1,t)}_n \approx H^{(t,t)}_n$$
-This transitively implies that 
+This implies that 
 $$H^{(0,t)}_n \approx H^{(t,t)}_n$$
 which is the same thing as saying that
 $$\overline{X}_n \approx \overline{Y}_n$$
