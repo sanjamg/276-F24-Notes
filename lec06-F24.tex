@@ -2,17 +2,36 @@
 %\newcommand{\key}{\mathsf{k}}
 \newcommand{\gen}{\mathsf{Gen}}
 
-\begin{definition}[$\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$] A private-key encryption scheme $\Pi = (\gen,\enc,\dec)$ is $\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$-secure if 
-$$ \advantage{\indcpa}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
-is a negligible function. 
-\end{definition}
 
-\marginnote[-1.5in]{
+\section{Definition}
+
+
+
+
 \procedureblock[linenumbering]{$ \pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_{\Pi}^{\adv}(\secpar)$}{
  b \sample \bin \\
   \key  \sample \gen ( \secparam ) \\
  ( \state ,m_0 ,m_1) \sample \adv^{\enc ( \key ,\cdot )} ( \secparam) \\
  c \sample \enc ( \key ,m_b ) \\
  b' \sample \adv^{\enc ( \key ,\cdot )} ( \state , c ) \\
- \pcreturn b = b' }
- }
+ \pcreturn b = b' \wedge |m_0| = |m_1| }
+\begin{definition}[$\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$] A private-key encryption scheme $\Pi = $ $(\gen,\enc,\dec)$ is $\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa$-secure if 
+$$ \advantage{\indcpa}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
+is a negligible function. 
+\end{definition}
+
+
+\procedureblock[linenumbering]{$ \pcnotionstyle{Pri\pcmathhyphen{}}\indcca_{\Pi}^{\adv}(\secpar)$}{
+ b \sample \bin \\
+  \key  \sample \gen ( \secparam ) \\
+ ( \state ,m_0 ,m_1) \sample \adv^{\enc ( \key ,\cdot ), \dec ( \key ,\cdot )} ( \secparam) \\
+ c \sample \enc ( \key ,m_b ) \\
+ b' \sample \adv^{\enc ( \key ,\cdot ), \dec ( \key ,\cdot )} ( \state , c ) \text{ and }
+ L \text{ are } \adv\text{'s } \text{ queries to } \dec \\
+    \pcreturn b = b'  \wedge |m_0| = |m_1| \wedge c \notin L}
+
+
+ \begin{definition}[$\pcnotionstyle{Pri\pcmathhyphen{}}\indcca$] A private-key encryption scheme $\Pi = (\gen,\enc,\dec)$ is $\pcnotionstyle{Pri\pcmathhyphen{}}\indcca$-secure if 
+$$ \advantage{\indcca}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcca_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
+is a negligible function. 
+\end{definition}
