@@ -1,0 +1,894 @@
+\documentclass[12pt]{tufte-book}
+\usepackage{amsthm,amssymb,amsmath,thmtools,datetime,tikz}
+
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\setcounter{secnumdepth}{3}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Lavender}]{definition}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{lemma}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{claim}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Apricot}]{theorem}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=yellow}]{remark}
+\declaretheorem[numberwithin=chapter]{exercise}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=pink}]{construction}
+\usepackage[
+    type={CC},
+    modifier={by-nc-nd},
+    version={4.0},
+]{doclicense}
+
+\usepackage{graphicx,xcolor,mdframed}
+%\usepackage[version=0.96]{pgf}
+\usepackage{enumitem}
+
+\def\chpcolor{blue!45}
+\def\chpcolortxt{blue!60}
+
+\iffalse
+\titleformat{\chapter}%
+  {\huge\rmfamily\itshape\color{red}}% format applied to label+text
+  {\llap{\colorbox{red}{\parbox{1.5cm}{\hfill\itshape\huge\color{white}\thechapter}}}}% label
+  {2pt}% horizontal separation between label and title body
+  {}% before the title body
+  []% after the title body
+\fi
+
+\hypersetup{colorlinks}% uncomment this line if you prefer colored hyperlinks (e.g., for onscreen viewing)
+
+%%
+% Book metadata
+\title{A Course in Theory of Cryptography}
+\author[Sanjam Garg]{Sanjam Garg}
+%\publisher{Publisher of This Book}
+
+%%
+% If they're installed, use Bergamo and Chantilly from www.fontsite.com.
+% They're clones of Bembo and Gill Sans, respectively.
+%\IfFileExists{bergamo.sty}{\usepackage[osf]{bergamo}}{}% Bembo
+%\IfFileExists{chantill.sty}{\usepackage{chantill}}{}% Gill Sans
+
+%\usepackage{microtype}
+
+%%
+% Just some sample text
+\usepackage{lipsum}
+\input{macros}
+%%
+% For nicely typeset tabular material
+\usepackage{booktabs}
+
+\usepackage[n,advantage,operators,sets,adversary,landau,probability,notions,logic,ff,mm,primitives,events,complexity,oracles,asymptotics,keys]{cryptocode} 
+%%
+% For graphics / images
+\usepackage{graphicx,algpseudocode}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\graphicspath{{graphics/}}
+
+% The fancyvrb package lets us customize the formatting of verbatim
+% environments.  We use a slightly smaller font.
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+%%
+% Prints argument within hanging parentheses (i.e., parentheses that take
+% up no horizontal space).  Useful in tabular environments.
+\newcommand{\hangp}[1]{\makebox[0pt][r]{(}#1\makebox[0pt][l]{)}}
+
+%%
+% Prints an asterisk that takes up no horizontal space.
+% Useful in tabular environments.
+\newcommand{\hangstar}{\makebox[0pt][l]{*}}
+
+%%
+% Prints a trailing space in a smart way.
+\usepackage{xspace}
+
+%%
+% Some shortcuts for Tufte's book titles.  The lowercase commands will
+% produce the initials of the book title in italics.  The all-caps commands
+% will print out the full title of the book in italics.
+\newcommand{\vdqi}{\textit{VDQI}\xspace}
+\newcommand{\ei}{\textit{EI}\xspace}
+\newcommand{\ve}{\textit{VE}\xspace}
+\newcommand{\be}{\textit{BE}\xspace}
+\newcommand{\VDQI}{\textit{The Visual Display of Quantitative Information}\xspace}
+\newcommand{\EI}{\textit{Envisioning Information}\xspace}
+\newcommand{\VE}{\textit{Visual Explanations}\xspace}
+\newcommand{\BE}{\textit{Beautiful Evidence}\xspace}
+
+\newcommand{\TL}{Tufte-\LaTeX\xspace}
+
+% Prints the month name (e.g., January) and the year (e.g., 2008)
+\newcommand{\monthyear}{%
+  \ifcase\month\or January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or
+  December\fi\space\number\year
+}
+
+
+% Prints an epigraph and speaker in sans serif, all-caps type.
+\newcommand{\openepigraph}[2]{%
+  %\sffamily\fontsize{14}{16}\selectfont
+  \begin{fullwidth}
+  \sffamily\large
+  \begin{doublespace}
+  \noindent\allcaps{#1}\\% epigraph
+  \noindent\allcaps{#2}% author
+  \end{doublespace}
+  \end{fullwidth}
+}
+
+% Inserts a blank page
+\newcommand{\blankpage}{\newpage\hbox{}\thispagestyle{empty}\newpage}
+
+\usepackage{units}
+
+% Typesets the font size, leading, and measure in the form of 10/12x26 pc.
+\newcommand{\measure}[3]{#1/#2$\times$\unit[#3]{pc}}
+
+% Macros for typesetting the documentation
+\newcommand{\hlred}[1]{\textcolor{Maroon}{#1}}% prints in red
+\newcommand{\hangleft}[1]{\makebox[0pt][r]{#1}}
+\newcommand{\hairsp}{\hspace{1pt}}% hair space
+\newcommand{\hquad}{\hskip0.5em\relax}% half quad space
+\newcommand{\TODO}{\textcolor{red}{\bf TODO!}\xspace}
+\newcommand{\ie}{\textit{i.\hairsp{}e.}\xspace}
+\newcommand{\eg}{\textit{e.\hairsp{}g.}\xspace}
+\newcommand{\na}{\quad--}% used in tables for N/A cells
+\providecommand{\XeLaTeX}{X\lower.5ex\hbox{\kern-0.15em\reflectbox{E}}\kern-0.1em\LaTeX}
+\newcommand{\tXeLaTeX}{\XeLaTeX\index{XeLaTeX@\protect\XeLaTeX}}
+% \index{\texttt{\textbackslash xyz}@\hangleft{\texttt{\textbackslash}}\texttt{xyz}}
+\newcommand{\tuftebs}{\symbol{'134}}% a backslash in tt type in OT1/T1
+\newcommand{\doccmdnoindex}[2][]{\texttt{\tuftebs#2}}% command name -- adds backslash automatically (and doesn't add cmd to the index)
+\newcommand{\doccmddef}[2][]{%
+  \hlred{\texttt{\tuftebs#2}}\label{cmd:#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\doccmd}[2][]{%
+  \texttt{\tuftebs#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\docopt}[1]{\ensuremath{\langle}\textrm{\textit{#1}}\ensuremath{\rangle}}% optional command argument
+\newcommand{\docarg}[1]{\textrm{\textit{#1}}}% (required) command argument
+\newenvironment{docspec}{\begin{quotation}\ttfamily\parskip0pt\parindent0pt\ignorespaces}{\end{quotation}}% command specification environment
+\newcommand{\docenv}[1]{\texttt{#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docenvdef}[1]{\hlred{\texttt{#1}}\label{env:#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docpkg}[1]{\texttt{#1}\index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}}% package name
+\newcommand{\doccls}[1]{\texttt{#1}}% document class name
+\newcommand{\docclsopt}[1]{\texttt{#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name
+\newcommand{\docclsoptdef}[1]{\hlred{\texttt{#1}}\label{clsopt:#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name defined
+\newcommand{\docmsg}[2]{\bigskip\begin{fullwidth}\noindent\ttfamily#1\end{fullwidth}\medskip\par\noindent#2}
+\newcommand{\docfilehook}[2]{\texttt{#1}\index{file hooks!#2}\index{#1@\texttt{#1}}}
+\newcommand{\doccounter}[1]{\texttt{#1}\index{#1 counter@\texttt{#1} counter}}
+
+% Generates the index
+\usepackage{makeidx}
+\makeindex
+
+\begin{document}
+\iffalse
+% Front matter
+\frontmatter
+
+% r.1 blank page
+\blankpage
+
+
+% v.2 epigraphs
+\newpage\thispagestyle{empty}
+\openepigraph{%
+The public is more familiar with bad design than good design.
+It is, in effect, conditioned to prefer bad design, 
+because that is what it lives with. 
+The new becomes threatening, the old reassuring.
+}{Paul Rand%, {\itshape Design, Form, and Chaos}
+}
+\vfill
+\openepigraph{%
+A designer knows that he has achieved perfection 
+not when there is nothing left to add, 
+but when there is nothing left to take away.
+}{Antoine de Saint-Exup\'{e}ry}
+\vfill
+\openepigraph{%
+\ldots the designer of a new system must not only be the implementor and the first 
+large-scale user; the designer should also write the first user manual\ldots 
+If I had not participated fully in all these activities, 
+literally hundreds of improvements would never have been made, 
+because I would never have thought of them or perceived 
+why they were important.
+}{Donald E. Knuth}
+\fi
+
+% r.3 full title page
+\maketitle
+
+
+% v.4 copyright page
+%\newpage
+\begin{fullwidth}
+~\vfill
+\thispagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+Copyright \copyright\ \the\year\ \thanklessauthor
+
+%\par\smallcaps{Published by \thanklesspublisher}
+
+\par\smallcaps{This document is continually being updated. Please send us your feedback.}
+
+
+\par \doclicenseThis
+ \index{license}
+
+\par\textit{This draft was compiled on \today.}
+\end{fullwidth}
+
+% r.5 contents
+\tableofcontents
+
+%\listoffigures
+
+%\listoftables
+
+% r.7 dedication
+\iffalse
+\cleardoublepage
+~\vfill
+
+\begin{doublespace}
+\noindent\fontsize{18}{22}\selectfont\itshape
+\nohyphenation
+Dedicated to those who appreciate \LaTeX{} 
+and the work of \mbox{Edward R.~Tufte} 
+and \mbox{Donald E.~Knuth}.
+\end{doublespace}
+\vfill
+\vfill
+
+% r.9 introduction
+\cleardoublepage
+\fi
+\chapter*{Preface}
+Cryptography enables many paradoxical objects, such as public key encryption, verifiable electronic signatures, zero-knowledge protocols, and fully homomorphic encryption.  The two main steps in developing such seemingly impossible primitives are (i) defining the desired security properties formally and (ii) obtaining a construction satisfying the security property provably. In modern cryptography, the second step typically assumes (unproven) computational assumptions, which are conjectured to be computationally intractable. In this course, we will define several cryptographic primitives and argue their security based on well-studied computational hardness assumptions. However, we will largely ignore the mathematics underlying the assumed computational intractability assumptions.
+
+\section*{Acknowledgements}
+These lecture notes are based on scribe notes taken by students in CS 276 over the years. Also, thanks to Peihan Miao, Akshayaram Srinivasan, and Bhaskar Roberts for helping to improve these notes.
+%%
+% Start the main matter (normal chapters)
+\newcommand{\sanjam}[1]{{\color{red} Sanjam: #1}}
+
+\newcommand{\bhaskar}[1]{{\color{ForestGreen} Bhaskar: #1}}
+
+
+\mainmatter
+\input{lec00-F24}
+\input{lec01-F24}
+\input{lec02-F24}
+\input{lec03-F24}
+\chapter{Pseudorandomness}
+\DIFaddbegin \DIFadd{In this chapter, our objective is to transform a small amount of entropy into a distribution that closely resembles randomness.
+The idea is to start with a small amount of entropy, known as the ``seed", and use a deterministic process to generate a new distribution that appears ``indistinguishable" from random. 
+However, before we dive into the specifics of how to achieve this, we need to clarify what we mean by ``indistinguishable."
+}\DIFaddend 
+
+\section{\DIFdelbegin \DIFdel{Distinguishability Between Two Distributions}\DIFdelend \DIFaddbegin \DIFadd{Statistical Indistinguishability}\DIFaddend }
+\DIFdelbegin %DIFDELCMD < \sanjam{add}
+%DIFDELCMD < %%%
+\section{\DIFdel{Computational Indistinguishability}}
+%DIFAUXCMD
+\addtocounter{section}{-1}%DIFAUXCMD
+%DIFDELCMD < 
+
+%DIFDELCMD < %%%
+\DIFdel{Defining indistinguishability between two distributions by a computationally bounded adversary turns out be }\DIFdelend \DIFaddbegin \DIFadd{The first definition of indistinguishability we will focus on is that of statistical indistinguishability.
+It turns out that defining what it means for two distributions to be indistinguishable by an adversary is }\DIFaddend tricky.
+In particular, \DIFdelbegin \DIFdel{It }\DIFdelend \DIFaddbegin \DIFadd{it }\DIFaddend is tricky to define \DIFaddbegin \DIFadd{indistinguishability }\DIFaddend for a single pair of distributions because the length of the output of a random variable is a constant.
+Therefore, in order for \DIFdelbegin \DIFdel{``computationally bounded'' adversaries }\DIFdelend \DIFaddbegin \DIFadd{our definition }\DIFaddend to make sense, we \DIFdelbegin \DIFdel{have to work with infinite families of probability distributions}\DIFdelend \DIFaddbegin \DIFadd{will work with collections of distributions, called }\emph{\DIFadd{ensembles}}\DIFaddend .
+
+\DIFdelbegin %DIFDELCMD < \begin{definition}
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \begin{definition}[Ensemble of Probability Distributions]
+\DIFaddend An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. 
+\DIFaddbegin \end{definition}
+\DIFadd{In this definition, $n$ is a parameter.
+Sometimes, we write $\{X_n\}_n$ or even simply $X_n$, when it is clear from context that we are talking about an ensemble.
+}
+
+\begin{definition}[Statistical Indistinguishability]
+    \DIFaddend Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ \DIFaddbegin \DIFadd{are said to be }\emph{\DIFadd{statistically indistinguishable}} \DIFadd{if for all adversaries $\ma$, the quantities
+    }$$\DIFadd{p(n) := \Pr[\ma(X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]}$$
+    \DIFadd{and
+    }$$\DIFadd{q(n) := \Pr[\ma(Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]}$$
+    \DIFadd{differ by a negligible amount.
+    In particular, the ensembles are said to be statistically indistinguishable if
+    }$$\DIFadd{\Delta_\ma(n) = |p(n) - q(n)| = |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]|}$$
+    \DIFadd{is negligible in $n$.
+This equivalence is denoted by
+}$$\DIFadd{\{X_n\}_n \approx_S \{Y_n\}_n}$$
+\end{definition}
+\DIFadd{Note that our attacker in this scenario is not computationally bounded, as is usual}\footnote{\DIFadd{Statistical indistinguishability is a very strong requirement, and it makes use of a very powerful adversary, so it will serve mostly as an illustrative example.}}\DIFadd{.
+We also do not require the ensemble to be efficiently samplable.
+}
+
+\DIFadd{This definition is closely related to the concept of the }\textit{\DIFadd{statistical distance}} \DIFadd{between two probability distributions.
+}\begin{definition}[Statistical Distance]
+\DIFadd{The }\emph{\DIFadd{statistical distance}} \DIFadd{between two distributions $X$ and $Y$ is defined as
+}$$\DIFadd{SD(X, Y) = \frac{1}{2}\sum\limits_{v \in S}|\Pr[X_n = v] - \Pr[Y_n = v]|}$$
+\DIFadd{where $S = Support(X_n) \cup Support(Y_n)$.
+}\end{definition}
+\DIFadd{In fact, we can show that $\Delta_{\ma}(n) \le SD(X_n, Y_n)$.
+}\begin{lemma}[Relationship between $SD$ and $\Delta_\ma$]
+    \DIFadd{For any adversary $\ma$,
+    }$$\DIFadd{\Delta_{\ma}(n) \le SD(X_n, Y_n)}$$
+\end{lemma}
+
+\proof
+\DIFadd{Let $\Omega$ be the sample space for $X_n$ and $Y_n$.
+}
+
+\DIFadd{Let $T = \{v \in \Omega | \Pr[v \leftarrow X_n] > \Pr[v \leftarrow Y_n]\}$.
+}
+
+\DIFadd{First, we will prove that $SD(X_n, Y_n) = \sum\limits_{v \in \Omega} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|$.
+}
+
+\begin{align*}
+    \DIFadd{\sum\limits_{v \in \Omega} \Pr[v \leftarrow X_n] }&\DIFadd{= \sum\limits_{v \in \Omega} \Pr[v \leftarrow Y_n] = 1 }\\
+    \DIFadd{\sum\limits_{v \in T}\Pr[v \leftarrow X_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow X_n] }&\DIFadd{= \sum\limits_{v \in T}\Pr[v \leftarrow Y_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow Y_n]}\\
+    \DIFadd{\sum\limits_{v \in T}(\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]) }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}(\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n])}\\
+    \DIFadd{\sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n]|}\\
+    \DIFadd{\sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
+    \DIFadd{\sum\limits_{v \in \Omega}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
+    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
+    \DIFadd{2SD(X_n, Y_n) }&\DIFadd{= 2 \cdot \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
+    \DIFadd{SD(X_n, Y_n) }&\DIFadd{= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|
+}\end{align*}
+
+\DIFadd{Now we will show the main result of the lemma.
+}\begin{align*}
+    \DIFadd{\Delta_\ma(n) }&\DIFadd{= |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]| }\\
+    &\DIFadd{= |\sum\limits_{v \in \Omega} (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow X_n]) - (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow Y_n])|}\\
+    &\DIFadd{= |\sum\limits_{v \in \Omega} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| }\\
+    &\DIFadd{= |\sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
+    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| }\\
+    &\DIFadd{= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
+    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
+    &\DIFadd{= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| }\\
+    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| }\\
+    &\DIFadd{\le \sum\limits_{v \in T} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
+    &\DIFadd{= SD(X_n, Y_n)
+}\end{align*}
+\qed
+
+\section{\DIFadd{Computational Indistinguishability}}
+\DIFadd{We now turn to a more reasonable definition of indistinguishability.
+In particular, this definition imposes the usual computational limits on the adversary $\ma$. 
+It also requires that the ensembles of distributions in question be efficiently samplable.
+Besides those changes, however, the definition of }\emph{\DIFadd{computational indistinguishability}} \DIFadd{is quite similar to that of }\emph{\DIFadd{statistical indistinguishability}}\DIFadd{.
+}
+
+\begin{definition}[Computational Indistinguishability]
+\DIFadd{Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ }\DIFaddend (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT \DIFdelbegin \DIFdel{machines }\DIFdelend \DIFaddbegin \DIFadd{adversaries }\DIFaddend $\ma$, the quantities
+$$p(n) := \Pr[\ma(1^n, X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
+and
+$$q(n) := \Pr[\ma(1^n,Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
+differ by a negligible amount; i.e. $|p(n) - q(n)|$ is negligible in $n$.    
+This equivalence is denoted by
+\DIFaddbegin $$\DIFadd{\{X_n\}_n\approx_C \{Y_n\}_n}$$
+\DIFadd{However, since this is the main form of indistinguishability that we are concerned with, we will simply write
+}\DIFaddend $$\{X_n\}_n\approx \{Y_n\}_n$$
+\end{definition}
+We now prove some properties of computationally indistinguishable ensembles that will be useful later on.
+
+\begin{lemma}[Sunglass Lemma]
+If $\{X_n\}_n\approx\{Y_n\}_n$ and $P$ is a PPT machine, then
+
+$$\{P(X_n)\}_n\approx \{P(Y_n)\}_n$$
+\end{lemma}
+
+\proof
+Consider an adversary $\ma$ that can distinguish $\{P(X_n)\}_n$ from $\{P(Y_n)\}_n$ with non-negligible probability. Then the adversary $\ma\circ P$ can distinguish $\{X_n\}_n$ from $\{Y_n\}_n$ with the same non-negligible probability. Since $P$ and $\ma$ are both PPT machines, the composition is also a PPT machine. This proves the contrapositive of the lemma.
+\qed
+
+\DIFdelbegin %DIFDELCMD < \begin{lemma}[Hybrid Argument]
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \DIFadd{The name of the lemma comes from the idea that if two objects are indistinguishable without putting on sunglasses, then they should remain indistinguishable after putting on sunglasses.
+}
+
+\begin{lemma}[Multicopy Lemma]
+\DIFaddend For a polynomial $t:\mathbb{Z}^+\rightarrow\mathbb{Z}^+$ let the $t$-product of $\{Z_n\}_n$ be
+
+$$\{Z_n^{(1)}, Z_n^{(2)},\hdots, Z_n^{(t(n))}\}_n$$
+where the $Z_n^{(i)}$s are independent copies of $Z_n$. If
+$$\{X_n\}_n\approx\{Y_n\}_n$$
+then
+$$\{X_n^{(1)},\hdots,X_n^{(t)}\}_n\approx\{Y_n^{(1)},\hdots,Y_n^{(t)}\}_n$$
+as well.
+\end{lemma}
+\DIFaddbegin \DIFadd{Intuitively, if you can't tell apart a red ball and a blue ball, then you can't tell apart multiple copies of the red and blue balls.
+}\DIFaddend 
+
+\begin{proof}
+\DIFaddbegin \DIFadd{We proceed by what is known as a hybrid argument.
+}\DIFaddend Consider the set of tuple random variables
+$$H^{(i,t)}_n = (Y_n^{(1)},\hdots,Y_n^{(i)},X_n^{(i+1)},X_n^{(i+2)},\hdots,X_n^{(t)})$$
+for integers $0\le i\le t$. 
+\DIFaddbegin \DIFadd{For instance, when $i=0$:
+}$$\DIFadd{H^{(0,t)}_n = (X_n^{(1)},X_n^{(2)},\hdots,X_n^{(t)}) = \overline{X}_n}$$
+\DIFadd{Similarly, when $i=t$:
+}$$\DIFadd{H^{(t,t)}_n = (Y_n^{(1)},Y_n^{(2)},\hdots,Y_n^{(t)}) = \overline{Y}_n}$$
+
+\DIFaddend Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference \DIFdelbegin \DIFdel{$r(n)$}\DIFdelend \DIFaddbegin \DIFadd{$\varepsilon(n)$}\DIFaddend . Suppose that $\ma$ returns 1 with probability \DIFdelbegin \DIFdel{$\epsilon_i$ }\DIFdelend \DIFaddbegin \DIFadd{$P_i$ }\DIFaddend when it runs on samples from $H^{(i,t)}_n$. 
+\DIFaddbegin \DIFadd{That is, $P_i = \Pr[\ma(H^{(i,t)}_n = 1)]$
+}\DIFaddend By definition, \DIFdelbegin \DIFdel{$|\epsilon_t - \epsilon_0|\ge r(n)$. 
+By the Triangle Inequality and the }\DIFdelend \DIFaddbegin \DIFadd{$|P_0 - P_t|\ge \varepsilon(n)$. 
+}
+
+\DIFadd{Using the common add-one-subtract-one trick, we can find that
+}\begin{align*}
+\DIFadd{|P_0 - P_t| }&\DIFadd{= |P_0 - P_{1} + P_{1} - P_{2} + ... + P_{t-1} - P_{t}| }\\
+&\DIFadd{= |(P_0 - P_{1}) + (P_{1} - P_{2}) + ... + (P_{t-1} - P_{t})| }\\
+&\DIFadd{\leq  |P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|
+}\end{align*}
+\DIFadd{Since $|P_0 - P_t| \ge \varepsilon(n)$, it follows that $|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}| \ge \varepsilon(n)$.
+By the }\DIFaddend Pigeonhole Principle, there \DIFdelbegin \DIFdel{is }\DIFdelend \DIFaddbegin \DIFadd{must exist }\DIFaddend some index $k$ for which
+\DIFdelbegin \DIFdel{$|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ }\DIFdelend \DIFaddbegin \begin{align*}
+\DIFadd{|P_k - P_{k+1}| }&\DIFadd{\ge \frac{|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|}{t} }\\
+&\DIFadd{\geq \frac{\varepsilon(n)}{t}
+}\end{align*}
+\DIFadd{This }\DIFaddend implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are \DIFdelbegin \DIFdel{computationally indistinguishable.
+}\DIFdelend \DIFaddbegin \DIFadd{distinguishable.
+}
+
+\DIFadd{Using this information, we can construct an adversary $\mb$ that can distinguish $X_n$ from $Y_n$.
+Given an input $Z_n$, which is either $X_n$ or $Y_n$, $\mb$ works as follows:
+}$$\DIFadd{\mb(Z_n) = \ma(X_1, ..., X_{k-1}, Z, Y_{k+1}, ..., Y_t)}$$
+\DIFadd{By the argument above, for some value}\footnote{\DIFadd{$\mb$ is non-uniform, so it can ``know" which value of $k$ it should use.}} \DIFadd{of $k$, this computation gives $|\Pr[\mb(X_n)=1] - \Pr[\mb(Y_n) = 1]| \ge \frac{\varepsilon(n)}{t}$.
+}
+
+
+%DIF > However, using the Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. 
+\DIFaddend This is a contradiction. 
+\qed
+\DIFaddbegin 
+
+\DIFadd{Intuitively, the idea behind proofs by hybrid argument is to create a chain of polynomially many hybrids such that the hybrids are pairwise indistinguishable at each step.
+Visually:
+}$$\DIFadd{H^{(0,t)}_n \approx H^{(1,t)}_n \approx H^{(2,t)}_n \approx ... \approx H^{(t-1,t)}_n \approx H^{(t,t)}_n}$$
+\DIFadd{This implies that 
+}$$\DIFadd{H^{(0,t)}_n \approx H^{(t,t)}_n}$$
+\DIFadd{which is the same thing as saying that
+}$$\DIFadd{\overline{X}_n \approx \overline{Y}_n}$$
+
+
+\DIFaddend %This is equivalent to trying to distinguish the ensembles $\{(X_n,T_n)\}_n$ from $\{(Y_n,T_n)\}_n$, where $T_n$ is independent of $X_n$ and $Y_n$ ($T_n$ is the random variable representing all coordinates but the $k$-th coordinate). Note that
+%
+%\begin{align*}
+%r(n)/t&\le |Pr[A(Y_n,T_n) = 1] - Pr[A(X_n,T_n) = 1]|\\
+%&= |\sum_{x,t} (Pr[Y_n = x,T_n = t] - Pr[X_n = x,T_n = t])Pr[A(x,t) = 1]|\\
+%&= |\sum_t Pr[T_n = t]\sum_x (Pr[Y_n = x] - Pr[X_n = x])Pr[A(x,t) = 1]|\\
+%&\le \sum_t Pr[T_n = t]\sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t) = 1]\\
+%\end{align*}
+%
+%so by the probabilistic method there is a $t_0$ for which $r(n)/t\le \sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t_0) = 1]$. This means that $X_n$ can be distinguished from $Y_n$ with probability difference $r(n)/t$, which is non-negligible (a contradiction).
+\end{proof}
+
+
+\iffalse
+\section{Hard Concentrate Bit}
+We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
+\begin{definition}[Hard Concentrate Bit]
+Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
+$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard concentrate bit of $f$ if:
+\begin{itemize}
+\item[-] $B$ is computable by a PPT machine, and
+\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
+	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
+\end{itemize}
+\end{definition}
+
+\noindent\textbf{A simple example.}
+Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard concentrate bit $B(b, x) = b$.
+Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
+\begin{remark}
+Given a one-way function $f$, we can construct another one-way function $g$ with a hard concentrate bit. However, we may not be able to find a hard concentrate bit for $f$. In fact, it is an open question whether a hard concentrate bit exists for every one-way function.
+\end{remark}
+
+
+\bigskip
+Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
+\begin{claim}
+If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
+\end{claim}
+\proof
+Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
+$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
+where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
+
+First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
+We next show that $B_i$ is not a hard concentrate bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard concentrate bit for $n+1 \leq i \leq n+\log n$).
+Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
+\begin{itemize}
+\item[-] If $y \not= i$ then output a random bit;
+\item[-] Otherwise output $x_y$.
+\end{itemize}
+\begin{align*}
+& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
+=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
+=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
+\end{align*}
+Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ accuracy.
+\qed
+
+\bigskip
+\noindent\textbf{Application: Coin tossing over the phone.}
+Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
+A hard concentrate bit of a one-way permutation can resolve this issue.
+
+Let $f$ be a one-way permutation and $B$ be a hard concentrate bit for $f$. Consider the following protocol:
+\begin{itemize}
+\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
+\item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
+\item[-] $P_1$ sends back $(x, B(x))$.  $B(x)$ serves as the outcome of the flipping.
+\end{itemize}
+On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
+On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
+
+\section{One-Way Permutations with Hard Concentrate Bits}
+We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
+Before delving into important characteristics of hard concentrate bits for one-way permutations, we consider an interesting application of hard concentrate bits and one-way permutations.
+
+
+
+
+
+\bigskip
+Given a one-way permutation, we can construct a one-way permutation with a hard concentrate bit:
+\begin{theorem}
+Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
+Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
+$$f'(x,r) = f(x) || r,$$
+where $|x| = |r| =n$. It has the hard concentrate bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
+\end{theorem}
+\proof
+\peihan{TODO...}
+If $\exists$ non-uniform PPT adversary $\ma$ s.t. $\Pr_{x,r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-$neg$, then $\exists$ an adversary $R$ that inverts $f$
+
+	First, note that $f'$ is a OWF function (as per last lecture).  Let $e^i$ be the value/binary string $0\ldots1\ldots0$, where the $1$ is in the $i$th position.\\
+
+\textbf{Super simple case:}\\
+	Assume that $A$ breaks the $B$ with perfect probability/accuracy: $\Pr[A(f'(x,r)) = B(x,r)] = 1$\\
+	We will now construct an adversary $R(f(x))$ which yields $x$\\
+	To invert $f$, $R$:
+	\begin{enumerate}
+		\item For each $i$, $R$ executes $A(f(x) \circ e^i)$
+		\item Then $R$ XOR's (sums, modulo 2) the values from step $1$.  $A(f(x) \circ e^i) \rightarrow B(x, e^i) = \sum_{j=1}^n x_j e_j^i \mod 2  = x_i$
+		\item $R$ concatenates each $x_i$ and returns the value as $x$
+	\end{enumerate}
+	Since $A$ predicts $B(f'(x,r))$ with probability 1, the output of $R$ is produced with probability $1$.\\
+
+To begin with a more complicated case let us consider a set that gives us better probability than that in the theorem - a set that gives $\Pr[E] \ge \frac{1}{2} + \epsilon(n)$ (where $E$ is $A(f'(x,r)) = B(x,r)$ from the theorem statement).
+Let us define this set as $G$ (standing for $Good$):\\
+$\forall_{x \in G} \Pr_{r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \frac{\epsilon(n)}{2}$ with $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$ \\
+\\
+Assuming $\Pr[x \in G] \le \frac{\epsilon(n)}{2}$ implies a contradiction, so it is safe to conclude $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\begin{proof}
+Assume that $\Pr[x \in G] \le \epsilon(n)/2$\\
+$\frac{1}{2}+\epsilon(n) \le \Pr_{x,r,A}[E] = \Pr[E(x) | x \in G] \times \Pr[x \in G] + \Pr[E(x) | x \notin G] \times \Pr[x \notin G]$\\
+$< 1 \times \frac{\epsilon(n)}{2} + (\frac{1}{2}+\frac{\epsilon(n)}{2}) \times 1 \le \frac{\epsilon(n)}{2} + \frac{1}{2}+\frac{\epsilon(n)}{2} = \frac{1}{2}+ \epsilon(n) \not> \frac{1}{2}+ \epsilon(n) contradiction$\\
+$\implies \Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
+\end{proof}
+\\
+	Observe that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$\\
+	$= (\sum_j x_j r_j + \sum_j x_j r_j \oplus e^i_j) \mod 2$\\
+	$= (\sum_j^{j \not= i} (x_j r_j + x_j r_j)$  $+ x_i r_i + x_i (1-r_i)) \mod 2$\\
+	$= x_i r_i + x_i - x_i r_i = x_i$\\\\
+
+Let us work with the probability: $\Pr_{r}[A(f(x), r) \oplus A(f(x), r \oplus e^i) = x_i]$\\
+		Note that if both A's guess correctly, we get the right/intended answer.
+		The probability of this happening $=$ both A's are right $=$ 1- either one is wrong $\ge  1-\frac{\text{either one is wrong}}{2 (\frac{1}{2}-\epsilon(n))} = 1 - \frac{\text{either one is wrong}}{2 \epsilon(n)}$\\\\
+\textbf{The Simple Case:}\\
+	$\Pr[E(x)] \ge \frac{3}{4}+\frac{\epsilon(n)}{2}$\\
+	This probability, is bounded by $1-2(\frac{1}{4} - \frac{\epsilon(n)}{2}) = \frac{1}{2} + \epsilon(n)$ from the observation before (as $\text{one is wrong} = 1- (\frac{3}{4}+\frac{\epsilon(n)}{2}) = \frac{1}{4} - \frac{\epsilon(n)}{2}$)\\
+	$R$ then runs the two A's polynomial times and uses majority vote.\\
+	We use Chebyshev's inequality to justify the use of majority vote.
+	%read chernov and chebyshev bounds
+
+\subsection{Chebyshev's inequality} %TODO: should this be a subsection or should it be smaller?
+	Let $x_1,\ldots,x_m$ be independent and identical random variables assuming values 0 or 1.  Also, let $\Pr[x_i=1] = p$.\\
+		Then $\Pr[ \lvert \sum x_i - pm \rvert > \delta m] < 1/(4\delta^2 m)$\\
+
+	Let $b_1,\ldots,b_T$ be random bits.\\
+	Let $X_1$ be 1 when $A(r_1) \rightarrow b_1$,\\
+	$X_2$ be 1 when $A(r_2) \rightarrow b_2$,\\
+	$\ldots$\\
+	and let $X_T=1$ when $A(r_T) \rightarrow b_T$.\\
+	Let $T=\frac{2n}{\epsilon(n)^2}$\\\\
+
+The problematic case is:\\
+	$\Pr[ \sum_{i=1}^T X_i \le T/2]$\\
+	$= \Pr[ \sum_{i=1}^T X_i - (\frac{1}{2} + \epsilon(n)) T \le T/2 - (\frac{1}{2}+\epsilon(n))\times T]$\\
+	$< \Pr[ \lvert \sum_{i=1}^T X_i - (\frac{1}{2}+\epsilon(n) T)\rvert > \epsilon(n) \frac{T}{2} ]$\\
+	$< \frac{1}{4 (\epsilon(n)/2)^2 T} = \frac{1}{\epsilon(n)^2 T} = \frac{1}{2n}$ which is sufficient for the theorem\\\\
+
+In order to show that we can use Chebyshev's inequality, we need to show that the samples we are voting over are pairwise independent:\\
+For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in {0,1}} \Pr[x=a \text{and} y=b] = \Pr[x=a] \times \Pr[y=b]$\\
+
+	Imagine we have $(r_1, B(x, r_1)), \ldots, (r_T, B(x,r_T))$\\
+	Let $k = \log(T)$, $S_1, \ldots, S_k \in \{0,1\}^n$ be sampled uniformly, and $b_1 = B(x, S_1), b_2 = B(x, S_2), \ldots, b_k = B(x, S_k)$
+	$\forall_{Y \subseteq [k]}$, $R$ generates $(f(x, \bigoplus_{i \in Y} S_i), \bigoplus_{i \in Y} b_i)$\\
+	(note: $[k]$ is the set $\{1,\ldots, k\}$)\\
+	\\
+	This proof is finished in the next lecture, with some slight changes.
+
+\qed
+
+
+%\subsection{Proof: Fixing a Value in a One-way Function}
+%
+%\begin{theorem}
+%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
+%\end{theorem}
+%
+%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
+%
+%\proof  Define the function $g$ as follows:
+%
+%$g(x) = \left\{
+%\begin{array}{lr}
+%  y_0 & : x = x_0 \\
+%  f(x) & : x \neq x_0
+%\end{array}
+%\right.$
+%
+%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
+%
+%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
+%
+%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
+%
+%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
+%
+%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
+%
+%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
+%
+%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
+%
+%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
+%
+%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
+%
+%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
+%
+%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
+%
+\fi
+
+\section{Pseudorandom Generators}
+Now, we can define pseudorandom generators, which intuitively generates a polynomial number of bits that are \DIFaddbegin \DIFadd{computationally }\DIFaddend indistinguishable from being uniformly random:
+\begin{definition}
+A function $G:\{0,1\}^n\rightarrow \{0,1\}^{n+m}$ with $m = poly(n)$ is called a \emph{pseudorandom generator} if
+\begin{itemize}
+\item $G$ is computable in polynomial time.
+\item $U_{n+m}\approx G(U_n)$, where $U_k$ denotes the uniform distribution on $\{0,1\}^k$.
+\end{itemize}
+\end{definition}
+
+
+\subsection{PRG Extension}
+In this section we show that any pseudorandom generator that produces one bit of randomness can be extended to create a polynomial number of bits of randomness.
+
+\begin{construction}
+Given a PRG $G: \{0, 1\}^n \rightarrow \{0, 1\} ^ {n+1}$,
+we construct a new PRG $F: \{0, 1\}^n \rightarrow \{0, 1\} ^{n+l}$ as follows ($l$ is polynomial in $n$).
+\begin{enumerate}[label=(\alph*)]
+    \item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
+    \item $\forall i \in [l] = \{1, 2, \cdots, l\}$, $(\sigma_i, S_i) := G(S_{i-1})$, where $\sigma_i \in \{0, 1\}, S_i \in \{0, 1\}^n$ .
+    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
+\end{enumerate}
+\end{construction}
+
+\begin{theorem}
+The function $F$ constructed above is a PRG.
+\end{theorem}
+
+\proof
+We prove this by hybrid argument. Define the hybrid $H_i$ as follows.
+\begin{enumerate}[label=(\alph*)]
+	\item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
+    \item $\sigma_1, \sigma_2, \cdots, \sigma_i \xleftarrow{\$} \{0, 1\}$, $S_i \gets S_0$.\\
+     $\forall j \in \{i+1, i+2, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
+    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
+\end{enumerate}
+Note that $H_0 \equiv F$, and $H_l \equiv U_{n+l}$.
+
+Assume for the sake of contradiction that there exits a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ form $H_l$.
+Define $\epsilon_i := \Pr[\ma(1^n, H_i)=1]$ for $i = 0, 1, \cdots, l$.
+Then there exists a non-negligible function $v(n)$ such that $|\epsilon_0 - \epsilon_l| \geq v(n)$.
+Since
+\[
+|\epsilon_0 - \epsilon_1| +
+|\epsilon_1 - \epsilon_2| +
+\cdots +
+|\epsilon_{l-1} - \epsilon_l| \geq
+|\epsilon_0 - \epsilon_l|
+\geq v(n),
+\]
+there exists $k \in \{0, 1, \cdots, l-1\}$ such that
+\[
+|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
+\]
+$l$ is polynomial in $n$, hence $\frac{v(n)}{l}$ is also a non-negligible function.
+That is to say, $\ma$ can distinguish $H_{k}$ from $H_{k+1}$.
+Then we use $\ma$ to construct an adversary $\mathcal{B}$ that can distinguish $U_{n+1}$ from $G(U_n)$ (which leads to a contradiction):
+On input $T \in \{0, 1\}^{n+1}$ ($T$ could be either from $U_{n+1}$ or $G(U_n)$), $\mathcal{B}$ proceeds as follows:
+\begin{itemize}
+\item $\sigma_1, \sigma_2, \cdots, \sigma_k \xleftarrow{\$} \{0, 1\}$, $(\sigma_{k+1}, S_{k+1}) \gets T$.
+\item $\forall j \in \{k+2, k+3, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
+\item Output: $\ma(1^n, \sigma_1 \sigma_2 \cdots \sigma_l S_l)$.
+\end{itemize}
+
+First, since $\ma$ and $G$ are both PPT computable, $\mathcal{B}$ is also PPT computable.
+
+Second, if $T\gets G(U_n)$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of  $H_{k}$; if $T \stackrel{\$}\leftarrow U_{n+1}$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of $H_{k+1}$.
+Hence
+\begin{align*}
+&\big|\Pr[\mathcal{B}(1^n, G(U_n)) = 1] - \Pr[\mathcal{B}(1^n, U_{n+1}) = 1]\big|\\
+=& \big|\Pr[\ma(1^n,H_k) = 1] - \Pr[\ma(1^n,H_{k+1}) = 1]\big|\\
+=&
+|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
+\end{align*}
+\qed
+
+\subsection{PRG from OWP (One-Way Permutations)}
+In this section we show how to construct pseudorandom generators under the assumption that one-way permutations exist.
+
+\begin{construction}
+Let $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ be a OWP. We construct $G: \{0, 1\}^{2n} \rightarrow \{0, 1\}^{2n+1}$ as
+\[
+G(x, r) = f(x) || r || B(x, r),
+\]
+where $x, r \in \{0, 1\}^n$, and $B(x, r)$ is a hard concentrate bit for the function $g(x,r) = f(x) || r$.
+\end{construction}
+
+\begin{remark}
+The hard concentrate bit $B(x,r)$ always exists. Recall Theorem~\ref{thm:hard-concentrate-bit},
+\[B(x,r) = \left(\sum_{i=1}^n x_i r_i\right)\mod 2\]
+is a hard concentrate bit.
+\end{remark}
+
+\begin{theorem}
+The $G$ constructed above is a PRG.
+\end{theorem}
+
+\proof
+Assume for the sake of contradiction that $G$ is not PRG.
+We construct three ensembles of probability distributions:
+\[H_0 := G(U_{2n}) = f(x) || r || B(x, r), \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n;\]
+\[H_1 := f(x) || r || \sigma, \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n, \sigma \xleftarrow{\$} \{0, 1\};\]
+\[H_2 := U_{2n+1}.\]
+
+Since $G$ is not PRG, there exists a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ from $H_2$.
+Since $f$ is a permutation, $H_1$ is uniformly distributed in $\{0, 1\}^{2n+1}$, i.e., $H_1 \equiv H_2$.
+Therefore, $\ma$ can distinguish $H_0$ from $H_1$,
+that is, there exists a non-negligible function $v(n)$ satisfying
+\[
+\big| \Pr[\ma(H_0)=1] - \Pr[\ma(H_1)=1] \big| \geq v(n).
+\]
+
+Next we will construct an adversary $\mathcal{B}$ that ``breaks'' the hard concentrate bit (which leads to a contradiction).
+Define a new ensemble of probability distribution
+\[
+H_1' = f(x) || r || (1-B(x, r)) , \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n.
+\]
+Then we have
+\begin{align*}
+\Pr[\ma(H_1) = 1]
+=& \Pr[\sigma = B(x, r)] \Pr[A(H_0) = 1] + \Pr[\sigma = 1 - B(x, r)] \Pr[A(H_1') = 1]\\
+=& \frac{1}{2} \Pr[A(H_0) = 1] + \frac{1}{2}\Pr[A(H_1') = 1].
+\end{align*}
+Hence
+\begin{align*}
+&\Pr[A(H_1) = 1] - \Pr[A(H_0) = 1]
+=  \frac{1}{2}\Pr[A(H_1') = 1] - \frac{1}{2} \Pr[A(H_0) = 1],
+\\
+&\frac{1}{2} \left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
+= \left| \Pr[A(H_1) = 1] - \Pr[A(H_0) = 1] \right|
+\geq v(n),
+\\
+&\left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
+\geq 2v(n).
+\end{align*}
+
+Without loss of generality, we assume that
+\[
+\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1]
+\geq 2v(n).
+\]
+Then we construct $\mathcal{B}$ as follows:
+\[
+\mathcal{B}(f(x)|| r) :=
+\begin{cases}
+\sigma, & \text{if } \ma(f(x)|| r||\sigma) = 1\\
+1 - \sigma, & \text{if } \ma(f(x)||r|| \sigma) = 0
+\end{cases},
+\]
+where $\sigma \xleftarrow{\$} \{0, 1\}$.
+Then we have
+\begin{align*}
+& \Pr[\mathcal{B}(f(x)|| r) = B(x, r)]\\
+=& \Pr[\sigma = B(x, r)] \Pr[ \ma(f(x)|| r||\sigma)=1 | \sigma = B(x, r)] + \\
+& \Pr[\sigma = 1 - B(x, r)] \Pr[ \ma(f(x)|| r||\sigma) = 0 | \sigma = 1- B(x, r)] + \\
+=& \frac{1}{2} \big( \Pr[\ma(f(x)||r||B(x, r)) = 1] + 1 - \Pr[\ma(f(x)|| r|| 1- B(x, r)) = 1] \big)\\
+=& \frac{1}{2} + \frac{1}{2} \big( \Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \big)\\
+\geq & \frac{1}{2} + v(n).
+\end{align*}
+\DIFdelbegin \DIFdel{Contradiction with }\DIFdelend \DIFaddbegin \DIFadd{This contradicts }\DIFaddend the fact that $B$ \DIFdelbegin \DIFdel{is a hard }\DIFdelend \DIFaddbegin \DIFadd{must be a hardness }\DIFaddend concentrate bit.
+\qed
+
+
+
+
+\input{lec05-F24}
+\input{lec06-F24}
+\input{lec07-F24}
+\input{lec08-F24}
+\input{lec09-F24}
+\input{lec11-F24}
+\input{lec12-F24}
+
+%%
+% The back matter contains appendices, bibliographies, indices, glossaries, etc.
+
+
+
+\backmatter
+
+\bibliography{cryptobib/abbrev0,cryptobib/crypto}
+\bibliographystyle{plainnat}
+
+
+%\printindex
+
+\end{document}
+

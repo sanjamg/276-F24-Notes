@@ -1,1 +1,0 @@
-$pdflatex = "latexdiff collection-F24.tex collection-F24-2.tex > diff.tex; pdflatex %O  diff"
