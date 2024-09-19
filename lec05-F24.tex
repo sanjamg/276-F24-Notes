@@ -83,7 +83,7 @@ Then there exists a non-uniform PPT oracle adversary $\ma$ that can distinguish 
 
 \noindent \textbf{Hybrids}. Consider the sequence of hybrids $H_i$ for $i \in \{ 0, 1, \cdots, n\}$ where the hybrid $i$ is defined as follows:
 \[H_{i}^{(K_i)} (x_1x_2\ldots x_n ):= G_{x_n}(G_{x_{n-1}} (\cdots(G_{x_{i+1}}(K_i(x_1\dots x_{i-1}x_i))) \cdots  )), \]
-where $K_i$ is a random function from $\{0,1\}^{i}$ to $\{0,1\}^n$. Intuitively, hybrid $H_i$ corresponds to a binary tree of depth $n$ where the nodes of levels $0$ to $i$ correspond to random values and the nodes at levels $i+1$ to $n$ correspond to pseudorandom values. By inspection, observe that hybrids $H_0$ and $H_n$ are identical to a pseudorandom function and a random function, respectively. It suffices to prove that hybrids $H_i$ and $H_{i+1}$ are computationally indistinguishable for each $i \in \{ 0, 1, \cdots, n\}$. Note that we cannot yet reduce the computational indistinguishability of $H_i$ and $H_{i+1}$ to security of the PRG $G$ because the adversary can make multiple oracle queries at different inputs.\smallskip
+where $K_i$ is a random function from $\{0,1\}^{i}$ to $\{0,1\}^n$. Intuitively, hybrid $H_i$ corresponds to a binary tree of depth $n$ where the nodes of levels $0$ to $i$ correspond to random values and the nodes at levels $i+1$ to $n$ correspond to pseudorandom values. By inspection, observe that hybrids $H_0$ and $H_n$ are identical to a pseudorandom function and a random function, respectively. Note that we cannot yet reduce the computational indistinguishability of $H_i$ and $H_{i+1}$ to security of the PRG $G$ because the adversary can make multiple oracle queries at different inputs.\smallskip
 
 \noindent \textbf{Sub-hybrids}. We show that $H_{i}$ and $H_{i+1}$ are indistinguishable by considering a sequence of sub-hybrids $H_{i,j}$ for $j \in \{0,\ldots q\}$, where $q$ is the number of oracle queries made by $\mathcal{A}$\footnote{Observe that $\mathcal{A}$ can make at most polynomial in $n$ oracle queries. Looking ahead, our outer adversary $\mathcal{B}$ can either take $q$ as the max queries allowed to $\mathcal{A}$, or guess the number, and double the guess each time if it's an under-estimate.}.
 Intuitively, with each sub-hybrid $H_{i,j}$, at level $i+1$ in the tree, we will fix the first $j$ oracle queries made by $\mathcal{A}$ to be output of random functions and the rest to be output of PRG. Let $R_i: \{0, 1\}^i \to \{0, 1\}^n$ and $S_{i}: \{0, 1\}^{i+1} \to \{0, 1\}^n$ be two random functions.
@@ -116,7 +116,7 @@ Note that $H_{i, 0}$ is the same as $H_i$ and $H_{i, q}$ is the same as $H_{i+1}
               \item For $a \in i^*+2 \dots n$: update $y \gets G_{x_a}(y)$.
               \item Respond with $y$.
           \end{enumerate}
-    \item Output ``pseudorandom'' if $\mathcal{A}$ outputs $H_{i^*,j^*}$, else output ``random''.
+    \item Output whatever $\mathcal{A}$ outputs.
 \end{enumerate}
 
 We assumed that $\mathcal{A}$ can distinguish between $H_{i^*, j^*}$ and $H_{i^*, j^*+1}$, so by contrapositive of the Sunglass Lemma, $\mathcal{B}$ can distinguish between $U_{2n}$ and $G(U_n)$. This contradicts that $G$ is a PRG.
@@ -167,7 +167,7 @@ Next, we will prove that the function $F_n$ is a pseudo-random function or that 
     \[\left|\Pr[\mathcal{A}^{H_n^{j^*}}(1^n) =1] -  \Pr[\mathcal{A}^{H_n^{j^*+1}}(1^n) =1]\right|\]
     is a non-negligible function. Now all we are left to show is that this implies an attacker that refutes the DDH assumption.\smallskip
 
-    \noindent \textbf{Sub-hybrids}. The proof of this claim follows by a sequence of $q+1$ sub-hybrids $H_n^{j, 0}, \dots, H_n^{j, q}$, where $q$ is the (polynomially bounded by $n$) running time of $\mathcal{A}$. For simplicity of notation we denote $q(n)$ by $q$. Let $C_n^j: \{0, 1\}^j \to \{0, \dots, |\mathbb{G}_n|-1\}$ and $D_n^j: \{0, 1\}^{j+1} \to \{0, \dots, |\mathbb{G}_n|-1\}$ be two random functions, and $C_n^0(\cdot) = u$. We define sub-hybrid $H_n^{j, k}\big((u, u_{j+1}\ldots u_n),(x_1\dots x_n)\big)$ for $k \in \{0, \dots, q\}$ as follows:
+    \noindent \textbf{Sub-hybrids}. The proof of this claim follows by a sequence of $q+1$ sub-hybrids $H_n^{j, 0}, \dots, H_n^{j, q}$, where $q$ is the (polynomially bounded by $n$) running time of $\mathcal{A}$. For the simplicity of exposition, we abuse the notation and denote $q(n)$ by $q$. Let $C_n^j: \{0, 1\}^j \to \{0, \dots, |\mathbb{G}_n|-1\}$ and $D_n^j: \{0, 1\}^{j+1} \to \{0, \dots, |\mathbb{G}_n|-1\}$ be two random functions, and $C_n^0(\cdot) = u$. We define sub-hybrid $H_n^{j, k}\big((u, u_{j+1}\ldots u_n),(x_1\dots x_n)\big)$ for $k \in \{0, \dots, q\}$ as follows:
     \begin{enumerate}
         \item Initialize a list $L \gets \{\}$ to store the $j$-bit prefixes of the queries made by $\mathcal{A}$.
         \item If $|L|<k$ or $(x_1\cdots x_j) \in L$:
@@ -205,7 +205,7 @@ Next, we will prove that the function $F_n$ is a pseudo-random function or that 
                   \item For $i = j^*+2 \dots n$: update $y \gets y \cdot u_i^{x_i}$.
                   \item If $x_{j^*+1} = 0$, output $g^y$, else output\footnote{Recall that $B=g^b$, so $B^y = g^{y\cdot b} = g^{y\cdot b^x_{j^*+1}}$. Therefore, the DDH relation is properly set for all pseudorandom nodes.} $B^y$.
               \end{enumerate}
-        \item Output ``DDH'' if $\mathcal{A}$ outputs $H_n^{j^*, k^*}$, else output ``uniform''.
+        \item Output whatever $\mathcal{A}$ outputs.
     \end{enumerate}
 
     By the construction of $\mathcal{B}$, if $(g, A, B, C)$ is a DDH tuple, then the distribution of oracle responses seen by $\mathcal{A}$ are exactly the same as the responses seen in the hybrid $H_n^{j^*, k^*}$. Otherwise, they are the same as hybrid $H_n^{j^*, k^*+1}$.
