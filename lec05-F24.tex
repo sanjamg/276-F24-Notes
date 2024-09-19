@@ -152,7 +152,7 @@ Next, we will prove that the function $F_n$ is a pseudo-random function or that 
     is a negligible function. \smallskip
 
     \noindent \textbf{Hybrids}. For the sake of contradiction, we assume that the function $F_n$ is not pseudorandom. Next, towards a contradiction, we consider a sequence of hybrid functions $H^0_n \ldots H^n_n$.
-    For $j \in \{0, \dots, n\}$, let $S^j_n: \{0, 1\}^j \to \{0, 1, \dots, |\mathbb{G}_n|-1\}$, then hybrid $H_n^j$ is defined as\footnote{Algorithmically, $H_n^j((h,u_{j+1}\ldots u_n),x)$ is computed as:
+    For $j \in \{0, \dots, n\}$, let $S^j_n: \{0, 1\}^j \to \{0, 1, \dots, |\mathbb{G}_n|-1\}$, then hybrid $H_n^j$ is defined as\footnote{Algorithmically, $H_n^j((u,u_{j+1}\ldots u_n),x)$ is computed as:
     \begin{enumerate}
         \item Set $y \gets S_n^j(x_1\ldots x_j)$.
         \item For $i = j+1 \dots n$: update $y \gets y \cdot u_i^{x_i}$.
@@ -161,13 +161,13 @@ Next, we will prove that the function $F_n$ is a pseudo-random function or that 
 
     }:
     \begin{equation*}
-        H_n^j((h,u_{j+1}\ldots u_n),x) = \big(g^{S_n^j(x_1\ldots x_j)}\big)^{\prod_{i=j+1}^n u_i^{x_i}}
+        H_n^j((u,u_{j+1}\ldots u_n),x) = \big(g^{S_n^j(x_1\ldots x_j)}\big)^{\prod_{i=j+1}^n u_i^{x_i}}
     \end{equation*}
     where $S_n^0(\cdot)$ is the constant function with output $u$. Observe that $H_n^0$ is the same as the function $F_n$ and $H_n^n$ is the same as the function $R_n$\footnote{A uniform group element is equivalently sampled by first sampling an exponent in the order of the group.}. Thus, by a hybrid argument and triangle inequality, we conclude that there exists $j^* \in \{0,\ldots n-1\}$, such that
     \[\left|\Pr[\mathcal{A}^{H_n^{j^*}}(1^n) =1] -  \Pr[\mathcal{A}^{H_n^{j^*+1}}(1^n) =1]\right|\]
     is a non-negligible function. Now all we are left to show is that this implies an attacker that refutes the DDH assumption.\smallskip
 
-    \noindent \textbf{Sub-hybrids}. The proof of this claim follows by a sequence of $q+1$ sub-hybrids $H_n^{j, 0}, \dots, H_n^{j, q}$, where $q$ is the (polynomially bounded by $n$) running time of $\mathcal{A}$. For simplicity of notation we denote $q(n)$ by $q$. Let $C_n^j: \{0, 1\}^j \to \{0, \dots, |\mathbb{G}_n|-1\}$ and $D_n^j: \{0, 1\}^{j+1} \to \{0, \dots, |\mathbb{G}_n|-1\}$ be two random functions. We define sub-hybrid $H_n^{j, k}\big((h,u_{j+1}\ldots u_n),(x_1\dots x_n)\big)$ for $k \in \{0, \dots, q\}$ as follows:
+    \noindent \textbf{Sub-hybrids}. The proof of this claim follows by a sequence of $q+1$ sub-hybrids $H_n^{j, 0}, \dots, H_n^{j, q}$, where $q$ is the (polynomially bounded by $n$) running time of $\mathcal{A}$. For simplicity of notation we denote $q(n)$ by $q$. Let $C_n^j: \{0, 1\}^j \to \{0, \dots, |\mathbb{G}_n|-1\}$ and $D_n^j: \{0, 1\}^{j+1} \to \{0, \dots, |\mathbb{G}_n|-1\}$ be two random functions, and $C_n^0(\cdot) = u$. We define sub-hybrid $H_n^{j, k}\big((u, u_{j+1}\ldots u_n),(x_1\dots x_n)\big)$ for $k \in \{0, \dots, q\}$ as follows:
     \begin{enumerate}
         \item Initialize a list $L \gets \{\}$ to store the $j$-bit prefixes of the queries made by $\mathcal{A}$.
         \item If $|L|<k$ or $(x_1\cdots x_j) \in L$:
@@ -191,9 +191,25 @@ Next, we will prove that the function $F_n$ is a pseudo-random function or that 
 
     $\mathcal{B}$ gets as challenge either a DDH tuple $(g, A=g^a, B=g^b, C=g^{ab})$ or a uniform tuple $(g, A=g^a, B=g^b, C=g^c)$ where $a, b, c$ are uniform in $\{0, \dots, |\mathbb{G}|-1\}$. We construct $\mathcal{B}^{\mathcal{A}, j^*, k^*}\big(1^n, (g, A, B, C)\big)$ as follows:
     \begin{enumerate}
-        \item Sample $u, u_1, \ldots u_n$ uniformly from $\{0, \dots, |\mathbb{G}_n|-1\}$.
-        \item For the first $k^*$ oracle queries from $\mathcal{A}$, respond as $H_n^{j^*, k^*}$.
+        \item Sample $u, u_{j^*+1}, \ldots u_n$ uniformly from $\{0, \dots, |\mathbb{G}_n|-1\}$.
+        \item For first $k^*$ queries from $\mathcal{A}$, respond as $H_n^{j^*, k^*}((u, u_{j^*+1}, \ldots u_n),\cdot)$.
+        \item For the $k^*+1$-th query $(x_1\ldots x_n)$, do the following:
+              \begin{enumerate}[noitemsep,nolistsep]
+                  \item Set $y \gets A$ if $x_{j^*+1} = 0$ and $y \gets C$ if $x_{j^*+1} = 1$.
+                  \item For $i = j^*+2 \dots n$: update $y \gets y \cdot u_i^{x_i}$.
+                  \item Output $g^y$.
+              \end{enumerate}
+        \item For the rest of the queries $(x_1\ldots x_n)$, do the following:
+              \begin{enumerate}[noitemsep,nolistsep]
+                  \item Set $y \gets C^j_n(x_1\ldots x_j)$.
+                  \item For $i = j^*+2 \dots n$: update $y \gets y \cdot u_i^{x_i}$.
+                  \item If $x_{j^*+1} = 0$, output $g^y$, else output\footnote{Recall that $B=g^b$, so $B^y = g^{y\cdot b} = g^{y\cdot b^x_{j^*+1}}$. Therefore, the DDH relation is properly set for all pseudorandom nodes.} $B^y$.
+              \end{enumerate}
+        \item Output ``DDH'' if $\mathcal{A}$ outputs $H_n^{j^*, k^*}$, else output ``uniform''.
     \end{enumerate}
+
+    By the construction of $\mathcal{B}$, if $(g, A, B, C)$ is a DDH tuple, then the distribution of oracle responses seen by $\mathcal{A}$ are exactly the same as the responses seen in the hybrid $H_n^{j^*, k^*}$. Otherwise, they are the same as hybrid $H_n^{j^*, k^*+1}$.
+    We assumed that $\mathcal{A}$ can distinguish between $H_n^{j^*, k^*}$ and $H_n^{j^*, k^*+1}$, therefore $\mathcal{B}$ can distinguish between a DDH tuple and a uniform tuple. This contradicts our assumption that DDH is hard.
 
     %Without loss of generality we assume that $\mathcal{A}$ never makes the same query twice.
     %More specifically, we consider a sequence of functions $F_n^{k,t}$ where $t \in \{0,T\}$, $F_n^{k,0}$ is same as $F_n^{k}$ and $F_n^{k,T}$ is same as $F_n^{k+1}$. In particular, we explain how $F_n^{k,t}$ answers queries by $\mathcal{A}$.\footnote{As assumed earlier, keep in mind that $\mathcal{A}$ never makes the same query twice.} Let $x^1, \ldots x^t$ be the first $t$ queries made by $\mathcal{A}$. For any query, $x$ made by $\mathcal{A}$ such that the first $k$ bits of $x$ match the first $k$ bits of one of $x_1, \ldots x_y$ answer as $F_n^{k+1}$ else answer as $F_n^{k}$. Now we can conclude that there exists a $t$ such that $F_n^{k,t}$ and $F_n^{k,t+1}$ are distinguishable with non-negligible probability.
