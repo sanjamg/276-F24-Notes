@@ -1,18 +1,96 @@
 \chapter{Pseudorandomness}
+In this chapter, our objective is to transform a small amount of entropy into a distribution that closely resembles randomness.
+The idea is to start with a small amount of entropy, known as the ``seed", and use a deterministic process to generate a new distribution that appears ``indistinguishable" from random. 
+However, before we dive into the specifics of how to achieve this, we need to clarify what we mean by ``indistinguishable."
 
-\section{Distinguishability Between Two Distributions}
-\sanjam{add}
+\section{Statistical Indistinguishability}
+The first definition of indistinguishability we will focus on is that of statistical indistinguishability.
+It turns out that defining what it means for two distributions to be indistinguishable by an adversary is tricky.
+In particular, it is tricky to define indistinguishability for a single pair of distributions because the length of the output of a random variable is a constant.
+Therefore, in order for our definition to make sense, we will work with collections of distributions, called \emph{ensembles}
+\begin{definition}[Ensemble of Probability Distributions]
+An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. 
+\end{definition}
+In this definition, $n$ is a parameter.
+Sometimes, we write $\{X_n\}_n$ or even simply $X_n$, when it is clear from context that we are talking about an ensemble.
+
+\begin{definition}[Statistical Indistinguishability]
+    Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ are said to be \emph{statistically indistinguishable} if for all adversaries $\ma$, the quantities
+    $$p(n) := \Pr[\ma(X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
+    and
+    $$q(n) := \Pr[\ma(Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
+    differ by a negligible amount.
+    In particular, the ensembles are said to be statistically indistinguishable if
+    $$\Delta_\ma(n) = |p(n) - q(n)| = |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]|$$
+    is negligible in $n$.
+This equivalence is denoted by
+$$\{X_n\}_n \approx_S \{Y_n\}_n$$
+\end{definition}
+Note that our attacker in this scenario is not computationally bounded, as is usual\footnote{Statistical indistinguishability is a very strong requirement, and it makes use of a very powerful adversary, so it will serve mostly as an illustrative example.}.
+We also do not require the ensemble to be efficiently samplable.
+
+This definition is closely related to the concept of the \textit{statistical distance} between two probability distributions.
+\begin{definition}[Statistical Distance]
+The \emph{statistical distance} between two distributions $X$ and $Y$ is defined as
+$$SD(X, Y) = \frac{1}{2}\sum\limits_{v \in S}|\Pr[X_n = v] - \Pr[Y_n = v]|$$
+where $S = Support(X_n) \cup Support(Y_n)$.
+\end{definition}
+In fact, we can show that $\Delta_{\ma}(n) \le SD(X_n, Y_n)$.
+\begin{lemma}[Relationship between $SD$ and $\Delta_\ma$]
+    For any adversary $\ma$,
+    $$\Delta_{\ma}(n) \le SD(X_n, Y_n)$$
+\end{lemma}
+
+\proof
+Let $\Omega$ be the sample space for $X_n$ and $Y_n$.
+
+Let $T = \{v \in \Omega | \Pr[v \leftarrow X_n] > \Pr[v \leftarrow Y_n]\}$.
+
+First, we will prove that $SD(X_n, Y_n) = \sum\limits_{v \in \Omega} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|$.
+
+\begin{align*}
+    \sum\limits_{v \in \Omega} \Pr[v \leftarrow X_n] &= \sum\limits_{v \in \Omega} \Pr[v \leftarrow Y_n] = 1 \\
+    \sum\limits_{v \in T}\Pr[v \leftarrow X_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow X_n] &= \sum\limits_{v \in T}\Pr[v \leftarrow Y_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow Y_n]\\
+    \sum\limits_{v \in T}(\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]) &= \sum\limits_{v \in \Omega \setminus T}(\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n])\\
+    \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| &= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n]|\\
+    \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| &= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
+    \sum\limits_{v \in \Omega}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| &= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
+    &\;\;\;\; + \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
+    2SD(X_n, Y_n) &= 2 \cdot \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
+    SD(X_n, Y_n) &= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|
+\end{align*}
+
+Now we will show the main result of the lemma.
+\begin{align*}
+    \Delta_\ma(n) &= |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]| \\
+    &= |\sum\limits_{v \in \Omega} (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow X_n]) - (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow Y_n])|\\
+    &= |\sum\limits_{v \in \Omega} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| \\
+    &= |\sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) \\
+    &\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| \\
+    &= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) \\
+    &\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) \\
+    &= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| \\
+    &\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| \\
+    &\le \sum\limits_{v \in T} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|\\
+    &= SD(X_n, Y_n)
+\end{align*}
+\qed
+
 \section{Computational Indistinguishability}
+We now turn to a more reasonable definition of indistinguishability.
+In particular, this definition imposes the usual computational limits on the adversary $\ma$. 
+It also requires that the ensembles of distributions in question be efficiently samplable.
+Besides those changes, however, the definition of \emph{computational indistinguishability} is quite similar to that of \emph{statistical indistinguishability}.
 
-Defining indistinguishability between two distributions by a computationally bounded adversary turns out be tricky. In particular, It is tricky to define for a single pair of distributions because the length of the output of a random variable is a constant. Therefore, in order for ``computationally bounded'' adversaries to make sense, we have to work with infinite families of probability distributions.
-
-\begin{definition}
-An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT machines $\ma$, the quantities
+\begin{definition}[Computational Indistinguishability]
+Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT adversaries $\ma$, the quantities
 $$p(n) := \Pr[\ma(1^n, X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
 and
 $$q(n) := \Pr[\ma(1^n,Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
 differ by a negligible amount; i.e. $|p(n) - q(n)|$ is negligible in $n$.    
 This equivalence is denoted by
+$$\{X_n\}_n\approx_C \{Y_n\}_n$$
+However, since this is the main form of indistinguishability that we are concerned with, we will simply write
 $$\{X_n\}_n\approx \{Y_n\}_n$$
 \end{definition}
 We now prove some properties of computationally indistinguishable ensembles that will be useful later on.
@@ -27,8 +105,9 @@ $$\{P(X_n)\}_n\approx \{P(Y_n)\}_n$$
 Consider an adversary $\ma$ that can distinguish $\{P(X_n)\}_n$ from $\{P(Y_n)\}_n$ with non-negligible probability. Then the adversary $\ma\circ P$ can distinguish $\{X_n\}_n$ from $\{Y_n\}_n$ with the same non-negligible probability. Since $P$ and $\ma$ are both PPT machines, the composition is also a PPT machine. This proves the contrapositive of the lemma.
 \qed
 
+The name of the lemma comes from the idea that if two objects are indistinguishable without putting on sunglasses, then they should remain indistinguishable after putting on sunglasses.
 
-\begin{lemma}[Hybrid Argument]
+\begin{lemma}[Multicopy Lemma]
 For a polynomial $t:\mathbb{Z}^+\rightarrow\mathbb{Z}^+$ let the $t$-product of $\{Z_n\}_n$ be
 
 $$\{Z_n^{(1)}, Z_n^{(2)},\hdots, Z_n^{(t(n))}\}_n$$
@@ -38,13 +117,55 @@ then
 $$\{X_n^{(1)},\hdots,X_n^{(t)}\}_n\approx\{Y_n^{(1)},\hdots,Y_n^{(t)}\}_n$$
 as well.
 \end{lemma}
+Intuitively, if you can't tell apart a red ball and a blue ball, then you can't tell apart multiple copies of the red and blue balls.
 
 \begin{proof}
+We proceed by what is known as a hybrid argument.
 Consider the set of tuple random variables
 $$H^{(i,t)}_n = (Y_n^{(1)},\hdots,Y_n^{(i)},X_n^{(i+1)},X_n^{(i+2)},\hdots,X_n^{(t)})$$
-for integers $0\le i\le t$. Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference $r(n)$. Suppose that $\ma$ returns 1 with probability $\epsilon_i$ when it runs on samples from $H^{(i,t)}_n$. By definition, $|\epsilon_t - \epsilon_0|\ge r(n)$. By the Triangle Inequality and the Pigeonhole Principle, there is some index $k$ for which
-$|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. This is a contradiction. 
+for integers $0\le i\le t$. 
+For instance, when $i=0$:
+$$H^{(0,t)}_n = (X_n^{(1)},X_n^{(2)},\hdots,X_n^{(t)}) = \overline{X}_n$$
+Similarly, when $i=t$:
+$$H^{(t,t)}_n = (Y_n^{(1)},Y_n^{(2)},\hdots,Y_n^{(t)}) = \overline{Y}_n$$
+
+Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference $\varepsilon(n)$. Suppose that $\ma$ returns 1 with probability $P_i$ when it runs on samples from $H^{(i,t)}_n$. 
+That is, $P_i = \Pr[\ma(H^{(i,t)}_n = 1)]$
+By definition, $|P_0 - P_t|\ge \varepsilon(n)$. 
+
+Using the common add-one-subtract-one trick, we can find that
+\begin{align*}
+|P_0 - P_t| &= |P_0 - P_{1} + P_{1} - P_{2} + ... + P_{t-1} - P_{t}| \\
+&= |(P_0 - P_{1}) + (P_{1} - P_{2}) + ... + (P_{t-1} - P_{t})| \\
+&\leq  |P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|
+\end{align*}
+Since $|P_0 - P_t| \ge \varepsilon(n)$, it follows that $|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}| \ge \varepsilon(n)$.
+Then there must exist some index $k$ for which
+\begin{align*}
+|P_k - P_{k+1}| &\geq \frac{\varepsilon(n)}{t}
+\end{align*}
+Note that $\frac{\varepsilon(n)}{t}$ is non-negligible because $t$ is polynomial.
+This implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are distinguishable.
+
+Using this information, we can construct an adversary $\mb$ that can distinguish $X_n$ from $Y_n$.
+Given an input $Z_n$, which is either $X_n$ or $Y_n$, $\mb$ works as follows:
+$$\mb(Z_n) = \ma(X_1, ..., X_{k-1}, Z, Y_{k+1}, ..., Y_t)$$
+By the argument above, for some value\footnote{$\mb$ is non-uniform, so it can ``know" which value of $k$ it should use.} of $k$, this computation gives $|\Pr[\mb(X_n)=1] - \Pr[\mb(Y_n) = 1]| \ge \frac{\varepsilon(n)}{t}$.
+
+
+%However, using the Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. 
+This is a contradiction. 
 \qed
+
+Intuitively, the idea behind proofs by hybrid argument is to create a chain of polynomially many hybrids such that the hybrids are pairwise indistinguishable at each step.
+Visually:
+$$H^{(0,t)}_n \approx H^{(1,t)}_n \approx H^{(2,t)}_n \approx ... \approx H^{(t-1,t)}_n \approx H^{(t,t)}_n$$
+This implies that 
+$$H^{(0,t)}_n \approx H^{(t,t)}_n$$
+which is the same thing as saying that
+$$\overline{X}_n \approx \overline{Y}_n$$
+
+
 %This is equivalent to trying to distinguish the ensembles $\{(X_n,T_n)\}_n$ from $\{(Y_n,T_n)\}_n$, where $T_n$ is independent of $X_n$ and $Y_n$ ($T_n$ is the random variable representing all coordinates but the $k$-th coordinate). Note that
 %
 %\begin{align*}
@@ -251,10 +372,8 @@ For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in
 %
 \fi
 
-
-
 \section{Pseudorandom Generators}
-Now, we can define pseudorandom generators, which intuitively generates a polynomial number of bits that are indistinguishable from being uniformly random:
+Now, we can define pseudorandom generators, which intuitively generates a polynomial number of bits that are computationally indistinguishable from being uniformly random:
 \begin{definition}
 A function $G:\{0,1\}^n\rightarrow \{0,1\}^{n+m}$ with $m = poly(n)$ is called a \emph{pseudorandom generator} if
 \begin{itemize}
@@ -412,6 +531,6 @@ Then we have
 =& \frac{1}{2} + \frac{1}{2} \big( \Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \big)\\
 \geq & \frac{1}{2} + v(n).
 \end{align*}
-Contradiction with the fact that $B$ is a hard concentrate bit.
+This contradicts the fact that $B$ must be a hardness concentrate bit.
 \qed
 
