@@ -1,26 +1,8 @@
 \documentclass[12pt]{tufte-book}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL notes-F24-old.tex   Wed Sep 18 19:45:02 2024
+%DIF ADD notes-F24-new.tex   Wed Sep 18 19:44:44 2024
 \usepackage{amsthm,amssymb,amsmath,thmtools,datetime,tikz}
-
-%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
-%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
-\RequirePackage[normalem]{ulem} %DIF PREAMBLE
-\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
-\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
-\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
-%DIF SAFE PREAMBLE %DIF PREAMBLE
-\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
-\providecommand{\DIFaddend}{} %DIF PREAMBLE
-\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
-\providecommand{\DIFdelend}{} %DIF PREAMBLE
-%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
-\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
-\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
-\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
-\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
-\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
-\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
-%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
-
 \setcounter{secnumdepth}{3}
 
 \declaretheorem[numberwithin=chapter,shaded={bgcolor=Lavender}]{definition}
@@ -74,7 +56,7 @@
 %%
 % Just some sample text
 \usepackage{lipsum}
-\input{macros}
+\newcommand{\ma}{\mathcal{A}}
 %%
 % For nicely typeset tabular material
 \usepackage{booktabs}
@@ -200,40 +182,118 @@
 % Generates the index
 \usepackage{makeidx}
 \makeindex
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
 
 \begin{document}
 \iffalse
-% Front matter
-\frontmatter
+  % Front matter
+  \frontmatter
 
-% r.1 blank page
-\blankpage
+  % r.1 blank page
+  \blankpage
 
 
-% v.2 epigraphs
-\newpage\thispagestyle{empty}
-\openepigraph{%
-The public is more familiar with bad design than good design.
-It is, in effect, conditioned to prefer bad design, 
-because that is what it lives with. 
-The new becomes threatening, the old reassuring.
-}{Paul Rand%, {\itshape Design, Form, and Chaos}
-}
-\vfill
-\openepigraph{%
-A designer knows that he has achieved perfection 
-not when there is nothing left to add, 
-but when there is nothing left to take away.
-}{Antoine de Saint-Exup\'{e}ry}
-\vfill
-\openepigraph{%
-\ldots the designer of a new system must not only be the implementor and the first 
-large-scale user; the designer should also write the first user manual\ldots 
-If I had not participated fully in all these activities, 
-literally hundreds of improvements would never have been made, 
-because I would never have thought of them or perceived 
-why they were important.
-}{Donald E. Knuth}
+  % v.2 epigraphs
+  \newpage\thispagestyle{empty}
+  \openepigraph{%
+    The public is more familiar with bad design than good design.
+    It is, in effect, conditioned to prefer bad design,
+    because that is what it lives with.
+    The new becomes threatening, the old reassuring.
+  }{Paul Rand%, {\itshape Design, Form, and Chaos}
+  }
+  \vfill
+  \openepigraph{%
+  A designer knows that he has achieved perfection
+  not when there is nothing left to add,
+  but when there is nothing left to take away.
+  }{Antoine de Saint-Exup\'{e}ry}
+  \vfill
+  \openepigraph{%
+    \ldots the designer of a new system must not only be the implementor and the first
+    large-scale user; the designer should also write the first user manual\ldots
+    If I had not participated fully in all these activities,
+    literally hundreds of improvements would never have been made,
+    because I would never have thought of them or perceived
+    why they were important.
+  }{Donald E. Knuth}
 \fi
 
 % r.3 full title page
@@ -243,21 +303,21 @@ why they were important.
 % v.4 copyright page
 %\newpage
 \begin{fullwidth}
-~\vfill
-\thispagestyle{empty}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{\baselineskip}
-Copyright \copyright\ \the\year\ \thanklessauthor
+  ~\vfill
+  \thispagestyle{empty}
+  \setlength{\parindent}{0pt}
+  \setlength{\parskip}{\baselineskip}
+  Copyright \copyright\ \the\year\ \thanklessauthor
 
-%\par\smallcaps{Published by \thanklesspublisher}
+  %\par\smallcaps{Published by \thanklesspublisher}
 
-\par\smallcaps{This document is continually being updated. Please send us your feedback.}
+  \par\smallcaps{This document is continually being updated. Please send us your feedback.}
 
 
-\par \doclicenseThis
- \index{license}
+  \par \doclicenseThis
+  \index{license}
 
-\par\textit{This draft was compiled on \today.}
+  \par\textit{This draft was compiled on \today.}
 \end{fullwidth}
 
 % r.5 contents
@@ -269,21 +329,21 @@ Copyright \copyright\ \the\year\ \thanklessauthor
 
 % r.7 dedication
 \iffalse
-\cleardoublepage
-~\vfill
+  \cleardoublepage
+  ~\vfill
 
-\begin{doublespace}
-\noindent\fontsize{18}{22}\selectfont\itshape
-\nohyphenation
-Dedicated to those who appreciate \LaTeX{} 
-and the work of \mbox{Edward R.~Tufte} 
-and \mbox{Donald E.~Knuth}.
-\end{doublespace}
-\vfill
-\vfill
+  \begin{doublespace}
+    \noindent\fontsize{18}{22}\selectfont\itshape
+    \nohyphenation
+    Dedicated to those who appreciate \LaTeX{}
+    and the work of \mbox{Edward R.~Tufte}
+    and \mbox{Donald E.~Knuth}.
+  \end{doublespace}
+  \vfill
+  \vfill
 
-% r.9 introduction
-\cleardoublepage
+  % r.9 introduction
+  \cleardoublepage
 \fi
 \chapter*{Preface}
 Cryptography enables many paradoxical objects, such as public key encryption, verifiable electronic signatures, zero-knowledge protocols, and fully homomorphic encryption.  The two main steps in developing such seemingly impossible primitives are (i) defining the desired security properties formally and (ii) obtaining a construction satisfying the security property provably. In modern cryptography, the second step typically assumes (unproven) computational assumptions, which are conjectured to be computationally intractable. In this course, we will define several cryptographic primitives and argue their security based on well-studied computational hardness assumptions. However, we will largely ignore the mathematics underlying the assumed computational intractability assumptions.
@@ -298,584 +358,1155 @@ These lecture notes are based on scribe notes taken by students in CS 276 over t
 
 
 \mainmatter
-\input{lec00-F24}
-\input{lec01-F24}
-\input{lec02-F24}
-\input{lec03-F24}
-\chapter{Pseudorandomness}
-\DIFaddbegin \DIFadd{In this chapter, our objective is to transform a small amount of entropy into a distribution that closely resembles randomness.
-The idea is to start with a small amount of entropy, known as the ``seed", and use a deterministic process to generate a new distribution that appears ``indistinguishable" from random. 
-However, before we dive into the specifics of how to achieve this, we need to clarify what we mean by ``indistinguishable."
+\section{Pseudorandom Functions}
+In this section, we first define pseudorandom functions, and then show how to  construct a pseudorandom function from a pseudorandom generator.
+
+Considering the set of all functions $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$, there are $(2^n)^{2^n}$ of them.
+To describe a random function in this set we need $n \cdot 2^n$ bits.
+Intuitively, a pseudorandom function is one that cannot be distinguished from a random one,
+but needs much fewer bits (e.g., polynomial in $n$) to be described.
+Note that we restrict the distinguisher to only being allowed to ask the function poly($n$) times and decide whether it is random or pseudorandom.
+
+\subsection{Definitions}
+
+\begin{definition}[Function Ensemble]
+    A \emph{function ensemble} is a sequence of random variables $F_1, F_2, \cdots, F_n, \cdots$ denoted as $\{F_n\}_{n \in \mathbb{N}}$ such that
+    $F_n$ assumes values in the set of functions mapping $n$-bit input to $n$-bit output.
+\end{definition}
+\DIFaddbegin \DIFadd{Although we will only focus on the functions where the input and output bit-length is the same, the definition can be generalized to functions mapping \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+-bit inputs to \mbox{%DIFAUXCMD
+$m$
+}%DIFAUXCMD
+-bit outputs as \mbox{%DIFAUXCMD
+$\{F_{n, m}\}_{n, m \in \mathbb{N}}$
+}%DIFAUXCMD
+.
 }\DIFaddend 
 
-\section{\DIFdelbegin \DIFdel{Distinguishability Between Two Distributions}\DIFdelend \DIFaddbegin \DIFadd{Statistical Indistinguishability}\DIFaddend }
-\DIFdelbegin %DIFDELCMD < \sanjam{add}
-%DIFDELCMD < %%%
-\section{\DIFdel{Computational Indistinguishability}}
+\begin{definition}[Random Function Ensemble]
+    We denote a random function ensemble by $\{R_n\}_{n \in \mathbb{N}}$.
+\end{definition}
+\DIFaddbegin \DIFadd{A sampling of the random variable \mbox{%DIFAUXCMD
+$R_n$
+}%DIFAUXCMD
+requires \mbox{%DIFAUXCMD
+$n \cdot 2^n$
+}%DIFAUXCMD
+bits to describe.
+}\DIFaddend 
+
+\begin{definition}[Efficiently Computable Function Ensemble]
+    A function ensemble is called \emph{efficiently computable} if
+    \begin{enumerate}[label=(\alph*)]
+        \item \textbf{Succinct}:
+              $\exists$ a PPT algorithm $I$ and a mapping $\phi$ from strings to functions such that
+              $\phi(I(1^n))$ and $F_n$ are identically distributed.
+              Note that we can view \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$I$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{the output of \mbox{%DIFAUXCMD
+$I(\cdot)$
+}%DIFAUXCMD
+}\DIFaddend as the description of the function.
+        \item \textbf{Efficient}:
+              $\exists$ a poly-time machine $V$ such that
+              $V(i, x) = f_i(x)$ for every $x \in \{0, 1\}^n$, where $i$ is in the range of $I(1^n)$, and $f_i = \phi(i)$.
+    \end{enumerate}
+\end{definition}
+
+\DIFaddbegin \DIFadd{Note that the succinctness condition implies that a sample from \mbox{%DIFAUXCMD
+$F_n$
+}%DIFAUXCMD
+can be equivalently generated by first sampling a random string \mbox{%DIFAUXCMD
+$k$
+}%DIFAUXCMD
+from \mbox{%DIFAUXCMD
+$\{0, 1\}^n$
+}%DIFAUXCMD
+, and then outputting \mbox{%DIFAUXCMD
+$f_k$
+}%DIFAUXCMD
+. Here \mbox{%DIFAUXCMD
+$k$
+}%DIFAUXCMD
+is often called the ``key'' of the function}\footnote{\DIFadd{An efficiently computable function requires only \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+bits (the key) to describe, while a random function requires \mbox{%DIFAUXCMD
+$n.2^n$
+}%DIFAUXCMD
+bits.}}\DIFadd{. More generally, the key can be a string of length \mbox{%DIFAUXCMD
+$m$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+is polynomial in \mbox{%DIFAUXCMD
+$m$
+}%DIFAUXCMD
+; here \mbox{%DIFAUXCMD
+$I$
+}%DIFAUXCMD
+uses a random tape of length \mbox{%DIFAUXCMD
+$m$
+}%DIFAUXCMD
+and outputs \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+bits. %DIF > However, we will only consider the case where the key is of length $n$.
+}
+
+\DIFaddend \begin{definition}[Pseudorandom Function Ensemble]
+    A function ensemble $F = \{F_n\}_{n \in \mathbb{N}}$ is \emph{pseudorandom} if
+    for every non-uniform PPT oracle adversary $\ma$, there exists a negligible function $\epsilon(n)$ such that
+    \[
+        \big| \Pr[\ma^{F_n} (1^n) = 1] - \Pr[\ma^{R_n} (1^n) = 1]  \big| \leq \epsilon(n).
+    \]
+    Here by saying ``oracle'' it means that $\ma$ has ``oracle access'' to a \DIFaddbegin \DIFadd{(fixed) }\DIFaddend function (in our definition, the function is \DIFaddbegin \DIFadd{a sampling of }\DIFaddend $F_n$ or $R_n$), and each call to that function costs 1 unit of time.
+\end{definition}
+
+Note that we will only consider efficiently computable pseudorandom ensembles in the following. \DIFaddbegin \DIFadd{Therefore, each function in \mbox{%DIFAUXCMD
+$F_n$
+}%DIFAUXCMD
+is defined by a PRF key \mbox{%DIFAUXCMD
+$k \in \{0, 1\}^n$
+}%DIFAUXCMD
+.
+}\DIFaddend 
+
+
+\subsection{Construction of PRF from PRG}
+
+\begin{construction}
+    Given a PRG $G: \{0, 1\}^n \rightarrow \{0, 1\}^{2n}$,
+    let $G_0(x)$ be the first $n$ bits of $G(x)$, $G_1(x)$ be the last $n$ bits of $G(x)$.
+    We construct $F^{(K)}: \{0, 1\}^n \rightarrow \{0, 1\}^n$ as follows.
+    \[
+        F^{(K)}_n(x_1 x_2 \cdots x_n) := G_{x_n}(G_{x_{n-1}} (\cdots(G_{x_1}(K)) \cdots  )),
+    \]
+    where $K \in \{0,1\}^n$ is the key to the pseudorandom function. \DIFdelbegin \DIFdel{Here \mbox{%DIFAUXCMD
+$i$
+}%DIFAUXCMD
+is an \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+-bit string, which is the seed of the pseudorandom function}\DIFdelend \DIFaddbegin \DIFadd{In Figure \ref{fig:binary-tree}, \mbox{%DIFAUXCMD
+$i = K$
+}%DIFAUXCMD
+}\DIFaddend .
+\end{construction}
+The construction can be viewed as a binary tree of depth $n$, as shown in Figure \ref{fig:binary-tree}\DIFaddbegin \footnote{\DIFadd{Algorithmically, \mbox{%DIFAUXCMD
+$F_n^{(K)}(x)$
+}%DIFAUXCMD
+is computed as:
+}\begin{enumerate}
+    \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets K \in \{0, 1\}^n$
+}%DIFAUXCMD
+.
+    }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = 1 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets G_{x_i}(y)$
+}%DIFAUXCMD
+.
+    }\item \DIFadd{Output \mbox{%DIFAUXCMD
+$y$
+}%DIFAUXCMD
+.
+}\end{enumerate}
+}\DIFaddend .
+
+\begin{marginfigure}
+    \centering
+    \includegraphics[width=\textwidth]{Old Scribe Notes/binary-tree.pdf}
+    \caption{View the construction as a binary tree}
+    \label{fig:binary-tree}
+\end{marginfigure}
+
+\begin{theorem}\label{theorem:ggm}
+    The function ensemble $\{F_n\}_{n \in \mathbb{N}}$ constructed above is pseudorandom.
+\end{theorem}
+
+\proof
+Assume for the sake of contradiction that $\{F_n\}_{n \in \mathbb{N}}$ is not \DIFdelbegin \DIFdel{PRG}\DIFdelend \DIFaddbegin \DIFadd{a PRF}\DIFaddend .
+Then there exists a non-uniform PPT oracle adversary $\ma$ that can distinguish $\{F_n\}_{n \in \mathbb{N}}$ from $\{R_n\}_{n \in \mathbb{N}}$. Below, via a hybrid argument, we prove that this contradicts the fact that $G$ is a PRG\DIFaddbegin \DIFadd{; we will construct an adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+that can distinguish between a sample from \mbox{%DIFAUXCMD
+$U_{2n}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G(U_{n})$
+}%DIFAUXCMD
+. We will prove for a fixed \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+, and the proof can be easily extended to all \mbox{%DIFAUXCMD
+$n \in \mathbb{N}$
+}%DIFAUXCMD
+}\DIFaddend .\DIFaddbegin \smallskip
+\DIFaddend 
+
+\DIFaddbegin \noindent \textbf{\DIFadd{Hybrids}}\DIFadd{. }\DIFaddend Consider the sequence of hybrids $H_i$ for $i \in \{ 0, 1, \cdots, n\}$ where the hybrid $i$ is defined as follows:
+\[H\DIFdelbegin \DIFdel{_{n,i}^{(K)} }\DIFdelend \DIFaddbegin \DIFadd{_{i}^{(K_i)} }\DIFaddend (x_1x_2\ldots x_n ):= G_{x_n}(G_{x_{n-1}} (\cdots(G_{x_{i+1}}(K\DIFaddbegin \DIFadd{_i}\DIFaddend (x\DIFdelbegin \DIFdel{_i}\DIFdelend \DIFaddbegin \DIFadd{_1}\dots \DIFaddend x_{i-1}\DIFdelbegin \DIFdel{\ldots }\DIFdelend x\DIFdelbegin \DIFdel{_1}\DIFdelend \DIFaddbegin \DIFadd{_i}\DIFaddend ))) \cdots  )), \]
+where \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$K$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$K_i$
+}%DIFAUXCMD
+}\DIFaddend is a random function from $\{0,1\}^{i}$ to $\{0,1\}^n$. Intuitively, hybrid $H_i$ corresponds to a binary tree of depth $n$ where the nodes of levels $0$ to $i$ correspond to random values and the nodes at levels $i+1$ to $n$ correspond to pseudorandom values. By inspection, observe that hybrids $H_0$ and $H_n$ are identical to a pseudorandom function and a random function, respectively. \DIFdelbegin \DIFdel{There it suffices to prove that hybrids }\DIFdelend \DIFaddbegin \DIFadd{Note that we cannot yet reduce the computational indistinguishability of }\DIFaddend $H_i$ and $H_{i+1}$ \DIFdelbegin \DIFdel{are computationally indistinguishable for each \mbox{%DIFAUXCMD
+$i \in \{ 0, 1, \cdots, n\}$
+}%DIFAUXCMD
+.}\DIFdelend \DIFaddbegin \DIFadd{to security of the PRG \mbox{%DIFAUXCMD
+$G$
+}%DIFAUXCMD
+because the adversary can make multiple oracle queries at different inputs.}\smallskip
+\DIFaddend 
+
+\DIFaddbegin \noindent \textbf{\DIFadd{Sub-hybrids}}\DIFadd{. }\DIFaddend We show that $H_{i}$ and $H_{i+1}$ are indistinguishable by considering a sequence of sub-hybrids $H_{i,j}$ for \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$j \in \{0,\ldots q_{i+1}\}$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$q_{i+1}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$j \in \{0,\ldots q\}$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+}\DIFaddend is the number of \DIFdelbegin \DIFdel{the distinct \mbox{%DIFAUXCMD
+$i-bit$
+}%DIFAUXCMD
+prefixes of the queries of }\DIFdelend \DIFaddbegin \DIFadd{oracle queries made by }\DIFaddend $\mathcal{A}$\DIFaddbegin \footnote{\DIFadd{Observe that \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+can make at most polynomial in \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+oracle queries. Looking ahead, our outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+can either take \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+as the max queries allowed to \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+, or guess the number, and double the guess each time if it's an under-estimate.}}\DIFadd{.
+Intuitively, with each sub-hybrid \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+, at level \mbox{%DIFAUXCMD
+$i+1$
+}%DIFAUXCMD
+in the tree, we will fix the first \mbox{%DIFAUXCMD
+$j$
+}%DIFAUXCMD
+oracle queries made by \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+to be output of random functions and the rest to be output of PRG. Let \mbox{%DIFAUXCMD
+$R_i: \{0, 1\}^i \to \{0, 1\}^n$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$S_{i}: \{0, 1\}^{i+1} \to \{0, 1\}^n$
+}%DIFAUXCMD
+be two random functions.
+We define sub-hybrid \mbox{%DIFAUXCMD
+$H_{i,j}^{(R_i, S_{i})}(x_1x_2\dots x_n)$
+}%DIFAUXCMD
+algorithmically as follows:
+}\begin{enumerate}
+    \item \DIFadd{Initialize a list \mbox{%DIFAUXCMD
+$L \gets \{\}$
+}%DIFAUXCMD
+to store the \mbox{%DIFAUXCMD
+$i$
+}%DIFAUXCMD
+-bit prefixes of the queries made by \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+}\DIFaddend .
+    \DIFdelbegin \footnote{\DIFdel{Observe that \mbox{%DIFAUXCMD
+$q_{i+1}$
+}%DIFAUXCMD
+for each appropriate choice of \mbox{%DIFAUXCMD
+$i$
+}%DIFAUXCMD
+is bounded by the running time of \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+. Hence, this value is bounded by a polynomial in the security parameter.}}
 %DIFAUXCMD
-\addtocounter{section}{-1}%DIFAUXCMD
-%DIFDELCMD < 
+\addtocounter{footnote}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \item \DIFadd{If \mbox{%DIFAUXCMD
+$|L| < j$
+}%DIFAUXCMD
+or \mbox{%DIFAUXCMD
+$(x_1\dots x_i) \in L$
+}%DIFAUXCMD
+}\footnote{\DIFadd{Captures the first \mbox{%DIFAUXCMD
+$j$
+}%DIFAUXCMD
+queries or any query with repeated \mbox{%DIFAUXCMD
+$i$
+}%DIFAUXCMD
+-bit prefix to a previous query.}}\DIFadd{:
+          }\begin{enumerate}[noitemsep,nolistsep]
+              \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets S_i(x_1\dots x_i x_{i+1})$
+}%DIFAUXCMD
+.
+              }\item \DIFadd{Append \mbox{%DIFAUXCMD
+$(x_1\dots x_i)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$L$
+}%DIFAUXCMD
+.
+              }\item \DIFadd{For \mbox{%DIFAUXCMD
+$a \in i+2 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets G_{x_a}(y)$
+}%DIFAUXCMD
+.
+          }\end{enumerate}
+    \item \DIFadd{Else:
+          }\begin{enumerate}[noitemsep,nolistsep]
+              \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets R_i(x_1\dots x_i)$
+}%DIFAUXCMD
+.
+              }\item \DIFadd{For \mbox{%DIFAUXCMD
+$a \in i+1 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets G_{x_a}(y)$
+}%DIFAUXCMD
+.
+          }\end{enumerate}
+    \item \DIFadd{Output \mbox{%DIFAUXCMD
+$y$
+}%DIFAUXCMD
+.
+}\end{enumerate}
+\DIFaddend 
 
-%DIFDELCMD < %%%
-\DIFdel{Defining indistinguishability between two distributions by a computationally bounded adversary turns out be }\DIFdelend \DIFaddbegin \DIFadd{The first definition of indistinguishability we will focus on is that of statistical indistinguishability.
-It turns out that defining what it means for two distributions to be indistinguishable by an adversary is }\DIFaddend tricky.
-In particular, \DIFdelbegin \DIFdel{It }\DIFdelend \DIFaddbegin \DIFadd{it }\DIFaddend is tricky to define \DIFaddbegin \DIFadd{indistinguishability }\DIFaddend for a single pair of distributions because the length of the output of a random variable is a constant.
-Therefore, in order for \DIFdelbegin \DIFdel{``computationally bounded'' adversaries }\DIFdelend \DIFaddbegin \DIFadd{our definition }\DIFaddend to make sense, we \DIFdelbegin \DIFdel{have to work with infinite families of probability distributions}\DIFdelend \DIFaddbegin \DIFadd{will work with collections of distributions, called }\emph{\DIFadd{ensembles}}\DIFaddend .
+\DIFdelbegin \DIFdel{We define hybrid \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+for \mbox{%DIFAUXCMD
+$j =0$
+}%DIFAUXCMD
+to be same as hybrid \mbox{%DIFAUXCMD
+$H_{i}$
+}%DIFAUXCMD
+. Additionally, for \mbox{%DIFAUXCMD
+$j >0$
+}%DIFAUXCMD
+hybrid \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+is defined to be exactly the same as hybrid \mbox{%DIFAUXCMD
+$H_{i,j-1}$
+}%DIFAUXCMD
+except the response provided to the attacker for the \mbox{%DIFAUXCMD
+$j^{th}$
+}%DIFAUXCMD
+distinct \mbox{%DIFAUXCMD
+$i-bit$
+}%DIFAUXCMD
+prefix query of \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+. Let this prefix be \mbox{%DIFAUXCMD
+$x^*_n x^*_{n-1} \ldots x^*_{i}$
+}%DIFAUXCMD
+.
+Note that in hybrid \mbox{%DIFAUXCMD
+$H_{i,j-1}$
+}%DIFAUXCMD
+the children of the node \mbox{%DIFAUXCMD
+$x^*_n x^*_{n-1} \ldots x^*_{i}$
+}%DIFAUXCMD
+correspond to two pseudorandom values.
+              In hybrid \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+we replace these two children with random values.
+          By careful inspection, it follows that hybrid \mbox{%DIFAUXCMD
+$H_{i,q_{i+1}}$
+}%DIFAUXCMD
+is actually }\DIFdelend \DIFaddbegin \DIFadd{Note that \mbox{%DIFAUXCMD
+$H_{i, 0}$
+}%DIFAUXCMD
+is the same as \mbox{%DIFAUXCMD
+$H_i$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i, q}$
+}%DIFAUXCMD
+is the same as }\DIFaddend $H_{i+1}$. \DIFdelbegin \DIFdel{All we are left to prove is that hybrid \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i,j+1}$
+}%DIFAUXCMD
+are indistinguishable for the appropriate choices of \mbox{%DIFAUXCMD
+$j$
+}%DIFAUXCMD
+and we prove this below.}\DIFdelend \DIFaddbegin \DIFadd{Since we assumed that \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+can distinguish between \mbox{%DIFAUXCMD
+$H_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_n$
+}%DIFAUXCMD
+, by triangle inequality, there exists a \mbox{%DIFAUXCMD
+$i^*, j^*$
+}%DIFAUXCMD
+such that it can distinguish \mbox{%DIFAUXCMD
+$H_{i^*,j^*}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i^*,j^*+1}$
+}%DIFAUXCMD
+. We now focus on these two sub-hybrids}\footnote{\DIFadd{Looking ahead, the outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+can guess \mbox{%DIFAUXCMD
+$i^*, j^*$
+}%DIFAUXCMD
+; total choices are bounded by polynomial in \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+. To simplify the proof, we will assume that \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+already knows this \mbox{%DIFAUXCMD
+$i^*, j^*$
+}%DIFAUXCMD
+.}}\DIFadd{. Consider the \mbox{%DIFAUXCMD
+$j^*+1$
+}%DIFAUXCMD
+-th query made by \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+(i.e. the first query where \mbox{%DIFAUXCMD
+$|L|=j$
+}%DIFAUXCMD
+). Observe that this query cannot have the same \mbox{%DIFAUXCMD
+$i$
+}%DIFAUXCMD
+-bit prefix as any of the previous queries. Because if it did, then the output distribution of the two hybrids would be identical, and that contradicts our assumption about \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+'s distinguishing power. Therefore, the \mbox{%DIFAUXCMD
+$j^*+1$
+}%DIFAUXCMD
+-th query has to be a new query, and this query is the only place where the two hybrids differ.}\smallskip
+\DIFaddend 
 
-\DIFdelbegin %DIFDELCMD < \begin{definition}
-%DIFDELCMD < %%%
-\DIFdelend \DIFaddbegin \begin{definition}[Ensemble of Probability Distributions]
-\DIFaddend An \emph{ensemble} of probability distributions is a sequence of random variables $\{X_n\}_{n\in \mathbb{N}}$. 
-\DIFaddbegin \end{definition}
-\DIFadd{In this definition, $n$ is a parameter.
-Sometimes, we write $\{X_n\}_n$ or even simply $X_n$, when it is clear from context that we are talking about an ensemble.
+\DIFaddbegin \noindent \textbf{\DIFadd{Outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+}}\DIFadd{. }\DIFaddend Now we are ready to construct \DIFdelbegin \DIFdel{an }\DIFdelend \DIFaddbegin \DIFadd{our outer }\DIFaddend adversary $\mathcal{B}$ that \DIFdelbegin \DIFdel{distinguishes }\DIFdelend \DIFaddbegin \DIFadd{can distinguish between }\DIFaddend $U_{2n}$ \DIFdelbegin \DIFdel{from }\DIFdelend \DIFaddbegin \DIFadd{and }\DIFaddend $G(U_n)$\DIFdelbegin \DIFdel{: On input \mbox{%DIFAUXCMD
+$T \in\{0, 1\}^{2n}$
+}%DIFAUXCMD
+(\mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{. \mbox{%DIFAUXCMD
+$\mathcal{B}^{\mathcal{A}, i^*, j^*}(1^n, z)$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$z \in \{0, 1\}^{2n}$
+}%DIFAUXCMD
+(\mbox{%DIFAUXCMD
+$z$
+}%DIFAUXCMD
+}\DIFaddend could be either from $U_{2n}$ or $G(U_n)$) \DIFdelbegin \DIFdel{,
+construct a full binary tree of depth \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+that is exactly the same as \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+except replacing the children of  \mbox{%DIFAUXCMD
+$x^*_n x^*_{n-1} \ldots x^*_{i}$
+}%DIFAUXCMD
+by the value \mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+.
+              Observe that the only difference between \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i,j+1}$
+}%DIFAUXCMD
+is that values corresponding to nodes \mbox{%DIFAUXCMD
+$x_n^*\ldots x_i^* 0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$x_n^*\ldots x_i^* 1$
+}%DIFAUXCMD
+are pseudorandom or random respectively. }\DIFdelend \DIFaddbegin \DIFadd{and we assume the knowledge of \mbox{%DIFAUXCMD
+$i^*, j^*$
+}%DIFAUXCMD
+}\footnote{\DIFadd{As mentioned before, it can be guessed with slight loss in distinguishing advantage.}}\DIFadd{, operates as follows:
+}\begin{enumerate}
+    \item \DIFadd{Parse \mbox{%DIFAUXCMD
+$z$
+}%DIFAUXCMD
+as \mbox{%DIFAUXCMD
+$z_0||z_1$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$z_0, z_1 \in \{0, 1\}^n$
+}%DIFAUXCMD
+.
+    }\item \DIFadd{For all the oracle queries from \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+except the \mbox{%DIFAUXCMD
+$j^*+1$
+}%DIFAUXCMD
+-th query, respond as \mbox{%DIFAUXCMD
+$H_{i^*,j^*}$
+}%DIFAUXCMD
+}\footnote{\DIFadd{The outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+runs a random function in polynomial time in \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+via lazy sampling. It generates a random output on a new input and caches responses to previous inputs.}}\DIFadd{.
+    }\item \DIFadd{For the \mbox{%DIFAUXCMD
+$j^*+1$
+}%DIFAUXCMD
+-th query \mbox{%DIFAUXCMD
+$(x_1\dots x_n)$
+}%DIFAUXCMD
+, do the following:
+          }\begin{enumerate}
+              \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets z_{x_{i^*+1}}$
+}%DIFAUXCMD
+.
+              }\item \DIFadd{For \mbox{%DIFAUXCMD
+$a \in i^*+2 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets G_{x_a}(y)$
+}%DIFAUXCMD
+.
+              }\item \DIFadd{Respond with \mbox{%DIFAUXCMD
+$y$
+}%DIFAUXCMD
+.
+          }\end{enumerate}
+    \item \DIFadd{Output whatever \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+outputs.
+}\end{enumerate}
+
+\DIFadd{We assumed that \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+can distinguish between \mbox{%DIFAUXCMD
+$H_{i^*, j^*}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i^*, j^*+1}$
+}%DIFAUXCMD
+, so by contrapositive of the Sunglass Lemma, }\DIFaddend $\mathcal{B}$ \DIFdelbegin \DIFdel{uses the value \mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+to generate these two nodes. Hence success in  distinguishing hybrids \mbox{%DIFAUXCMD
+$H_{i,j}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_{i,j+1}$
+}%DIFAUXCMD
+provides a successful attack for \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+in violating security of the pseudorandom generator.
+}\DIFdelend \DIFaddbegin \DIFadd{can distinguish between \mbox{%DIFAUXCMD
+$U_{2n}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G(U_n)$
+}%DIFAUXCMD
+. This contradicts that \mbox{%DIFAUXCMD
+$G$
+}%DIFAUXCMD
+is a PRG.
 }
 
-\begin{definition}[Statistical Indistinguishability]
-    \DIFaddend Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ \DIFaddbegin \DIFadd{are said to be }\emph{\DIFadd{statistically indistinguishable}} \DIFadd{if for all adversaries $\ma$, the quantities
-    }$$\DIFadd{p(n) := \Pr[\ma(X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]}$$
-    \DIFadd{and
-    }$$\DIFadd{q(n) := \Pr[\ma(Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]}$$
-    \DIFadd{differ by a negligible amount.
-    In particular, the ensembles are said to be statistically indistinguishable if
-    }$$\DIFadd{\Delta_\ma(n) = |p(n) - q(n)| = |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]|}$$
-    \DIFadd{is negligible in $n$.
-This equivalence is denoted by
-}$$\DIFadd{\{X_n\}_n \approx_S \{Y_n\}_n}$$
-\end{definition}
-\DIFadd{Note that our attacker in this scenario is not computationally bounded, as is usual}\footnote{\DIFadd{Statistical indistinguishability is a very strong requirement, and it makes use of a very powerful adversary, so it will serve mostly as an illustrative example.}}\DIFadd{.
-We also do not require the ensemble to be efficiently samplable.
-}
+%DIF > where $q_{i+1}$ is the number of the distinct $i-bit$ prefixes of the queries of $\mathcal{A}$.\footnote{Observe that $q_{i+1}$ for each appropriate choice of $i$ is bounded by the running time of $\mathcal{A}$. Hence, this value is bounded by a polynomial in the security parameter.}
+%DIF > We define hybrid $H_{i,j}$ for $j =0$ to be same as hybrid $H_{i}$. Additionally, for $j >0$ hybrid $H_{i,j}$ is defined to be exactly the same as hybrid $H_{i,j-1}$ except the response provided to the attacker for the $j^{th}$ distinct $i-bit$ prefix query of $\mathcal{A}$. Let this prefix be $x^*_n x^*_{n-1} \ldots x^*_{i}$. Note that in hybrid $H_{i,j-1}$ the children of the node $x^*_n x^*_{n-1} \ldots x^*_{i}$ correspond to two pseudorandom values. In hybrid $H_{i,j}$ we replace these two children with random values. By careful inspection, it follows that hybrid $H_{i,q_{i+1}}$ is actually $H_{i+1}$. All we are left to prove is that hybrid $H_{i,j}$ and $H_{i,j+1}$ are indistinguishable for the appropriate choices of $j$ and we prove this below.
+%DIF > Now we are ready to construct an adversary $\mathcal{B}$ that  distinguishes $U_{2n}$ from $G(U_n)$: On input $T \in\{0, 1\}^{2n}$ ($T$ could be either from $U_{2n}$ or $G(U_n)$),
+%DIF > construct a full binary tree of depth $n$ that is exactly the same as $H_{i,j}$ except replacing the children of  $x^*_n x^*_{n-1} \ldots x^*_{i}$ by the value $T$.
+%DIF > Observe that the only difference between $H_{i,j}$ and $H_{i,j+1}$ is that values corresponding to nodes $x_n^*\ldots x_i^* 0$ and $x_n^*\ldots x_i^* 1$ are pseudorandom or random respectively. $\mathcal{B}$ uses the value $T$ to generate these two nodes. Hence success in  distinguishing hybrids $H_{i,j}$ and $H_{i,j+1}$ provides a successful attack for $\mathcal{B}$ in violating security of the pseudorandom generator.
+\DIFaddend \qed
 
-\DIFadd{This definition is closely related to the concept of the }\textit{\DIFadd{statistical distance}} \DIFadd{between two probability distributions.
-}\begin{definition}[Statistical Distance]
-\DIFadd{The }\emph{\DIFadd{statistical distance}} \DIFadd{between two distributions $X$ and $Y$ is defined as
-}$$\DIFadd{SD(X, Y) = \frac{1}{2}\sum\limits_{v \in S}|\Pr[X_n = v] - \Pr[Y_n = v]|}$$
-\DIFadd{where $S = Support(X_n) \cup Support(Y_n)$.
-}\end{definition}
-\DIFadd{In fact, we can show that $\Delta_{\ma}(n) \le SD(X_n, Y_n)$.
-}\begin{lemma}[Relationship between $SD$ and $\Delta_\ma$]
-    \DIFadd{For any adversary $\ma$,
-    }$$\DIFadd{\Delta_{\ma}(n) \le SD(X_n, Y_n)}$$
-\end{lemma}
 
-\proof
-\DIFadd{Let $\Omega$ be the sample space for $X_n$ and $Y_n$.
-}
 
-\DIFadd{Let $T = \{v \in \Omega | \Pr[v \leftarrow X_n] > \Pr[v \leftarrow Y_n]\}$.
-}
 
-\DIFadd{First, we will prove that $SD(X_n, Y_n) = \sum\limits_{v \in \Omega} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|$.
-}
 
-\begin{align*}
-    \DIFadd{\sum\limits_{v \in \Omega} \Pr[v \leftarrow X_n] }&\DIFadd{= \sum\limits_{v \in \Omega} \Pr[v \leftarrow Y_n] = 1 }\\
-    \DIFadd{\sum\limits_{v \in T}\Pr[v \leftarrow X_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow X_n] }&\DIFadd{= \sum\limits_{v \in T}\Pr[v \leftarrow Y_n] + \sum\limits_{v \in \Omega\setminus T}\Pr[v \leftarrow Y_n]}\\
-    \DIFadd{\sum\limits_{v \in T}(\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]) }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}(\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n])}\\
-    \DIFadd{\sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow Y_n] - \Pr[v \leftarrow X_n]|}\\
-    \DIFadd{\sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
-    \DIFadd{\sum\limits_{v \in \Omega}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]| }&\DIFadd{= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
-    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
-    \DIFadd{2SD(X_n, Y_n) }&\DIFadd{= 2 \cdot \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
-    \DIFadd{SD(X_n, Y_n) }&\DIFadd{= \sum\limits_{v \in T}|\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|
-}\end{align*}
 
-\DIFadd{Now we will show the main result of the lemma.
-}\begin{align*}
-    \DIFadd{\Delta_\ma(n) }&\DIFadd{= |\Pr[\ma(X_n) = 1] - \Pr[\ma(Y_n) = 1]| }\\
-    &\DIFadd{= |\sum\limits_{v \in \Omega} (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow X_n]) - (\Pr[\ma(v) = 1] \cdot \Pr[v \leftarrow Y_n])|}\\
-    &\DIFadd{= |\sum\limits_{v \in \Omega} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| }\\
-    &\DIFadd{= |\sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
-    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n])| }\\
-    &\DIFadd{= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
-    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot ( \Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]) }\\
-    &\DIFadd{= \sum\limits_{v \in T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| }\\
-    &\DIFadd{\;\;\;\; + \sum\limits_{v \in \Omega \setminus T} \Pr[\ma(v) = 1] \cdot |\Pr[v \leftarrow X_n]) - \Pr[v \leftarrow Y_n]| }\\
-    &\DIFadd{\le \sum\limits_{v \in T} |\Pr[v \leftarrow X_n] - \Pr[v \leftarrow Y_n]|}\\
-    &\DIFadd{= SD(X_n, Y_n)
-}\end{align*}
-\qed
 
-\section{\DIFadd{Computational Indistinguishability}}
-\DIFadd{We now turn to a more reasonable definition of indistinguishability.
-In particular, this definition imposes the usual computational limits on the adversary $\ma$. 
-It also requires that the ensembles of distributions in question be efficiently samplable.
-Besides those changes, however, the definition of }\emph{\DIFadd{computational indistinguishability}} \DIFadd{is quite similar to that of }\emph{\DIFadd{statistical indistinguishability}}\DIFadd{.
-}
-
-\begin{definition}[Computational Indistinguishability]
-\DIFadd{Two ensembles of probability distributions $\{X_n\}_n$ and $\{Y_n\}_n$ }\DIFaddend (which are \emph{samplable} in time polynomial in $n$) are said to be \emph{computationally indistinguishable} if for all (non-uniform) PPT \DIFdelbegin \DIFdel{machines }\DIFdelend \DIFaddbegin \DIFadd{adversaries }\DIFaddend $\ma$, the quantities
-$$p(n) := \Pr[\ma(1^n, X_n) = 1] = \sum_x \Pr[X_n = x]\Pr[\ma(1^n,x) = 1]$$
-and
-$$q(n) := \Pr[\ma(1^n,Y_n) = 1] = \sum_y \Pr[Y_n = y]\Pr[\ma(1^n,y) = 1]$$
-differ by a negligible amount; i.e. $|p(n) - q(n)|$ is negligible in $n$.    
-This equivalence is denoted by
-\DIFaddbegin $$\DIFadd{\{X_n\}_n\approx_C \{Y_n\}_n}$$
-\DIFadd{However, since this is the main form of indistinguishability that we are concerned with, we will simply write
-}\DIFaddend $$\{X_n\}_n\approx \{Y_n\}_n$$
-\end{definition}
-We now prove some properties of computationally indistinguishable ensembles that will be useful later on.
-
-\begin{lemma}[Sunglass Lemma]
-If $\{X_n\}_n\approx\{Y_n\}_n$ and $P$ is a PPT machine, then
-
-$$\{P(X_n)\}_n\approx \{P(Y_n)\}_n$$
-\end{lemma}
-
-\proof
-Consider an adversary $\ma$ that can distinguish $\{P(X_n)\}_n$ from $\{P(Y_n)\}_n$ with non-negligible probability. Then the adversary $\ma\circ P$ can distinguish $\{X_n\}_n$ from $\{Y_n\}_n$ with the same non-negligible probability. Since $P$ and $\ma$ are both PPT machines, the composition is also a PPT machine. This proves the contrapositive of the lemma.
-\qed
-
-\DIFdelbegin %DIFDELCMD < \begin{lemma}[Hybrid Argument]
-%DIFDELCMD < %%%
-\DIFdelend \DIFaddbegin \DIFadd{The name of the lemma comes from the idea that if two objects are indistinguishable without putting on sunglasses, then they should remain indistinguishable after putting on sunglasses.
-}
-
-\begin{lemma}[Multicopy Lemma]
-\DIFaddend For a polynomial $t:\mathbb{Z}^+\rightarrow\mathbb{Z}^+$ let the $t$-product of $\{Z_n\}_n$ be
-
-$$\{Z_n^{(1)}, Z_n^{(2)},\hdots, Z_n^{(t(n))}\}_n$$
-where the $Z_n^{(i)}$s are independent copies of $Z_n$. If
-$$\{X_n\}_n\approx\{Y_n\}_n$$
-then
-$$\{X_n^{(1)},\hdots,X_n^{(t)}\}_n\approx\{Y_n^{(1)},\hdots,Y_n^{(t)}\}_n$$
-as well.
-\end{lemma}
-\DIFaddbegin \DIFadd{Intuitively, if you can't tell apart a red ball and a blue ball, then you can't tell apart multiple copies of the red and blue balls.
+\section{PRFs from DDH: Naor-Reingold PRF}
+We will now describe a PRF function family $F_n: \mathcal{K} \times \{0,1\}^n \rightarrow \mathbb{G}_n$ where DDH is assumed to be hard for  $\{\mathbb{G}_n\}$ and $\mathcal{K}$ is the key space.
+The \DIFdelbegin \DIFdel{seed }\DIFdelend \DIFaddbegin \DIFadd{key }\DIFaddend for the PRF $F_n$ will be $K =  (h, u_1, \ldots u_n)$, where $u,u_0\ldots u_n$ are sampled uniformly from $|\mathbb{G}_n|$, $g$ is the generator of $\mathbb{G}_n$ and $h = g^u$. \DIFaddbegin \DIFadd{Compared to the previous construction (Theorem~\ref{theorem:ggm}), there are two differences to note already: the key is polynomially longer and the output space is \mbox{%DIFAUXCMD
+$\mathbb{G}_n$
+}%DIFAUXCMD
+instead of \mbox{%DIFAUXCMD
+$\{0, 1\}^n$
+}%DIFAUXCMD
+.
 }\DIFaddend 
 
+\[F_n(K,x) = h^{\prod_{i} u_i^{x_i}}\]
+
+Next, we will prove that the function $F_n$ is a pseudo-random function or that $\{F_n\}$ is a pseudo-random function ensemble.\footnote{Here, we require that adversary distinguish the function $F_n$ from a random function from $\{0,1\}^n$ to $\mathbb{G}_n$. Note that the output range of the function is $\mathbb{G}_n$. \DIFdelbegin \DIFdel{Note }\DIFdelend \DIFaddbegin \DIFadd{Moreover, note }\DIFaddend that the distribution of random group elements in $\mathbb{G}_n$ might actually be far from uniformly random strings.}
+\begin{lemma}
+    Assuming the DDH Assumption (see Definition~\ref{def:ddh}) for $\{\mathbb{G}_n\}$ is hard, we have that $\{F_n\}$ is a pseudorandom function ensemble.
+\end{lemma}
 \begin{proof}
-\DIFaddbegin \DIFadd{We proceed by what is known as a hybrid argument.
-}\DIFaddend Consider the set of tuple random variables
-$$H^{(i,t)}_n = (Y_n^{(1)},\hdots,Y_n^{(i)},X_n^{(i+1)},X_n^{(i+2)},\hdots,X_n^{(t)})$$
-for integers $0\le i\le t$. 
-\DIFaddbegin \DIFadd{For instance, when $i=0$:
-}$$\DIFadd{H^{(0,t)}_n = (X_n^{(1)},X_n^{(2)},\hdots,X_n^{(t)}) = \overline{X}_n}$$
-\DIFadd{Similarly, when $i=t$:
-}$$\DIFadd{H^{(t,t)}_n = (Y_n^{(1)},Y_n^{(2)},\hdots,Y_n^{(t)}) = \overline{Y}_n}$$
+    The proof of this lemma is similar to the proof of Theorem~\ref{theorem:ggm} \DIFaddbegin \DIFadd{except for some subtle differences that arise from number theory}\footnote{\DIFadd{At a high-level, we can no longer fix nodes in the same level of the tree arbitrarily. Fixing one node has implications for how other nodes will be changed. This is because we have a fixed basis in the key.}}\DIFaddend .
 
-\DIFaddend Assume, for the sake of contradiction, that there is a PPT adversary $\ma$ that can distinguish between $\{H^{(0,t)}_n\}_n$ and $\{H^{(t,t)}_n\}_n$ with non-negligible probability difference \DIFdelbegin \DIFdel{$r(n)$}\DIFdelend \DIFaddbegin \DIFadd{$\varepsilon(n)$}\DIFaddend . Suppose that $\ma$ returns 1 with probability \DIFdelbegin \DIFdel{$\epsilon_i$ }\DIFdelend \DIFaddbegin \DIFadd{$P_i$ }\DIFaddend when it runs on samples from $H^{(i,t)}_n$. 
-\DIFaddbegin \DIFadd{That is, $P_i = \Pr[\ma(H^{(i,t)}_n = 1)]$
-}\DIFaddend By definition, \DIFdelbegin \DIFdel{$|\epsilon_t - \epsilon_0|\ge r(n)$. 
-By the Triangle Inequality and the }\DIFdelend \DIFaddbegin \DIFadd{$|P_0 - P_t|\ge \varepsilon(n)$. 
+    Let \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$R_n^j$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$R_n$
+}%DIFAUXCMD
+}\DIFaddend be random function from \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$\{0,1\}^j \rightarrow \mathbb{G}_n$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$\{0,1\}^n \rightarrow \mathbb{G}_n$
+}%DIFAUXCMD
+}\DIFaddend . Then we want to prove that for all non-uniform PPT adversaries $\mathcal{A}$ we have that:
+    \[\mu(n) = \left|\Pr[\mathcal{A}^{F_n}(1^n) =1] -  \DIFdelbegin \DIFdel{\Pr[\mathcal{A}^{R_n^n}(1^n) =1]}\DIFdelend \DIFaddbegin \DIFadd{\Pr[\mathcal{A}^{R_n}(1^n) =1]}\DIFaddend \right|\]
+    is a negligible function. \DIFaddbegin \smallskip
+\DIFaddend 
+
+    \DIFaddbegin \noindent \textbf{\DIFadd{Hybrids}}\DIFadd{. }\DIFaddend For the sake of contradiction, we assume that the function $F_n$ is not pseudorandom. Next, towards a contradiction, we consider a sequence of hybrid functions \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$F_n^0 \ldots F_n^n$
+}%DIFAUXCMD
+.
+    For any \mbox{%DIFAUXCMD
+$j \in \{0,\ldots n\}$
+}%DIFAUXCMD
+, let \mbox{%DIFAUXCMD
+$F^j_n((h,u_{j}\ldots u_n),x) = (R_n^j(x_1\ldots x_j))^{\prod_{i=j+1}^n u_i^{x_i}}$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$R_n^0(\epsilon)$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$H^0_n \ldots H^n_n$
+}%DIFAUXCMD
+.
+    For \mbox{%DIFAUXCMD
+$j \in \{0, \dots, n\}$
+}%DIFAUXCMD
+, let \mbox{%DIFAUXCMD
+$S^j_n: \{0, 1\}^j \to \{0, 1, \dots, |\mathbb{G}_n|-1\}$
+}%DIFAUXCMD
+, then hybrid \mbox{%DIFAUXCMD
+$H_n^j$
+}%DIFAUXCMD
+is defined as}\footnote{\DIFadd{Algorithmically, \mbox{%DIFAUXCMD
+$H_n^j((u,u_{j+1}\ldots u_n),x)$
+}%DIFAUXCMD
+is computed as:
+    }\begin{enumerate}
+        \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets S_n^j(x_1\ldots x_j)$
+}%DIFAUXCMD
+.
+        }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = j+1 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets y \cdot u_i^{x_i}$
+}%DIFAUXCMD
+.
+        }\item \DIFadd{Output \mbox{%DIFAUXCMD
+$g^y$
+}%DIFAUXCMD
+.
+    }\end{enumerate}
+
+    }\DIFadd{:
+    }\begin{equation*}
+        \DIFadd{H_n^j((u,u_{j+1}\ldots u_n),x) = \big(g^{S_n^j(x_1\ldots x_j)}\big)^{\prod_{i=j+1}^n u_i^{x_i}}
+    }\end{equation*}
+    \DIFadd{where \mbox{%DIFAUXCMD
+$S_n^0(\cdot)$
+}%DIFAUXCMD
+}\DIFaddend is the constant function with output \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$h$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$u$
+}%DIFAUXCMD
+}\DIFaddend . Observe that \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$F_n^0$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$H_n^0$
+}%DIFAUXCMD
+}\DIFaddend is the same as the function $F_n$ and \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$F_n^n$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$H_n^n$
+}%DIFAUXCMD
+}\DIFaddend is the same as the function \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$R_n^n$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$R_n$
+}%DIFAUXCMD
+}\footnote{\DIFadd{A uniform group element is equivalently sampled by first sampling an exponent in the order of the group.}}\DIFaddend . Thus, by a hybrid argument \DIFaddbegin \DIFadd{and triangle inequality}\DIFaddend , we conclude that there exists \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$k \in \{0,\ldots n-1\}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$j^* \in \{0,\ldots n-1\}$
+}%DIFAUXCMD
+}\DIFaddend , such that
+    \[\left|\DIFdelbegin \DIFdel{\Pr[\mathcal{A}^{F_n^k}(1^n) =1] }\DIFdelend \DIFaddbegin \DIFadd{\Pr[\mathcal{A}^{H_n^{j^*}}(1^n) =1] }\DIFaddend -  \DIFdelbegin \DIFdel{\Pr[\mathcal{A}^{F_n^{k+1}}(1^n) =1]}\DIFdelend \DIFaddbegin \DIFadd{\Pr[\mathcal{A}^{H_n^{j^*+1}}(1^n) =1]}\DIFaddend \right|\]
+    is a non-negligible function. Now all we are left to show is that this implies an attacker that refutes the DDH assumption.\DIFaddbegin \smallskip
+
+    \noindent \textbf{\DIFadd{Sub-hybrids}}\DIFadd{. }\DIFaddend The proof of this claim follows by a sequence of \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$q+1$
+}%DIFAUXCMD
+}\DIFaddend sub-hybrids \DIFdelbegin \DIFdel{, where \mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+is the }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$H_n^{j, 0}, \dots, H_n^{j, q}$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+is the (polynomially bounded by \mbox{%DIFAUXCMD
+$n$
+}%DIFAUXCMD
+) }\DIFaddend running time of $\mathcal{A}$. \DIFdelbegin \DIFdel{Without loss of generality we assume that }\DIFdelend \DIFaddbegin \DIFadd{For the simplicity of exposition, we abuse the notation and denote \mbox{%DIFAUXCMD
+$q(n)$
+}%DIFAUXCMD
+by \mbox{%DIFAUXCMD
+$q$
+}%DIFAUXCMD
+. Let \mbox{%DIFAUXCMD
+$C_n^j: \{0, 1\}^j \to \{0, \dots, |\mathbb{G}_n|-1\}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$D_n^j: \{0, 1\}^{j+1} \to \{0, \dots, |\mathbb{G}_n|-1\}$
+}%DIFAUXCMD
+be two random functions, and \mbox{%DIFAUXCMD
+$C_n^0(\cdot) = u$
+}%DIFAUXCMD
+. We define sub-hybrid \mbox{%DIFAUXCMD
+$H_n^{j, k}\big((u, u_{j+1}\ldots u_n),(x_1\dots x_n)\big)$
+}%DIFAUXCMD
+for \mbox{%DIFAUXCMD
+$k \in \{0, \dots, q\}$
+}%DIFAUXCMD
+as follows:
+    }\begin{enumerate}
+        \item \DIFadd{Initialize a list \mbox{%DIFAUXCMD
+$L \gets \{\}$
+}%DIFAUXCMD
+to store the \mbox{%DIFAUXCMD
+$j$
+}%DIFAUXCMD
+-bit prefixes of the queries made by }\DIFaddend $\mathcal{A}$\DIFdelbegin \DIFdel{never makes the same query twice. }\DIFdelend \DIFaddbegin \DIFadd{.
+        }\item \DIFadd{If \mbox{%DIFAUXCMD
+$|L|<k$
+}%DIFAUXCMD
+or \mbox{%DIFAUXCMD
+$(x_1\cdots x_j) \in L$
+}%DIFAUXCMD
+:
+              }\begin{enumerate}[noitemsep,nolistsep]
+                  \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets D^j_n(x_1\dots x_{j+1})$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{Append \mbox{%DIFAUXCMD
+$(x_1\dots x_j)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$L$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = j+2 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets y \cdot u_i^{x_i}$
+}%DIFAUXCMD
+.
+              }\end{enumerate}
+        \item \DIFadd{Else
+              }\begin{enumerate}[noitemsep,nolistsep]
+                  \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets C^j_n(x_1\dots x_j)$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = j+1 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets y \cdot u_i^{x_i}$
+}%DIFAUXCMD
+.
+              }\end{enumerate}
+        \item \DIFadd{Output \mbox{%DIFAUXCMD
+$g^y$
+}%DIFAUXCMD
+.
+    }\end{enumerate}
+\DIFaddend 
+
+    \DIFdelbegin \DIFdel{More specifically, we consider a sequence of functions \mbox{%DIFAUXCMD
+$F_n^{k,t}$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$t \in \{0,T\}$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$F_n^{k,0}$
+}%DIFAUXCMD
+is same as \mbox{%DIFAUXCMD
+$F_n^{k}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$F_n^{k,T}$
+}%DIFAUXCMD
+is same as \mbox{%DIFAUXCMD
+$F_n^{k+1}$
+}%DIFAUXCMD
+.
+    In particular, we explain how \mbox{%DIFAUXCMD
+$F_n^{k,t}$
+}%DIFAUXCMD
+answers queries by }\DIFdelend \DIFaddbegin \DIFadd{It is easy to see that \mbox{%DIFAUXCMD
+$H_n^{j, 0}$
+}%DIFAUXCMD
+is the same as \mbox{%DIFAUXCMD
+$H_n^j$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_n^{j, q}$
+}%DIFAUXCMD
+is the same as \mbox{%DIFAUXCMD
+$H_n^{j+1}$
+}%DIFAUXCMD
+.
+    Again, we use hybrid argument to conclude that there exists \mbox{%DIFAUXCMD
+$j^*, k^*$
+}%DIFAUXCMD
+such that }\DIFaddend $\mathcal{A}$ \DIFdelbegin \DIFdel{.}\footnote{\DIFdel{As assumed earlier, keep in mind that \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+never makes the same query twice.}} %DIFAUXCMD
+\addtocounter{footnote}{-1}%DIFAUXCMD
+\DIFdel{Let \mbox{%DIFAUXCMD
+$x^1, \ldots x^t$
+}%DIFAUXCMD
+be the first \mbox{%DIFAUXCMD
+$t$
+}%DIFAUXCMD
+queries }\DIFdelend \DIFaddbegin \DIFadd{can distinguish between \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*+1}$
+}%DIFAUXCMD
+with non-negligible probability. We now focus on these two sub-hybrids. Consider the \mbox{%DIFAUXCMD
+$k^*+1$
+}%DIFAUXCMD
+-th oracle query }\DIFaddend made by $\mathcal{A}$. \DIFdelbegin \DIFdel{For any query , \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{Following an identical argument we used in the proof of Theorem~\ref{theorem:ggm}, this query cannot be a repeat of a query made before, and this query is the only place where the two sub-hybrids differ.}\smallskip
+
+    \noindent \textbf{\DIFadd{Outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+}}\DIFadd{. The construction of the outer adversary \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+is a bit different from the proof of Theorem~\ref{theorem:ggm}. Intuitively, unlike Theorem~\ref{theorem:ggm}, outer adversary cannot simply replace the \mbox{%DIFAUXCMD
+$k^*+1$
+}%DIFAUXCMD
+-th query with the DDH challenge in isolation from the rest of the queries }\DIFaddend made by $\mathcal{A}$\DIFdelbegin \DIFdel{such that the first \mbox{%DIFAUXCMD
+$k$
+}%DIFAUXCMD
+bits of \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+match the first \mbox{%DIFAUXCMD
+$k$
+}%DIFAUXCMD
+bits of one of \mbox{%DIFAUXCMD
+$x_1, \ldots x_y$
+}%DIFAUXCMD
+answer as \mbox{%DIFAUXCMD
+$F_n^{k+1}$
+}%DIFAUXCMD
+else answer as \mbox{%DIFAUXCMD
+$F_n^{k}$
+}%DIFAUXCMD
+.
+              Now we can conclude that there exists a \mbox{%DIFAUXCMD
+$t$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$F_n^{k,t}$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{. This is because the pseudorandom nodes in the tree are tied together by the DDH relation, and are not independent, i.e., all pseudorandom sibling nodes on the same level of the tree are set apart by a common exponent.
 }
 
-\DIFadd{Using the common add-one-subtract-one trick, we can find that
-}\begin{align*}
-\DIFadd{|P_0 - P_t| }&\DIFadd{= |P_0 - P_{1} + P_{1} - P_{2} + ... + P_{t-1} - P_{t}| }\\
-&\DIFadd{= |(P_0 - P_{1}) + (P_{1} - P_{2}) + ... + (P_{t-1} - P_{t})| }\\
-&\DIFadd{\leq  |P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|
-}\end{align*}
-\DIFadd{Since $|P_0 - P_t| \ge \varepsilon(n)$, it follows that $|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}| \ge \varepsilon(n)$.
-By the }\DIFaddend Pigeonhole Principle, there \DIFdelbegin \DIFdel{is }\DIFdelend \DIFaddbegin \DIFadd{must exist }\DIFaddend some index $k$ for which
-\DIFdelbegin \DIFdel{$|\epsilon_{k+1} - \epsilon_k|\ge r(n)/t$. However, using Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ }\DIFdelend \DIFaddbegin \begin{align*}
-\DIFadd{|P_k - P_{k+1}| }&\DIFadd{\ge \frac{|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|}{t} }\\
-&\DIFadd{\geq \frac{\varepsilon(n)}{t}
-}\end{align*}
-\DIFadd{This }\DIFaddend implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are \DIFdelbegin \DIFdel{computationally indistinguishable.
-}\DIFdelend \DIFaddbegin \DIFadd{distinguishable.
+    \DIFadd{\mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+gets as challenge either a DDH tuple \mbox{%DIFAUXCMD
+$(g, A=g^a, B=g^b, C=g^{ab})$
+}%DIFAUXCMD
+or a uniform tuple \mbox{%DIFAUXCMD
+$(g, A=g^a, B=g^b, C=g^c)$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$a, b, c$
+}%DIFAUXCMD
+are uniform in \mbox{%DIFAUXCMD
+$\{0, \dots, |\mathbb{G}|-1\}$
+}%DIFAUXCMD
+. We construct \mbox{%DIFAUXCMD
+$\mathcal{B}^{\mathcal{A}, j^*, k^*}\big(1^n, (g, A, B, C)\big)$
+}%DIFAUXCMD
+as follows:
+    }\begin{enumerate}
+        \item \DIFadd{Sample \mbox{%DIFAUXCMD
+$u, u_{j^*+1}, \ldots u_n$
+}%DIFAUXCMD
+uniformly from \mbox{%DIFAUXCMD
+$\{0, \dots, |\mathbb{G}_n|-1\}$
+}%DIFAUXCMD
+.
+        }\item \DIFadd{For first \mbox{%DIFAUXCMD
+$k^*$
+}%DIFAUXCMD
+queries from \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+, respond as \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*}((u, u_{j^*+1}, \ldots u_n),\cdot)$
+}%DIFAUXCMD
+.
+        }\item \DIFadd{For the \mbox{%DIFAUXCMD
+$k^*+1$
+}%DIFAUXCMD
+-th query \mbox{%DIFAUXCMD
+$(x_1\ldots x_n)$
+}%DIFAUXCMD
+, do the following:
+              }\begin{enumerate}[noitemsep,nolistsep]
+                  \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets A$
+}%DIFAUXCMD
+if \mbox{%DIFAUXCMD
+$x_{j^*+1} = 0$
+}%DIFAUXCMD
+}\DIFaddend and \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$F_n^{k,t+1}$
+}%DIFAUXCMD
+are distinguishable with non-negligible probability. }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$y \gets C$
+}%DIFAUXCMD
+if \mbox{%DIFAUXCMD
+$x_{j^*+1} = 1$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = j^*+2 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets y \cdot u_i^{x_i}$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{Output \mbox{%DIFAUXCMD
+$g^y$
+}%DIFAUXCMD
+.
+              }\end{enumerate}
+        \item \DIFadd{For the rest of the queries \mbox{%DIFAUXCMD
+$(x_1\ldots x_n)$
+}%DIFAUXCMD
+, do the following:
+              }\begin{enumerate}[noitemsep,nolistsep]
+                  \item \DIFadd{Set \mbox{%DIFAUXCMD
+$y \gets C^j_n(x_1\ldots x_j)$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = j^*+2 \dots n$
+}%DIFAUXCMD
+: update \mbox{%DIFAUXCMD
+$y \gets y \cdot u_i^{x_i}$
+}%DIFAUXCMD
+.
+                  }\item \DIFadd{If \mbox{%DIFAUXCMD
+$x_{j^*+1} = 0$
+}%DIFAUXCMD
+, output \mbox{%DIFAUXCMD
+$g^y$
+}%DIFAUXCMD
+, else output}\footnote{\DIFadd{Recall that \mbox{%DIFAUXCMD
+$B=g^b$
+}%DIFAUXCMD
+, so \mbox{%DIFAUXCMD
+$B^y = g^{y\cdot b} = g^{y\cdot b^x_{j^*+1}}$
+}%DIFAUXCMD
+. Therefore, the DDH relation is properly set for all pseudorandom nodes.}} \DIFadd{\mbox{%DIFAUXCMD
+$B^y$
+}%DIFAUXCMD
+.
+              }\end{enumerate}
+        \item \DIFadd{Output whatever \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+outputs.
+    }\end{enumerate}
+\DIFaddend 
+
+    \DIFdelbegin \DIFdel{Finally, we will show that using an adversary that }\DIFdelend \DIFaddbegin \DIFadd{By the construction of \mbox{%DIFAUXCMD
+$\mathcal{B}$
+}%DIFAUXCMD
+, if \mbox{%DIFAUXCMD
+$(g, A, B, C)$
+}%DIFAUXCMD
+is a DDH tuple, then the distribution of oracle responses seen by \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+are exactly the same as the responses seen in the hybrid \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*}$
+}%DIFAUXCMD
+. Otherwise, they are the same as hybrid \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*+1}$
+}%DIFAUXCMD
+.
+    We assumed that \mbox{%DIFAUXCMD
+$\mathcal{A}$
+}%DIFAUXCMD
+}\DIFaddend can distinguish between \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$F_n^{k,t}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$F_n^{k,t+1}$
+}%DIFAUXCMD
+we need to construct an adversary }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$H_n^{j^*, k^*}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$H_n^{j^*, k^*+1}$
+}%DIFAUXCMD
+, therefore }\DIFaddend $\mathcal{B}$ \DIFdelbegin \DIFdel{that refutes the DDH assumption. We leave construction of this adversary as an exercise.
+}\DIFdelend \DIFaddbegin \DIFadd{can distinguish between a DDH tuple and a uniform tuple. This contradicts our assumption that DDH is hard.
 }
 
-\DIFadd{Using this information, we can construct an adversary $\mb$ that can distinguish $X_n$ from $Y_n$.
-Given an input $Z_n$, which is either $X_n$ or $Y_n$, $\mb$ works as follows:
-}$$\DIFadd{\mb(Z_n) = \ma(X_1, ..., X_{k-1}, Z, Y_{k+1}, ..., Y_t)}$$
-\DIFadd{By the argument above, for some value}\footnote{\DIFadd{$\mb$ is non-uniform, so it can ``know" which value of $k$ it should use.}} \DIFadd{of $k$, this computation gives $|\Pr[\mb(X_n)=1] - \Pr[\mb(Y_n) = 1]| \ge \frac{\varepsilon(n)}{t}$.
-}
+    %DIF > Without loss of generality we assume that $\mathcal{A}$ never makes the same query twice.
+    %DIF > More specifically, we consider a sequence of functions $F_n^{k,t}$ where $t \in \{0,T\}$, $F_n^{k,0}$ is same as $F_n^{k}$ and $F_n^{k,T}$ is same as $F_n^{k+1}$. In particular, we explain how $F_n^{k,t}$ answers queries by $\mathcal{A}$.\footnote{As assumed earlier, keep in mind that $\mathcal{A}$ never makes the same query twice.} Let $x^1, \ldots x^t$ be the first $t$ queries made by $\mathcal{A}$. For any query, $x$ made by $\mathcal{A}$ such that the first $k$ bits of $x$ match the first $k$ bits of one of $x_1, \ldots x_y$ answer as $F_n^{k+1}$ else answer as $F_n^{k}$. Now we can conclude that there exists a $t$ such that $F_n^{k,t}$ and $F_n^{k,t+1}$ are distinguishable with non-negligible probability.
+    %DIF > Finally, we will show that using an adversary that can distinguish between $F_n^{k,t}$ and $F_n^{k,t+1}$ we need to construct an adversary $\mathcal{B}$ that refutes the DDH assumption. We leave construction of this adversary as an exercise.
+\DIFaddend \end{proof}
 
 
-%DIF > However, using the Sunglass Lemma, note that the computational indistinguishability of $X_n$ and $Y_n$ implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are computationally indistinguishable. 
-\DIFaddend This is a contradiction. 
-\qed
-\DIFaddbegin 
+\newpage
+\section*{Exercises}
+\begin{exercise}
+    \newcommand{\bit}{\{0,1\}}
 
-\DIFadd{Intuitively, the idea behind proofs by hybrid argument is to create a chain of polynomially many hybrids such that the hybrids are pairwise indistinguishable at each step.
-Visually:
-}$$\DIFadd{H^{(0,t)}_n \approx H^{(1,t)}_n \approx H^{(2,t)}_n \approx ... \approx H^{(t-1,t)}_n \approx H^{(t,t)}_n}$$
-\DIFadd{This implies that 
-}$$\DIFadd{H^{(0,t)}_n \approx H^{(t,t)}_n}$$
-\DIFadd{which is the same thing as saying that
-}$$\DIFadd{\overline{X}_n \approx \overline{Y}_n}$$
+    Prove or disprove: If $f$ is a one-way function, then the following function $B:\bit^*\to\bit$ is a hardconcentrate predicate for $f$. The function $B(x)$ outputs the inner product modulo 2 of the first $\lfloor |x|/2\rfloor$ bits of $x$ and the last $\lfloor |x|/2\rfloor$ bits of $x$.
+\end{exercise}
+
+\begin{exercise}
+    Let $\phi(n)$ denote the first $n$ digits of $\pi = 3.141592653589\ldots$ after the decimal in binary ($\pi$ in its binary notation looks like $11.00100100001111110110101010001000100001\ldots$).
+
+    Prove the following: if one-way functions exist, then there exists a one-way function $f$ such that the function $B:\{0,1\}^* \rightarrow \{0,1\}$ is not a hard concentrate bit of $f$. The function $B(x)$ outputs $\langle x, \phi(|x|)\rangle$, where
+    \[\langle a, b\rangle := \sum_{i=1}^n a_i b_i \mod 2\]
+    for the bit-representation of $a = {a_1a_2\cdots a_n}$ and $b= {b_1b_2\cdots b_n}$.
+\end{exercise}
+
+\begin{exercise}
+    If $f: \{0,1\}^{n}\times \{0,1\}^n\rightarrow \{0,1\}^n$  is PRF, then in which of the following cases is $g: \{0,1\}^{n}\times \{0,1\}^n\rightarrow \{0,1\}^n$ also a PRF? \begin{enumerate} \item $g(K,x) = f(K,f(K,x))$ \item $g(K,x) = f(x,f(K,x))$ \item $g(K,x) = f(K,f(x,K))$
+    \end{enumerate}
+\end{exercise}
+
+\begin{exercise}[Puncturable PRFs.] Puncturable PRFs are PRFs for which a key can be given out such that, it allows evaluation of the PRF on all inputs, except for one designated input.
+
+    %\newcommand{\negl}{\mathsf{negl}}
+    \newcommand{\A}{\mathcal{A}}
+    \newcommand{\F}{F}
+    \newcommand{\KeyF}{\mathsf{Key}_{\F}}
+    \newcommand{\PunctureF}{\mathsf{Puncture}_{\F}}
+    \newcommand{\EvalF}{\mathsf{Eval}_{\F}}
 
 
-\DIFaddend %This is equivalent to trying to distinguish the ensembles $\{(X_n,T_n)\}_n$ from $\{(Y_n,T_n)\}_n$, where $T_n$ is independent of $X_n$ and $Y_n$ ($T_n$ is the random variable representing all coordinates but the $k$-th coordinate). Note that
+    A puncturable pseudo-random function $\F$ is given by a triple of efficient algorithms ($\KeyF$,$\PunctureF$, and $\EvalF$), satisfying the following conditions:
+    \begin{itemize}
+        \item[-] \textbf{Functionality preserved under puncturing}: For every $x^*, x \in \{0,1\}^{n}$ such that $x^* \neq x$, we have that:
+              $$\Pr[\EvalF(K,x) = \EvalF(K_{x^*},x) : K \gets \KeyF(1^n), K_{x^*} = \PunctureF(K,x^*)] = 1$$
+        \item[-] \textbf{Pseudorandom at the punctured point}: For every $x^*\in \{0,1\}^n$ we have that for every polysize adversary $\A$ we have that:
+              $$|\Pr[\A(K_{x^*}, \EvalF(K,x^*)) = 1] - \Pr[\A(K_{x^*}, \EvalF(K,U_n)) = 1]|= \negl(n)$$
+              where $K \gets \KeyF(1^n)$ and $K_S = \PunctureF(K,x^*)$. $U_n$ denotes the uniform distribution over $n$ bits.
+    \end{itemize}
+
+    Prove that: If one-way functions exist, then there exists a puncturable PRF family that maps $n$ bits to $n$ bits. \\
+    \textbf{Hint:} The GGM tree-based construction of PRFs from a length doubling pseudorandom generator (discussed in class) can be adapted to construct a puncturable PRF. Also note that $K$ and $K_{x^*}$ need not be the same length.
+\end{exercise}
 %
-%\begin{align*}
-%r(n)/t&\le |Pr[A(Y_n,T_n) = 1] - Pr[A(X_n,T_n) = 1]|\\
-%&= |\sum_{x,t} (Pr[Y_n = x,T_n = t] - Pr[X_n = x,T_n = t])Pr[A(x,t) = 1]|\\
-%&= |\sum_t Pr[T_n = t]\sum_x (Pr[Y_n = x] - Pr[X_n = x])Pr[A(x,t) = 1]|\\
-%&\le \sum_t Pr[T_n = t]\sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t) = 1]\\
-%\end{align*}
+%\subsection{Application}
+%Consider an interesting game: Alice and Bob are talking on the phone.
+%Alice flips a coin, and Bob guesses whether it's head or tail.
+%But the problem is how can Alice convince Bob that the coin is indeed head or tail?
+%If we have pseudorandom functions, the problem could be easily solved.
 %
-%so by the probabilistic method there is a $t_0$ for which $r(n)/t\le \sum_x |Pr[Y_n = x] - Pr[X_n = x]|Pr[A(x,t_0) = 1]$. This means that $X_n$ can be distinguished from $Y_n$ with probability difference $r(n)/t$, which is non-negligible (a contradiction).
-\end{proof}
-
-
-\iffalse
-\section{Hard Concentrate Bit}
-We start by asking the following question: Is it possible to concentrate the strength of a one-way function into one bit? In particular, given a one-way function $f$, does there exist one bit that can be computed efficiently from the input $x$, but is hard to compute given $f(x)$?
-\begin{definition}[Hard Concentrate Bit]
-Let $f:\binset{n} \rightarrow \binset{n}$ be a one-way function.
-$B:\{0,1\}^n \rightarrow \{0,1\}$ is a hard concentrate bit of $f$ if:
-\begin{itemize}
-\item[-] $B$ is computable by a PPT machine, and
-\item[-] $\forall$ non-uniform PPT adversaries $\mathcal{A}$ we have that
-	$$\Pr_{x\stackrel{\$}{\leftarrow} \binset{n}}[\mathcal{A}(1^n, f(x)) = B(x)] \leq \frac{1}{2} + \mathsf{negl}(n).$$
-\end{itemize}
-\end{definition}
-
-\noindent\textbf{A simple example.}
-Let $f$ be a one-way function. Consider the one-way function $g(b, x) = 0 || f(x)$ and a hard concentrate bit $B(b, x) = b$.
-Intuitively, the value $g(b, x)$ does not reveal any information about the first bit $b$, thus no information about the value $B(b, x)$ can be ascertained. Hence $\mathcal{A}$ cannot predict the first bit with a non-negligible advantage than a random guess.
-\begin{remark}
-Given a one-way function $f$, we can construct another one-way function $g$ with a hard concentrate bit. However, we may not be able to find a hard concentrate bit for $f$. In fact, it is an open question whether a hard concentrate bit exists for every one-way function.
-\end{remark}
-
-
-\bigskip
-Intuitively, if a function $f$ is one-way, there should be a particular bit in the input $x$ that is hard to compute given $f(x)$. But this is not true:
-\begin{claim}
-If $f:\binset{n}\rightarrow \binset{n}$ is a one-way function, then there exists a one-way function $g:\binset{n+\log n}\rightarrow\binset{n+\log n}$ such that $\forall 1 \leq i \leq n+\log n$, $B_i(x) = x_i$ is not a hard concentrate bit, where $x_i$ is the $i^\text{th}$ bit of $x$.
-\end{claim}
-\proof
-Define $g:\{0,1\}^{n+\log(n)} \rightarrow \{0,1\}^{n+\log(n)}$ as follows.
-$$g(x,y) = f(x_{\bar y}) || x_y || y,$$
-where $|x| = n, |y| = \log n$, $x_{\bar y}$ is all bits of $x$ except the $y^\text{th}$ bit, $x_y$ is the $y^\text{th}$ bit of $x$.
-
-First, one can show that $g$ is still a one-way function. \peihan{leave this as an exercise?}
-We next show that $B_i$ is not a hard concentrate bit for $\forall 1 \leq i \leq n$ (clearly $B_i$ is not a hard concentrate bit for $n+1 \leq i \leq n+\log n$).
-Construct an adversary $\mathcal{A}_i(1^{n+\log n}, f(x_{\bar y}) || x_y || y)$ that ``breaks'' $B_i$:
-\begin{itemize}
-\item[-] If $y \not= i$ then output a random bit;
-\item[-] Otherwise output $x_y$.
-\end{itemize}
-\begin{align*}
-& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, g(x,y)) = B_i(x)]\\
-=& \Pr_{x, y}[\mathcal{A}(1^{n+\log n}, f(x_{\bar y}) || x_y || y) = x_i]\\
-=& \frac{n-1}{n} \cdot \frac{1}{2} + \frac{1}{n} \cdot 1 = \frac{1}{2} + \frac{1}{2n}.
-\end{align*}
-Hence $\mathcal{A}_i$ can guess the output of $B_i$ with greater than $\frac{1}{2} + \mathsf{negl}(n)$ accuracy.
-\qed
-
-\bigskip
-\noindent\textbf{Application: Coin tossing over the phone.}
-Consider two parties trying to perform a coin tossing over the phone.  How can one party trust the win/loss response from the other party?  In particular, if one party calls out ``head'' and the other responds with ``tail'', the second party could be telling a lie.
-A hard concentrate bit of a one-way permutation can resolve this issue.
-
-Let $f$ be a one-way permutation and $B$ be a hard concentrate bit for $f$. Consider the following protocol:
-\begin{itemize}
-\item[-] Party $P_1$ samples $x$ from $\{0,1\}^n$ uniformly at random and sends $f(x)$ to party $P_2$;
-\item[-] $P_2$ sends back the choice for the coin, namely a single bit $b$;
-\item[-] $P_1$ sends back $(x, B(x))$.  $B(x)$ serves as the outcome of the flipping.
-\end{itemize}
-On the one hand, $P_2$ cannot guess $B(x)$ with a non-negligible advantage than $1/2$.
-On the other hand, $P_1$ cannot flip the value $B(b,x)$  because of the one-way fashion of $f$. \peihan{$f$ has to be OWP, otherwise doesn't work}
-
-\section{One-Way Permutations with Hard Concentrate Bits}
-We call a one-to-one (bijective) one-way function a one-way permutation (OWP for short).
-Before delving into important characteristics of hard concentrate bits for one-way permutations, we consider an interesting application of hard concentrate bits and one-way permutations.
-
-
-
-
-
-\bigskip
-Given a one-way permutation, we can construct a one-way permutation with a hard concentrate bit:
-\begin{theorem}
-Let  $f:\binset{n} \rightarrow \binset{n}$ be a one-way permutation.
-Define a one-way permutation $f':\binset{2n} \rightarrow \binset{2n}$ as follows:
-$$f'(x,r) = f(x) || r,$$
-where $|x| = |r| =n$. It has the hard concentrate bit $B(x, r) = \sum_{i=1}^n x_i r_i\mod 2$.
-\end{theorem}
-\proof
-\peihan{TODO...}
-If $\exists$ non-uniform PPT adversary $\ma$ s.t. $\Pr_{x,r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \epsilon(n)$, where $\epsilon$ is non-$neg$, then $\exists$ an adversary $R$ that inverts $f$
-
-	First, note that $f'$ is a OWF function (as per last lecture).  Let $e^i$ be the value/binary string $0\ldots1\ldots0$, where the $1$ is in the $i$th position.\\
-
-\textbf{Super simple case:}\\
-	Assume that $A$ breaks the $B$ with perfect probability/accuracy: $\Pr[A(f'(x,r)) = B(x,r)] = 1$\\
-	We will now construct an adversary $R(f(x))$ which yields $x$\\
-	To invert $f$, $R$:
-	\begin{enumerate}
-		\item For each $i$, $R$ executes $A(f(x) \circ e^i)$
-		\item Then $R$ XOR's (sums, modulo 2) the values from step $1$.  $A(f(x) \circ e^i) \rightarrow B(x, e^i) = \sum_{j=1}^n x_j e_j^i \mod 2  = x_i$
-		\item $R$ concatenates each $x_i$ and returns the value as $x$
-	\end{enumerate}
-	Since $A$ predicts $B(f'(x,r))$ with probability 1, the output of $R$ is produced with probability $1$.\\
-
-To begin with a more complicated case let us consider a set that gives us better probability than that in the theorem - a set that gives $\Pr[E] \ge \frac{1}{2} + \epsilon(n)$ (where $E$ is $A(f'(x,r)) = B(x,r)$ from the theorem statement).
-Let us define this set as $G$ (standing for $Good$):\\
-$\forall_{x \in G} \Pr_{r,A}[A(f'(x,r)) = B(x,r)] \ge \frac{1}{2} + \frac{\epsilon(n)}{2}$ with $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$ \\
-\\
-Assuming $\Pr[x \in G] \le \frac{\epsilon(n)}{2}$ implies a contradiction, so it is safe to conclude $\Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
-\begin{proof}
-Assume that $\Pr[x \in G] \le \epsilon(n)/2$\\
-$\frac{1}{2}+\epsilon(n) \le \Pr_{x,r,A}[E] = \Pr[E(x) | x \in G] \times \Pr[x \in G] + \Pr[E(x) | x \notin G] \times \Pr[x \notin G]$\\
-$< 1 \times \frac{\epsilon(n)}{2} + (\frac{1}{2}+\frac{\epsilon(n)}{2}) \times 1 \le \frac{\epsilon(n)}{2} + \frac{1}{2}+\frac{\epsilon(n)}{2} = \frac{1}{2}+ \epsilon(n) \not> \frac{1}{2}+ \epsilon(n) contradiction$\\
-$\implies \Pr[x \in G] \ge \frac{\epsilon(n)}{2}$\\
-\end{proof}
-\\
-	Observe that $B(x,r) \oplus B(x, r\oplus e^i) = x_i$\\
-	$= (\sum_j x_j r_j + \sum_j x_j r_j \oplus e^i_j) \mod 2$\\
-	$= (\sum_j^{j \not= i} (x_j r_j + x_j r_j)$  $+ x_i r_i + x_i (1-r_i)) \mod 2$\\
-	$= x_i r_i + x_i - x_i r_i = x_i$\\\\
-
-Let us work with the probability: $\Pr_{r}[A(f(x), r) \oplus A(f(x), r \oplus e^i) = x_i]$\\
-		Note that if both A's guess correctly, we get the right/intended answer.
-		The probability of this happening $=$ both A's are right $=$ 1- either one is wrong $\ge  1-\frac{\text{either one is wrong}}{2 (\frac{1}{2}-\epsilon(n))} = 1 - \frac{\text{either one is wrong}}{2 \epsilon(n)}$\\\\
-\textbf{The Simple Case:}\\
-	$\Pr[E(x)] \ge \frac{3}{4}+\frac{\epsilon(n)}{2}$\\
-	This probability, is bounded by $1-2(\frac{1}{4} - \frac{\epsilon(n)}{2}) = \frac{1}{2} + \epsilon(n)$ from the observation before (as $\text{one is wrong} = 1- (\frac{3}{4}+\frac{\epsilon(n)}{2}) = \frac{1}{4} - \frac{\epsilon(n)}{2}$)\\
-	$R$ then runs the two A's polynomial times and uses majority vote.\\
-	We use Chebyshev's inequality to justify the use of majority vote.
-	%read chernov and chebyshev bounds
-
-\subsection{Chebyshev's inequality} %TODO: should this be a subsection or should it be smaller?
-	Let $x_1,\ldots,x_m$ be independent and identical random variables assuming values 0 or 1.  Also, let $\Pr[x_i=1] = p$.\\
-		Then $\Pr[ \lvert \sum x_i - pm \rvert > \delta m] < 1/(4\delta^2 m)$\\
-
-	Let $b_1,\ldots,b_T$ be random bits.\\
-	Let $X_1$ be 1 when $A(r_1) \rightarrow b_1$,\\
-	$X_2$ be 1 when $A(r_2) \rightarrow b_2$,\\
-	$\ldots$\\
-	and let $X_T=1$ when $A(r_T) \rightarrow b_T$.\\
-	Let $T=\frac{2n}{\epsilon(n)^2}$\\\\
-
-The problematic case is:\\
-	$\Pr[ \sum_{i=1}^T X_i \le T/2]$\\
-	$= \Pr[ \sum_{i=1}^T X_i - (\frac{1}{2} + \epsilon(n)) T \le T/2 - (\frac{1}{2}+\epsilon(n))\times T]$\\
-	$< \Pr[ \lvert \sum_{i=1}^T X_i - (\frac{1}{2}+\epsilon(n) T)\rvert > \epsilon(n) \frac{T}{2} ]$\\
-	$< \frac{1}{4 (\epsilon(n)/2)^2 T} = \frac{1}{\epsilon(n)^2 T} = \frac{1}{2n}$ which is sufficient for the theorem\\\\
-
-In order to show that we can use Chebyshev's inequality, we need to show that the samples we are voting over are pairwise independent:\\
-For any two samples, - x,y - they are pair-wise independent if $\forall_{a,b \in {0,1}} \Pr[x=a \text{and} y=b] = \Pr[x=a] \times \Pr[y=b]$\\
-
-	Imagine we have $(r_1, B(x, r_1)), \ldots, (r_T, B(x,r_T))$\\
-	Let $k = \log(T)$, $S_1, \ldots, S_k \in \{0,1\}^n$ be sampled uniformly, and $b_1 = B(x, S_1), b_2 = B(x, S_2), \ldots, b_k = B(x, S_k)$
-	$\forall_{Y \subseteq [k]}$, $R$ generates $(f(x, \bigoplus_{i \in Y} S_i), \bigoplus_{i \in Y} b_i)$\\
-	(note: $[k]$ is the set $\{1,\ldots, k\}$)\\
-	\\
-	This proof is finished in the next lecture, with some slight changes.
-
-\qed
-
-
-%\subsection{Proof: Fixing a Value in a One-way Function}
+%Assume we have a PRF $F_n: \{0, 1\}^n \rightarrow \{0, 1\}^n$.
+%Alice and Bob have a shared key $i \in \{0, 1\}^n$, then $f_i(\cdot)$ is shared information.
+%Now Alice has a message $m \in \{0, 1\}^n$ and wants to let Bob guess it,
+%the procedure consists of three steps.
+%\begin{enumerate}[(a)]
+%    \item Alice chooses a string $r \in \{0, 1\}^n$, and sends to Bob  $m' = f_i(r) \oplus m$ ;
+%    \item Bob guesses $m$;
+%    \item Alice sends $r$ to Bob.
+%\end{enumerate}
+%In step (a), since $F_n$ is PRF, all the information that Bob gets is a random $n$-bit string, so it will not influence his behavior in step (b).
+%Then in step (c), Bob receives $r$ and will be convinced that the true value of $m$ is $f_i(r) \oplus m'$.
 %
-%\begin{theorem}
-%Given a one-way function $f : \binset{n} \rightarrow \binset{m}$ and constants $x_0 \in \binset{n}$, $y_0 \in \binset{m}$, $\exists g : \binset{n} \rightarrow \binset{m}$ such that $g(x_0) = y_0$ where $g$ is a one-way function.\\
-%\end{theorem}
-%
-%Main Idea:  Set $g$ to be $f$, except at $x_0$, where $g(x_0) = y_0$.  If there exists an adversary that can break $g$, then that adversary will also break $f$, because the adversary can only know negligibly more information about $g$ than $f$.\\
-%
-%\proof  Define the function $g$ as follows:
-%
-%$g(x) = \left\{
-%\begin{array}{lr}
-%  y_0 & : x = x_0 \\
-%  f(x) & : x \neq x_0
-%\end{array}
-%\right.$
-%
-%Suppose there is an adversary $A$ that can break $g$ with non-negligible probability $\mu(n)$.\\
-%
-%So, we have $\mu(n) = \underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(g(x)) \in g^{-1}(g(x)) ] = \sum\limits_{x \in \binset{n}} Pr(X = x) Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
-%
-%Since $x$ is uniformly distributed, $Pr[X = x] = \frac{1}{2^n}$.  We can split it into the cases $x : g(x) = y_0$ and $x : g(x) \neq y_0$:\\
-%
-%$\mu(n) = \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) = y_0} Pr [ A(y_0) \in g^{-1}(y_0)) ] \big] + \big[ \frac{1}{2^n} \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ] \big]$.\\
-%
-%Let $p = | \{ x : g(x) = y_0 \} |$.  Consider the adversary $M$ where $M(y) = x_1$ for any $y$, where $x_1$ is a value of $x$ where $f(x_1) = y_0$.  Thus, $M$ breaks $f$ for any input where $f(x) = y_0$, of which there are $p - 1$ or $p$ (depending on whether $f(x_0) = y_0$).  So, the probability with which $M$ breaks $f$ is $\frac{p-1}{2^n}$ or $\frac{p}{2^n}$.  Either way, since $f$ is a one-way function, this implies that $\frac{p}{2^n}$ is a negligible function.\\
-%
-%Now, since $Pr [ A(y_0) \in g^{-1}(g(x_0)) ] \leq 1$, we have:\\
-%
-%$\mu(n) \leq \frac{p}{2^n} + \sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(g(x)) \in g^{-1}(g(x)) ]$\\
-%
-%Notice that for any $x$ such that $g(x) \neq y_0$, we have $f(x) = g(x)$ and $f^{-1}(f(x)) = g^{-1}(g(x))$.\\
-%
-%So $\mu(n) \leq \frac{p}{2^n} + \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ]$\\
-%
-%Thus, if we consider $A$ as an adversary for $f$, then we get:\\
-%
-%$\underset{x \overset{\$}{\leftarrow} \binset{n}}{Pr} [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \frac{1}{2^n}\sum\limits_{x \in \binset{n}, g(x) \neq y_0} Pr [ A(f(x)) \in f^{-1}(f(x)) ] \; \geq \; \mu(n) - \frac{p}{2^n}$\\
-%
-%$\mu(n)$ is non-negligible and $\frac{p}{2^n}$ is negligible, and so, $\mu(n) - \frac{p}{2^n}$ is non-negligible.  Thus $A$ is an adversary that breaks $f$ with non-negligible probability.  \qed
-%
-\fi
 
-\section{Pseudorandom Generators}
-Now, we can define pseudorandom generators, which intuitively generates a polynomial number of bits that are \DIFaddbegin \DIFadd{computationally }\DIFaddend indistinguishable from being uniformly random:
-\begin{definition}
-A function $G:\{0,1\}^n\rightarrow \{0,1\}^{n+m}$ with $m = poly(n)$ is called a \emph{pseudorandom generator} if
-\begin{itemize}
-\item $G$ is computable in polynomial time.
-\item $U_{n+m}\approx G(U_n)$, where $U_k$ denotes the uniform distribution on $\{0,1\}^k$.
-\end{itemize}
-\end{definition}
-
-
-\subsection{PRG Extension}
-In this section we show that any pseudorandom generator that produces one bit of randomness can be extended to create a polynomial number of bits of randomness.
-
-\begin{construction}
-Given a PRG $G: \{0, 1\}^n \rightarrow \{0, 1\} ^ {n+1}$,
-we construct a new PRG $F: \{0, 1\}^n \rightarrow \{0, 1\} ^{n+l}$ as follows ($l$ is polynomial in $n$).
-\begin{enumerate}[label=(\alph*)]
-    \item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
-    \item $\forall i \in [l] = \{1, 2, \cdots, l\}$, $(\sigma_i, S_i) := G(S_{i-1})$, where $\sigma_i \in \{0, 1\}, S_i \in \{0, 1\}^n$ .
-    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
-\end{enumerate}
-\end{construction}
-
-\begin{theorem}
-The function $F$ constructed above is a PRG.
-\end{theorem}
-
-\proof
-We prove this by hybrid argument. Define the hybrid $H_i$ as follows.
-\begin{enumerate}[label=(\alph*)]
-	\item Input: $S_0 \xleftarrow{\$} \{0, 1\}^n$.
-    \item $\sigma_1, \sigma_2, \cdots, \sigma_i \xleftarrow{\$} \{0, 1\}$, $S_i \gets S_0$.\\
-     $\forall j \in \{i+1, i+2, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
-    \item Output: $\sigma_1 \sigma_2 \cdots \sigma_l S_l$.
-\end{enumerate}
-Note that $H_0 \equiv F$, and $H_l \equiv U_{n+l}$.
-
-Assume for the sake of contradiction that there exits a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ form $H_l$.
-Define $\epsilon_i := \Pr[\ma(1^n, H_i)=1]$ for $i = 0, 1, \cdots, l$.
-Then there exists a non-negligible function $v(n)$ such that $|\epsilon_0 - \epsilon_l| \geq v(n)$.
-Since
-\[
-|\epsilon_0 - \epsilon_1| +
-|\epsilon_1 - \epsilon_2| +
-\cdots +
-|\epsilon_{l-1} - \epsilon_l| \geq
-|\epsilon_0 - \epsilon_l|
-\geq v(n),
-\]
-there exists $k \in \{0, 1, \cdots, l-1\}$ such that
-\[
-|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
-\]
-$l$ is polynomial in $n$, hence $\frac{v(n)}{l}$ is also a non-negligible function.
-That is to say, $\ma$ can distinguish $H_{k}$ from $H_{k+1}$.
-Then we use $\ma$ to construct an adversary $\mathcal{B}$ that can distinguish $U_{n+1}$ from $G(U_n)$ (which leads to a contradiction):
-On input $T \in \{0, 1\}^{n+1}$ ($T$ could be either from $U_{n+1}$ or $G(U_n)$), $\mathcal{B}$ proceeds as follows:
-\begin{itemize}
-\item $\sigma_1, \sigma_2, \cdots, \sigma_k \xleftarrow{\$} \{0, 1\}$, $(\sigma_{k+1}, S_{k+1}) \gets T$.
-\item $\forall j \in \{k+2, k+3, \cdots, l\}$, $(\sigma_j, S_j) := G(S_{j-1})$, where $\sigma_j \in \{0, 1\}, S_j \in \{0, 1\}^n$ .
-\item Output: $\ma(1^n, \sigma_1 \sigma_2 \cdots \sigma_l S_l)$.
-\end{itemize}
-
-First, since $\ma$ and $G$ are both PPT computable, $\mathcal{B}$ is also PPT computable.
-
-Second, if $T\gets G(U_n)$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of  $H_{k}$; if $T \stackrel{\$}\leftarrow U_{n+1}$, then $\sigma_1 \sigma_2 \cdots \sigma_l S_l$ is the output of $H_{k+1}$.
-Hence
-\begin{align*}
-&\big|\Pr[\mathcal{B}(1^n, G(U_n)) = 1] - \Pr[\mathcal{B}(1^n, U_{n+1}) = 1]\big|\\
-=& \big|\Pr[\ma(1^n,H_k) = 1] - \Pr[\ma(1^n,H_{k+1}) = 1]\big|\\
-=&
-|\epsilon_{k} - \epsilon_{k+1}| \geq \frac{v(n)}{l}.
-\end{align*}
-\qed
-
-\subsection{PRG from OWP (One-Way Permutations)}
-In this section we show how to construct pseudorandom generators under the assumption that one-way permutations exist.
-
-\begin{construction}
-Let $f: \{0, 1\}^n \rightarrow \{0, 1\}^n$ be a OWP. We construct $G: \{0, 1\}^{2n} \rightarrow \{0, 1\}^{2n+1}$ as
-\[
-G(x, r) = f(x) || r || B(x, r),
-\]
-where $x, r \in \{0, 1\}^n$, and $B(x, r)$ is a hard concentrate bit for the function $g(x,r) = f(x) || r$.
-\end{construction}
-
-\begin{remark}
-The hard concentrate bit $B(x,r)$ always exists. Recall Theorem~\ref{thm:hard-concentrate-bit},
-\[B(x,r) = \left(\sum_{i=1}^n x_i r_i\right)\mod 2\]
-is a hard concentrate bit.
-\end{remark}
-
-\begin{theorem}
-The $G$ constructed above is a PRG.
-\end{theorem}
-
-\proof
-Assume for the sake of contradiction that $G$ is not PRG.
-We construct three ensembles of probability distributions:
-\[H_0 := G(U_{2n}) = f(x) || r || B(x, r), \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n;\]
-\[H_1 := f(x) || r || \sigma, \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n, \sigma \xleftarrow{\$} \{0, 1\};\]
-\[H_2 := U_{2n+1}.\]
-
-Since $G$ is not PRG, there exists a non-uniform PPT adversary $\ma$ that can distinguish $H_0$ from $H_2$.
-Since $f$ is a permutation, $H_1$ is uniformly distributed in $\{0, 1\}^{2n+1}$, i.e., $H_1 \equiv H_2$.
-Therefore, $\ma$ can distinguish $H_0$ from $H_1$,
-that is, there exists a non-negligible function $v(n)$ satisfying
-\[
-\big| \Pr[\ma(H_0)=1] - \Pr[\ma(H_1)=1] \big| \geq v(n).
-\]
-
-Next we will construct an adversary $\mathcal{B}$ that ``breaks'' the hard concentrate bit (which leads to a contradiction).
-Define a new ensemble of probability distribution
-\[
-H_1' = f(x) || r || (1-B(x, r)) , \text{ where } x, r \xleftarrow{\$} \{0, 1\}^n.
-\]
-Then we have
-\begin{align*}
-\Pr[\ma(H_1) = 1]
-=& \Pr[\sigma = B(x, r)] \Pr[A(H_0) = 1] + \Pr[\sigma = 1 - B(x, r)] \Pr[A(H_1') = 1]\\
-=& \frac{1}{2} \Pr[A(H_0) = 1] + \frac{1}{2}\Pr[A(H_1') = 1].
-\end{align*}
-Hence
-\begin{align*}
-&\Pr[A(H_1) = 1] - \Pr[A(H_0) = 1]
-=  \frac{1}{2}\Pr[A(H_1') = 1] - \frac{1}{2} \Pr[A(H_0) = 1],
-\\
-&\frac{1}{2} \left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
-= \left| \Pr[A(H_1) = 1] - \Pr[A(H_0) = 1] \right|
-\geq v(n),
-\\
-&\left|\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \right|
-\geq 2v(n).
-\end{align*}
-
-Without loss of generality, we assume that
-\[
-\Pr[A(H_0) = 1] - \Pr[A(H_1') = 1]
-\geq 2v(n).
-\]
-Then we construct $\mathcal{B}$ as follows:
-\[
-\mathcal{B}(f(x)|| r) :=
-\begin{cases}
-\sigma, & \text{if } \ma(f(x)|| r||\sigma) = 1\\
-1 - \sigma, & \text{if } \ma(f(x)||r|| \sigma) = 0
-\end{cases},
-\]
-where $\sigma \xleftarrow{\$} \{0, 1\}$.
-Then we have
-\begin{align*}
-& \Pr[\mathcal{B}(f(x)|| r) = B(x, r)]\\
-=& \Pr[\sigma = B(x, r)] \Pr[ \ma(f(x)|| r||\sigma)=1 | \sigma = B(x, r)] + \\
-& \Pr[\sigma = 1 - B(x, r)] \Pr[ \ma(f(x)|| r||\sigma) = 0 | \sigma = 1- B(x, r)] + \\
-=& \frac{1}{2} \big( \Pr[\ma(f(x)||r||B(x, r)) = 1] + 1 - \Pr[\ma(f(x)|| r|| 1- B(x, r)) = 1] \big)\\
-=& \frac{1}{2} + \frac{1}{2} \big( \Pr[A(H_0) = 1] - \Pr[A(H_1') = 1] \big)\\
-\geq & \frac{1}{2} + v(n).
-\end{align*}
-\DIFdelbegin \DIFdel{Contradiction with }\DIFdelend \DIFaddbegin \DIFadd{This contradicts }\DIFaddend the fact that $B$ \DIFdelbegin \DIFdel{is a hard }\DIFdelend \DIFaddbegin \DIFadd{must be a hardness }\DIFaddend concentrate bit.
-\qed
-
-
-
-
-\input{lec05-F24}
-\input{lec06-F24}
-\input{lec07-F24}
-\input{lec08-F24}
-\input{lec09-F24}
-\input{lec11-F24}
-\input{lec12-F24}
 
 %%
 % The back matter contains appendices, bibliographies, indices, glossaries, etc.
@@ -884,11 +1515,10 @@ Then we have
 
 \backmatter
 
-\bibliography{cryptobib/abbrev0,cryptobib/crypto}
-\bibliographystyle{plainnat}
+\DIFaddbegin \bibliography{cryptobib/abbrev0,cryptobib/crypto}
+\DIFaddend \bibliographystyle{plainnat}
 
 
 %\printindex
 
 \end{document}
-

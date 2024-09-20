@@ -140,11 +140,11 @@ Using the common add-one-subtract-one trick, we can find that
 &\leq  |P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|
 \end{align*}
 Since $|P_0 - P_t| \ge \varepsilon(n)$, it follows that $|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}| \ge \varepsilon(n)$.
-By the Pigeonhole Principle, there must exist some index $k$ for which
+Then there must exist some index $k$ for which
 \begin{align*}
-|P_k - P_{k+1}| &\ge \frac{|P_0 - P_{1}| + |P_{1} - P_{2}| + ... + |P_{t-1} - P_{t}|}{t} \\
-&\geq \frac{\varepsilon(n)}{t}
+|P_k - P_{k+1}| &\geq \frac{\varepsilon(n)}{t}
 \end{align*}
+Note that $\frac{\varepsilon(n)}{t}$ is non-negligible because $t$ is polynomial.
 This implies that $\{H^{(k,t)}_n\}_n$ and $\{H^{(k+1,t)}_n\}_n$ are distinguishable.
 
 Using this information, we can construct an adversary $\mb$ that can distinguish $X_n$ from $Y_n$.
