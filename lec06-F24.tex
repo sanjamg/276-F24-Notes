@@ -8,8 +8,13 @@ When talking about private-key encryption, we will be working in a setting where
 Alice and Bob want to communicate with each other.
 For simplicity, let's assume that only Alice wants to send a message to Bob.
 The crucial property that they want is that no eavesdropper attempting to listen to the conversation should be able to decipher the contents of the message being sent.
-
-FIGURE A
+\begin{comment}
+\begin{center}
+    \begin{tikzpicture}
+        \draw;
+    \end{tikzpicture}
+\end{center}    
+\end{comment}
 % Figure A goes here
 
 To achieve this, the two employ the following communication protocol:
@@ -299,7 +304,7 @@ $$\frac{2q(n) - 1}{2^n} \cdot q(n)$$
 
 In practice, we use block ciphers, which are stronger primitives.
 
-\section{MAC Schemes}
+\section{Message Authentication Codes}
 Now we address the question of how we can guarantee the \textit{integrity} of a message.
 To achieve this, we will construct a new primitive, called a \textit{message authentication code}, or MAC for short.
 Intuitively, MACs work by generating a tag $t$ for a message $m$, such that the tag can be verified against $m$.
