@@ -311,33 +311,8 @@ and with an identical argument we obtain that:
 
 $$\Pr_{x \stackrel{\$}{\leftarrow} \binset{n}}[x \in G] \geq \frac{\epsilon(n)}{2}$$
 
-% Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that
-Next, given $\{ b_\ell = B(x,s_\ell) \}_{\ell \in [\log T]}$ and $x\in G$, we have:
-\begin{align*}
-&\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right] \\
-&=~ \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right]\\
-&=~ \Pr_{r} \left[ \ma(f(x) || S_L \oplus e^i) =  B(x,S_L \oplus e^i) \right]\\
-&\geq~ \frac{1}{2} + \frac{\epsilon(n)}{2}
-\end{align*}
-For the same $\{ b_\ell \}_\ell$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
-Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
-\begin{align*}
-\Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
-=& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \leq \frac{T}{2} - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right]\\
-\leq& \Pr\left[ \left| \sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right| \geq \frac{\epsilon(n)}{2} T \right]\\
-& \text{(By Theorem~\ref{thm:Chebyshev})}\\
-\leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
-\end{align*}
-Completing the proof, we have that:
-\begin{align*}
-& \Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
-&\geq~  \Pr_{\{ b_\ell, s_\ell \}_\ell}\left[ F \right] \cdot  \Pr_x [x \in G] \cdot \Pr[x'_1 = x_1, \cdots x'_n = x_n ~|~ x \in G ~\wedge~ F]\\
-&\geq~ \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i ~|~  x \in G ~\wedge~ F]\right)\\
-&\geq~ \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}
-\end{align*}
-\qed
 
-\marginnote[-17cm]{%
+\marginnote[-2cm]{%
 \noindent\textbf{Pairwise Independence and Chebyshev's Inequality.} For the sake of completeness, we prove the Chebyshev's Inequality here.
 \begin{definition}[Pairwise Independence]
 A collection of random variables $\{X_1,\cdots,X_m\}$ is said to be \emph{pairwise independent} if for every pair of random variables $(X_i, X_j), i \neq j$  and every pair of values $(v_i,v_j)$, it holds that
@@ -369,6 +344,33 @@ Hence
 $$\Pr\left[\left|\sum_{i=1}^m X_i - pm\right| \geq\delta m\right] \leq \frac{mp(1-p)}{\delta^2m^2} \leq \frac{1}{\delta^2m}.$$
 \qed
 }
+
+% Correctness of $\mathcal{B}$ follows from the fact in case $b_\ell = B(x,s_\ell)$ for every $\ell \in [\log T]$ then $\forall L \subseteq [\log T]$, it holds that
+Next, given $\{ b_\ell = B(x,s_\ell) \}_{\ell \in [\log T]}$ and $x\in G$, we have:
+\begin{align*}
+&\Pr_{r} \left[  B_L \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right] \\
+&=~ \Pr_{r} \left[ B(x,S_L) \oplus \ma(f(x) || S_L \oplus e^i) = x_i \right]\\
+&=~ \Pr_{r} \left[ \ma(f(x) || S_L \oplus e^i) =  B(x,S_L \oplus e^i) \right]\\
+&\geq~ \frac{1}{2} + \frac{\epsilon(n)}{2}
+\end{align*}
+For the same $\{ b_\ell \}_\ell$ and $x\in G$, let $Y_i^L$ be the indicator random variable that $x_i^L = x_i$.
+Notice that $Y_i^\emptyset, \cdots, Y_i^{[\log T]}$ are pairwise independent and $\Pr[Y_i^L=1] = \Pr[x_i^L = x_i] \geq \frac{1}{2} + \frac{\epsilon(n)}{2}$.
+\begin{align*}
+\Pr[x'_i \neq x_i] =& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L \leq \frac{T}{2} \right]\\
+=& \Pr\left[\sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \leq \frac{T}{2} - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right]\\
+\leq& \Pr\left[ \left| \sum_{L \subseteq [\log T]} Y_i^L - \left(\frac{1}{2} +  \frac{\epsilon(n)}{2} \right)T \right| \geq \frac{\epsilon(n)}{2} T \right]\\
+& \text{(By Theorem~\ref{thm:Chebyshev})}\\
+\leq& \frac{1}{4\left( \frac{\epsilon(n)}{2}\right)^2T} = \frac{1}{2n}.
+\end{align*}
+Completing the proof, we have that:
+\begin{align*}
+& \Pr_{x,r}[\mathcal{B}(1^{2n}, g(x,r)) = (x,r)]\\
+&\geq~  \Pr_{\{ b_\ell, s_\ell \}_\ell}\left[ F \right] \cdot  \Pr_x [x \in G] \cdot \Pr[x'_1 = x_1, \cdots x'_n = x_n ~|~ x \in G ~\wedge~ F]\\
+&\geq~ \frac{1}{T} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- \sum_{i=1}^n\Pr[x'_i \neq x_i ~|~  x \in G ~\wedge~ F]\right)\\
+&\geq~ \frac{\epsilon(n)^2}{2n} \cdot \frac{\epsilon(n)}{2} \cdot \left(1- n \cdot\frac{1}{2n} \right) =  \frac{\epsilon(n)^3}{8n}
+\end{align*}
+\qed
+
 
 
 \newpage
