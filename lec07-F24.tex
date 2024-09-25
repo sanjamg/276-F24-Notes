@@ -6,22 +6,23 @@
 Previously, we defined what a MAC is, and specified correctness and security definitions for MACs. In this section, we'll define a fixed-length MAC for length $\ell(n)$.
 
 \begin{theorem}
-    If $F : \{0, 1\}^n \to \{0, 1\}^n$ is a PRF, then $\Pi = (\mathsf{Gen}, \mathsf{Mac}, \mathsf{Verify})$ (constructed below) is a MAC, as defined with EF-CMA security.
+    If $F : \{0, 1\}^n \to \{0, 1\}^n$ is a secure PRF, then the MAC scheme $\Pi = (\mathsf{Gen}, \mathsf{Mac}, \mathsf{Verify})$ constructed below has EUF-CMA security.
 
-    \begin{algorithmic}[1]
-        \Function{Gen}{$1^n$}
-            \State \Return $k \in \{0, 1\}^n$
-        \EndFunction
-        \Statex
-        \Function{Mac}{$k$, $m$}
-            \State \Return $F_k(m)$
-        \EndFunction
-        \Statex
-        \Function{Verify}{$k$, $m$, $t$}
-            \State \Return $t \overset{?}{=} F_k(m)$
-        \EndFunction
-    \end{algorithmic}
-
+    \begin{itemize}
+        \item $\gen(1^n):$
+        \begin{algorithmic}
+            \item Output $k \getsr \{0, 1\}^n$
+        \end{algorithmic}
+        \item $\mac(k,m):$
+        \begin{algorithmic}
+            \item Output $t = F_k(m)$
+        \end{algorithmic}
+        \item $\Verify(k, m, t)$
+        \begin{algorithmic}
+            \item If $t = F_k(m)$, then return $1$. 
+            \item Otherwise return $0$.
+        \end{algorithmic}
+    \end{itemize}
     That is, we just compute the PRF on our message as the MAC.
 \end{theorem}
 
@@ -249,10 +250,10 @@ A scheme that achieves both of these conditions is called an \emph{authenticated
 
 Observe that an authenticated encryption scheme is also CCA-secure, since the CI property says that the adversary can never generate a valid ciphertext. This means that whenever an adversary requests the decryption of a ciphertext, we can always return $\bot$ (unless they previously requested a ciphertext for a message, and wants to decode that ciphertext). This means that the decryption oracle is essentially useless, and this reduces to the CPA case.
 
-Next, we'll construct an authenticated encryption scheme, called ``Encrypt-then-MAC'', utilizing a CPA-secure encryption scheme and an EF-CMA MAC scheme.
+Next, we'll construct an authenticated encryption scheme, called ``Encrypt-then-MAC'', utilizing a CPA-secure encryption scheme and an EUF-CMA MAC scheme.
 
 \begin{claim}
-    Let $\Pi_e = (\mathsf{Gen}_e, \mathsf{Enc}_e, \mathsf{Dec}_e)$ be a CPA-secure encryption scheme, and let $\Pi_m = (\mathsf{Gen}_m, \mathsf{Mac}_m, \mathsf{Verify}_m)$ be an EF-CMA-secure MAC scheme.
+    Let $\Pi_e = (\mathsf{Gen}_e, \mathsf{Enc}_e, \mathsf{Dec}_e)$ be a CPA-secure encryption scheme, and let $\Pi_m = (\mathsf{Gen}_m, \mathsf{Mac}_m, \mathsf{Verify}_m)$ be an EUF-CMA-secure MAC scheme.
 
     The following scheme $\Pi = (\mathsf{Gen}, \mathsf{Enc}, \mathsf{Dec})$ is an authenticated encryption scheme.
 

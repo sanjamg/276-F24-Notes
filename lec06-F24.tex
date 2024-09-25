@@ -1,6 +1,6 @@
 \chapter{Private-Key Cryptography}
 %\newcommand{\key}{\mathsf{k}}
-\newcommand{\gen}{\mathsf{Gen}}
+% \newcommand{\gen}{\mathsf{Gen}}
 \section{Private-Key Encryption}
 The first primitive that we will study in private-key cryptography is that of private-key encryption.
 When talking about private-key encryption, we will be working in a setting where two players, Alice and Bob, are attempting to communicate with each other.
@@ -63,10 +63,11 @@ Now, we will formalize the requirements of our cryptosystem.
 Our first requirement is correctness, which is defined below:
 
 \begin{definition}[(Perfect) Correctness]
-    We say that a private-key encryption scheme $\Pi = (\gen, \enc, \dec)$ is \emph{(perfectly) correct} if $\forall n, k \in Gen(1^n), m \in \{0,1\}^*\footnote{change to l(n) for fixed-length definition}$,
+    We say that a private-key encryption scheme $\Pi = (\gen, \enc, \dec)$ is \emph{(perfectly) correct} if 
+    $\forall n, k \in \gen(1^n), m \in \{0,1\}^{*}$,
     $$\Pr[\dec(k,\enc(k,m)) = m] = 1$$
 \end{definition}
-That is, if $c = \enc(k, m)$, then Bob is guaranteed to recover $m$ by running $\dec(k, c)$.
+That is, if $c = \enc(k, m)$, then Bob is guaranteed to recover $m$ by running $\dec(k, c)$. Note that for a fixed-length encryption scheme, we require that $m \in \bit^{l(n)}$.
 
 Next, we will formalize what we mean by \textit{confidentiality}.
 We will often use the terms \textit{confidentiality} and \textit{security} interchangeably in the context of private-key encryption schemes.
@@ -101,7 +102,7 @@ Therefore, we will adopt this new paradigm, which will make it easier to work wi
 
 \begin{definition}[CPA Security]
     A private-key encryption scheme $\Pi = (\gen,\enc,\dec)$ is CPA-secure if $\forall$ nu-PPT $\ma$
-    $$\advantage{\indcpa}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcpa_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
+    $$\advantage{\indcpa}{\Pi,\adv} = \Big| \Pr[\pcnotionstyle{Priv\pcmathhyphen{}}\indcpa_\Pi^\adv(\secpar) =1] -\frac12\Big|$$
     is a negligible function.
 \end{definition}
 Observe that in this new game-style definition, we have a concrete notion of the order in which each action is taken.
@@ -169,16 +170,15 @@ Then $\pcnotionstyle{Priv\pcmathhyphen{}}\indcca_{\Pi}^{\adv}(\secpar)$ is defin
 
 \begin{definition}[CCA Security]
     A private-key encryption scheme $\Pi = (\gen,\enc,\dec)$ is CCA-secure if $\forall$ nu-PPT $\ma$
-    $$\advantage{\indcca}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcca_\Pi^\adv(\secpar) =1] -\frac12\Large\mid$$
+    $$\advantage{\indcca}{\Pi,\adv} = \Big| \Pr[\pcnotionstyle{Pri\pcmathhyphen{}}\indcca_\Pi^\adv(\secpar) =1] -\frac12\Big|$$
     is a negligible function.
 \end{definition}
 
 $\Pi$ is a fixed-length encryption scheme for length $l(n)$ if $l(n)$ is polynomial in $n$ and $|m_0| = |m_1| = l(n)$.
 
 \begin{theorem}
-    If F is a PRF then $\Pi$ (below) is a secure encryption scheme for length $n$.
+    If F is a PRF then the scheme $\Pi = (\gen, \enc, \dec)$ given below is a secure encryption scheme for length $n$.
 
-$$\Pi = (\gen, \enc, \dec), \text{ where}$$
     \begin{itemize}
         \item $\gen(\secparam)$:
         \begin{enumerate}
@@ -270,17 +270,19 @@ If we have a deterministic encryption scheme, then when we get $c^*$, we can aga
 \qed
 
 
-\subsection{Counter Mode}
-One construction of a CCA-secure cipher is by use of the counter mode.
+\subsection{Counter Mode Encryption}
+One construction of a CCA-secure cipher is by the use of the counter mode.
 
-$\enc(k(m_1,...,m_l))$
-\begin{enumerate}
-    \item $r \getsr \{0,1\}^n$
-    \item output $c = (r, m_1 \oplus F_k(r+1),
+\begin{itemize}
+    \item $\enc(k, (m_1,...,m_\ell)):$
+    \begin{algorithmic}[1]
+        \item $r \getsr \{0,1\}^n$
+        \item Output $c = (r, m_1 \oplus F_k(r+1),
             m_2 \oplus F_k(r+2),
             ...,
-            m_l \oplus F_k(r+l))$
-\end{enumerate}
+            m_\ell \oplus F_k(r+\ell))$
+    \end{algorithmic}
+\end{itemize}
 
 Consider the following picture:
 
@@ -306,47 +308,44 @@ In practice, we use block ciphers, which are stronger primitives.
 
 \section{Message Authentication Codes}
 Now we address the question of how we can guarantee the \textit{integrity} of a message.
-To achieve this, we will construct a new primitive, called a \textit{message authentication code}, or MAC for short.
-Intuitively, MACs work by generating a tag $t$ for a message $m$, such that the tag can be verified against $m$.
-When sending the message, Alice sends the pair $(m, t)$.
-Once Bob receives the message, he runs $\verify(m, t)$.
-He accepts the message if $\verify(m, t) = 1$, otherwise he rejects the message.
+To achieve this, we will construct a new primitive, called a \textit{message authentication code}, or MAC for short. MACs generate a verifiable tag $t$ for a message $m$ that cannot be forged.
+
+When sending a message, Alice sends the pair $(m, t)$.
+Once Bob receives the message, he runs $\Verify(k, m, t)$.
+He accepts the message if $\Verify(k, m, t) = 1$, otherwise he rejects the message.
 The formal definition is stated below:
 \begin{definition}[Private-Key Encryption Scheme]
-    A MAC scheme $\Pi$ is a tuple $\Pi = (\gen, \mac, \verify)$, where $\gen, \enc$, and $\verify$ are algorithms such that:
+    A MAC scheme $\Pi$ is a tuple of algorithms $\Pi = (\gen, \mac, \Verify)$, with the following syntax:
     \begin{enumerate}
         \item $k \leftarrow \gen(1^n)$
         \item $t \leftarrow \mac(k,m)$
-        \item $0/1 \leftarrow \verify(k, t)$
+        \item $0/1 \leftarrow \Verify(k, m, t)$
     \end{enumerate}
-    where $n$ is a security parameter and $k, c, m, m' \in \{0, 1\}^{l(n)}$
+    where $n$ is a security parameter and $k, m \in \{0, 1\}^{l(n)}$
 \end{definition}
 
-In our discussion about encryption schemes, we were first and foremost concerned with the correctness of the scheme.
-We also want our MACs to be correct, which is the reason why we impose the following \textit{correctness} constraint on our MACs:
+We impose the following \textit{correctness} requirement on our MACs:
 \begin{definition}[MAC Correctness]
-    $$\forall n, k \in \gen(1^n), m \in \{0, 1\}^*, \Pr[\verify(k, m, \mac(k, m)) = 1] = 1$$
+    $$\forall n, k \in \gen(1^n), m \in \{0, 1\}^*, \Pr[\Verify(k, m, \mac(k, m)) = 1] = 1$$
 \end{definition}
 
 We also want the message authentication codes to be \textit{unforgeable}.
 That is, given a message $m$, a nu-PPT attacker $\ma$ should only be able to forge a tag $t$ for $m$ with negligible probability.
-This is analogous to the \textit{confidentiality} property that we required of encryption schemes, and is stated below:
-\begin{definition}[EU-CMA Security]
-    A MAC scheme $\Pi = (\gen,\mac,\verify)$ is EU-CMA-secure if $\forall$ nu-PPT $\ma$
-    $$\advantage{\pcnotionstyle{EU\pcmathhyphen{}CMA}}{\Pi,\adv} = \Large\mid \Pr[\pcnotionstyle{Priv\pcmathhyphen{}EU\pcmathhyphen{}CMA}_{\Pi}^{\adv}(\secpar) =1] -\frac12\Large\mid$$
-    is a negligible function.
+\begin{definition}[EUF-CMA Security]
+    A MAC scheme $\Pi = (\gen,\mac,\Verify)$ is EUF-CMA-secure if $\forall$ nu-PPT $\ma$,
+    $$\Big| \Pr\left[\mathsf{MAC}\pcmathhyphen{}\mathsf{forge}_{\cA, \Pi}(\secpar) =1\right]\Big| = \negl$$
 \end{definition}
 
-\marginnote[-1.5in]{
-\procedureblock[linenumbering]{$\pcnotionstyle{Priv\pcmathhyphen{}EU\pcmathhyphen{}CMA}_{\Pi}^{\adv}(\secpar)$}{
- b \getsr \bin \\
-  \key  \getsr \gen ( \secparam ) \\
- ( \state ,m_0 ,m_1) \getsr \adv^{\mac(k, \cdot)} ( \secparam) \\
- c \getsr \enc ( \key ,m_b ) \\
- b' \getsr \adv^{\mac(k, \cdot)} ( \state , c ) \\
- \pcreturn 1 \text{ if (} \verify(k, m^*, t^*) = 1 \land m^* \notin L \text{), else 0}
- }}
-
+\begin{definition}[$\mathsf{MAC}\pcmathhyphen{}\mathsf{forge}_{\cA, \Pi}(\secpar)$]
+$ $
+   \begin{enumerate}
+        \item \textbf{Setup:} The challenger samples $k$ uniformly from the key space. $\cA$ is given $1^n$.
+        \item \textbf{Query:} The adversary submits a message $m^{(i)}$; then the challenger computes a tag $t^{(i)} \gets \mac(k, m^{(i)})$ and sends it to the adversary. The adversary may submit any polynomial number of message queries.
+        
+        Let $\mathcal{Q} = \{(m^{(1)}, t^{(1)}), \dots, (m^{(q)}, t^{(q)})\}$ be the set of messages $m^{(i)}$ submitted in the query phase along with the tags $t^{(i)}$ computed by $\mac$.
+        \item \textbf{Forgery:} The adversary outputs a message-tag pair $(m^*, t^*)$. The output of the game is $1$ if $(m^*,t^*) \notin \mathcal{Q}$ and $\Verify(k, m^*, t^*) = 1$. The output is $0$ otherwise.
+    \end{enumerate}
+\end{definition}
 
 
 %\marginnote[-1.5in]{
