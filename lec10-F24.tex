@@ -4,10 +4,17 @@ We looked at RSA-FDH in the last section, and in this section we'll continue on 
 
 As a note, collision resistance of the hash function isn't quite enough for the security of the RSA-FDH scheme. In particular, if we can find three messages $m_1, m_2, m_3$ such that $H(m_1) \cdot H(m_2) = H(m_3) \pmod{N}$ (this isn't protected against with collision resistance), then we can break the scheme, assuming that we use the RSA trapdoor function. Here, we'd have
 \begin{align*}
-    \sigma_1 \sigma_2 &= f^{-1}(H(m_1)) \cdot f^{-1}(H(m_2)) \\
-                      &= H(m_1)^d H(m_2)^d \pmod{N} \\
-                      &= (H(m_1) H(m_2))^d \pmod{N} \\
-                      &= H(m_3)^d \pmod{N}
+    <<<<<<< HEAD
+    \sigma_1 \sigma_2 & = f^{-1}(H(m_1)) \cdot f^{-1}(H(m_2)) \\
+                      & = H(m_1)^d H(m_2)^d \pmod{N}          \\
+                      & = (H(m_1) H(m_2))^d \pmod{N}          \\
+                      & = H(m_3)^d \pmod{N}
+    =======
+    \sigma_1 \sigma_2 & = f^{-1}(H(m_1)) \cdot f^{-1}(H(m_2)) \\
+                      & = H(m_1)^d H(m_2)^d \pmod{N}          \\
+                      & = (H(m_1) H(m_2))^d \pmod{N}          \\
+                      & = H(m_3)^d \pmod{N}
+    >>>>>>> 6918b01 (added lec 11)
 \end{align*}
 Ideally, we'd like to have a proof of the security of this scheme, but nobody has been able to come up with one yet. Instead, we can only hope to find some kind of \emph{evidence} for the security of the scheme.
 
@@ -70,9 +77,9 @@ Another property is called \emph{programmability}: since we're working with a ra
     Analyzing the probabilities, we have that
     \begin{align*}
         \Pr(\text{$\mathcal{B}$ outputs $f^{-1}(x^*)$})
-            &= \Pr(\text{$\mathcal{A}$ successful} \land \text{no sign query on $m_{i^*}$} \land m^* = m_{q_i^*}) \\
-            &= \varepsilon \times \left(1 - \frac{1}{q_h}\right)^{q_s} \times \frac{1}{q_h} \\
-            &\approx \frac{\varepsilon}{q_h}
+         & = \Pr(\text{$\mathcal{A}$ successful} \land \text{no sign query on $m_{i^*}$} \land m^* = m_{q_i^*}) \\
+         & = \varepsilon \times \left(1 - \frac{1}{q_h}\right)^{q_s} \times \frac{1}{q_h}                       \\
+         & \approx \frac{\varepsilon}{q_h}
     \end{align*}
     which is non-negligible, assuming $\mathcal{A}$ is successful with non-negligible probability.
 \end{proof}
@@ -83,18 +90,18 @@ This scheme is called the \emph{Schnorr signature scheme}. Given a group $G$ of 
 \begin{itemize}
     \item $\textsc{Gen}(1^n) = (\mathrm{pk} = g^x, \mathrm{sk} = x \gets \mathbb{Z}_q)$
     \item $\textsc{Sign}(\mathrm{sk}, m)$:
-        \begin{algorithmic}
-            \State $k \gets \mathbb{Z}_q$
-            \State $r = g^k$
-            \State $h = H(m \concat r)$
-            \State $s = k + hx$
-            \State $\sigma = (h, s)$
-        \end{algorithmic}
+          \begin{algorithmic}
+              \State $k \gets \mathbb{Z}_q$
+              \State $r = g^k$
+              \State $h = H(m \concat r)$
+              \State $s = k + hx$
+              \State $\sigma = (h, s)$
+          \end{algorithmic}
 
     \item $\textsc{Verify}(\mathrm{pk}, m, \sigma)$:
-        \begin{algorithmic}
-            \State output $h \overset{?}{=} H(m \concat \frac{g^s}{\mathrm{pk}^h})$
-        \end{algorithmic}
+          \begin{algorithmic}
+              \State output $h \overset{?}{=} H(m \concat \frac{g^s}{\mathrm{pk}^h})$
+          \end{algorithmic}
 \end{itemize}
 
 \begin{theorem}
@@ -138,7 +145,7 @@ This scheme is called the \emph{Schnorr signature scheme}. Given a group $G$ of 
     We'll then define a wrapper $\mathcal{A}'^{O}$, which performs these modified signing queries by itself, since it no longer requires the secret key $x$. As such, $\mathcal{A}'^O$ only makes hashing queries, and produces $(m^*, \sigma^*)$. In particular, $\mathcal{A}'$ depends on $\mathrm{pk}, q_1, h_1, \ldots, q_H, h_H$, but all of the queries $q_1, \ldots, q_H$ are deterministic depending on the previous hash output (or dependent on pk in the case of $q_1$). This means that $\mathcal{A}'$ can actually be thought of as a function of
     \[
         \mathcal{A}'(\mathrm{pk}, h_1, h_2, \ldots, h_H)
-    .\]
+        .\]
     The main insight that we'll use is that we can run $\mathcal{A}'$ until the $(i^* - 1)$th query, and on the $i^*$th query, we run the adversary twice, on two different possible responses: $h_{i^*}$ and $h'_{i^*}$. These two executions share the first $i^* - 1$ hashing queries, and both are perfectly valid executions of the adversary. We'll use these two executions to break the discrete log problem.
 
     Let us define $\mathcal{B}$ that breaks the discrete log problem, given as input $(g, g^x)$. Here, we'll let $g^x$ be the public key.
@@ -153,11 +160,11 @@ This scheme is called the \emph{Schnorr signature scheme}. Given a group $G$ of 
     The probability that the adversary $\mathcal{A}'$ succeeds in producing a forgery while utilizing $i^*$ is $\mu(n) = \varepsilon(n) / q_h$. For ease, let us also define the two halves of the input to $\mathcal{A}'$ as $\alpha = (\mathrm{pk}, h_1, \ldots, h_{i^* - 1})$ and $\beta = (h_{i^*}, \ldots, h_{q_h})$. We then define the ``good set'' as
     \[
         S = \left\{\alpha \mid \Pr_{\beta}(\mathcal{A}'(\alpha, \beta)\ \text{outputs a forgery}) \ge \frac{\mu(n)}{2}\right\}
-    .\]
+        .\]
     We can also see that $\Pr(\alpha \in S) \ge \frac{\mu(n)}{2}$; to see why, suppose by contradiction $\Pr(\alpha \in S) < \frac{\mu(n)}{2}$. Here, we have
     \begin{align*}
-        \Pr(\text{$\mathcal{A}'$ succeeds}) &= \Pr(\text{$\mathcal{A}'$ succeeds} \mid \alpha \in S) \Pr(\alpha \in S) + \Pr(\text{$\mathcal{A}'$ succeeds} \mid x \notin S) \Pr(\alpha \notin S) \\
-                                            &< 1 \cdot \frac{\mu(n)}{2} + \frac{\mu(n)}{2} \cdot 1 < \mu(n)
+        \Pr(\text{$\mathcal{A}'$ succeeds}) & = \Pr(\text{$\mathcal{A}'$ succeeds} \mid \alpha \in S) \Pr(\alpha \in S) + \Pr(\text{$\mathcal{A}'$ succeeds} \mid x \notin S) \Pr(\alpha \notin S) \\
+                                            & < 1 \cdot \frac{\mu(n)}{2} + \frac{\mu(n)}{2} \cdot 1 < \mu(n)
     \end{align*}
     which is a contradiction.
 
@@ -165,12 +172,12 @@ This scheme is called the \emph{Schnorr signature scheme}. Given a group $G$ of 
     \[
         \Pr(\alpha \in S) \Pr(\text{$\mathcal{A}'(\alpha, \beta)$ succeeds} \mid \alpha \in S) \Pr(\text{$\mathcal{A}'(\alpha, \beta')$ succeeds} \mid \alpha \in S)
         \ge \left(\frac{\mu(n)}{2}\right)^3
-    ,\]
+        ,\]
     due to the definition of $S$ from earlier.
 
     This means that in total, our probability of success is
     \[
         \Pr(\text{$\mathcal{B}$ succeeds}) \ge \frac{\varepsilon^3(n)}{8q_h^3}
-    ,\]
+        ,\]
     which is non-negligible if $\mathcal{A}'$ succeeds with non-negligible probability, giving us our contradiction.
 \end{proof}
