@@ -33,7 +33,6 @@ Note that while a pairing provides us with additional \emph{functionality}, it a
 
 \begin{proof}
     We will use a similar strategy as in the proof of RSA full domain hash. Let $\adv$ be a non-uniform PPT adversary that can forge a signature with non-negligible probability. We will use $\adv$ to build a non-uniform PPT adversary $\advb$ that can solve the co-CDH problem with non-negligible probability.
-
     $\advb$ works as follows:
     \begin{itemize}
         \item $\advb$ receives $(g_1, g_2, g_1^a, g_1^b, g_2^b)$ as input and is tasked with computing $g_1^{ab}$.
@@ -49,3 +48,83 @@ Note that while a pairing provides us with additional \emph{functionality}, it a
     which is non-negligible.
     Thus, by contradiction, the BLS signature scheme is existentially unforgeable under chosen message attacks assuming the co-CDH problem is hard in the random oracle model.
 \end{proof}
+
+\chapter{Public Key Encryption}
+Public key encryption allows two parties
+to communicate with each other with the guarantees of privacy for their messages against an eavesdropper who monitors all communication between the two parties. Recall that we were able to build Digital Signatures and Symmetric Key Encryption, from the weakest building block in cryptography -- one-way functions. However, there are lower bounds~\cite{STOC:ImpRud89} suggesting that public key encryption cannot be built from one-way functions alone. Instead, we will build public key encryption from more structured assumptions (which are a \emph{stronger} assumption in the sense that they imply one-way functions).
+
+\section{Definitions}
+\begin{definition}[Public Key Encryption]
+    A public key encryption scheme is a tuple of three algorithms $(\gen$, $\enc, \dec)$ defined as follows:
+    \begin{itemize}
+        \item $\gen(1^\secpar) \to (\pk, \sk)$: outputs a public key and secret key $(\pk, \sk)$.
+
+        \item $\enc(\pk, m) \to c$: Takes as input the public key and a message $m$ and outputs a ciphertext $c$.
+
+        \item $\dec(\sk, c) \to m$: Takes as input a secret key $\sk$ and ciphertext $c$, and output a message $m$.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[Perfect Correctness]
+    A public key encryption scheme $(\gen$, $\enc, \dec)$ is said to be correct if for all $\secpar \in \mathbb{N}$, $(\pk, \sk) \gets \gen(1^\secpar)$, $m \in \{0,1\}^*$, it holds that
+    \[\Pr[\dec(\sk, \enc(\pk, m)) = m] = 1\]
+\end{definition}
+The above definition can be relaxed to allow for a negligible probability of error during decryption and still remain meaningful.
+
+We now define two different notions of security for public key encryption schemes -- IND-CPA and IND-CCA security.
+\begin{definition}[IND-CPA Security]
+    A public key encryption scheme $(\gen$, $\enc, \dec)$ is said to be IND-CPA-secure if for all non-uniform PPT $\adv$,
+    \[\left|\Pr[\mathsf{Exp}_{\adv}^{\mathsf{CPA}(\secpar)} = 1] - \frac{1}{2}\right| \leq \negl,\]
+    where $\mathsf{Exp}_{\adv}^{\mathsf{CPA}(\secpar)}$ is defined as follows:
+    \begin{itemize}
+        \item $(\pk, \sk) \gets \gen(1^\secpar)$.
+        \item $b \sample \{0,1\}$.
+        \item $\adv(\pk) \to (m_0, m_1, \mathsf{st})$.
+        \item $c^* \gets \enc(\pk, m_b)$.
+        \item $\adv(c^*, \mathsf{st}) \to b'$.
+        \item Output $1$ if $b = b'$ and $0$ otherwise.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}[IND-CCA Security]
+    A public key encryption scheme $(\gen$, $\enc, \dec)$ is said to be IND-CCA-secure if for all non-uniform PPT $\adv$,
+    \[\left|\Pr[\mathsf{Exp}_{\adv}^{\mathsf{CCA}(\secpar)} = 1] - \frac{1}{2}\right| \leq \negl,\]
+    where $\mathsf{Exp}_{\adv}^{\mathsf{CCA}(\secpar)}$ is defined as follows:
+    \begin{itemize}
+        \item $(\pk, \sk) \gets \gen(1^\secpar)$.
+        \item $b \sample \{0,1\}$.
+        \item $\adv^{\Dec(\sk)}(\pk) \to (m_0, m_1, \mathsf{st})$.
+        \item $c^* \gets \enc(\pk, m_b)$.
+        \item $\adv^{\Dec(\sk)}(c^*, \mathsf{st}) \to b'$, where the decryption oracle now returns $\bot$ when queried on $c^*$.
+        \item Output $1$ if $b = b'$ and $0$ otherwise.
+    \end{itemize}
+\end{definition}
+
+\section{Trapdoor Functions}
+\begin{definition}[Trapdoor Function]
+    A trapdoor function is a tuple of four algorithms $(\gen, f, f^{-1}, D)$ defined as follows:
+    \begin{itemize}
+        \item $\gen(1^\secpar) \to (s,t)$: outputs an index $s$ and corresponding trapdoor $t$.
+        \item $D(s)$: Outputs a description of the domain of the trapdoor function.
+        \item $f(s, x) \to y$: Takes as input an index $s$ and a element $x$ from the domain of the trapdoor function and outputs an element $y$.
+        \item $f^{-1}(t, y) \to x$: Takes as input a trapdoor $t$ and an element $y$ from the range of the trapdoor function and outputs an element $x$.
+    \end{itemize}
+    We require the following properties:
+    \begin{itemize}
+        \item \textbf{Correctness:} For all $\secpar \in \mathbb{N}$, $(s,t) \gets \gen(1^\secpar)$, $x \in D(s)$, it holds that $\Pr[f^{-1}(t, f(s, x)) \neq x] = \negl$. Note that if we demand that $f$ is injective, then this property is automatically satisfied.
+        \item \textbf{One-wayness:} For all non-uniform PPT $\adv$, we have $\Pr[\adv(s, y) \to x \mid (s,t) \gets \gen(1^\secpar), x \sample D(s), y \gets f(s, x)] = \negl$.
+    \end{itemize}
+\end{definition}
+
+\section{Public Key Encryption from Trapdoor Functions}
+Given a trapdoor function, we can build a public key encryption scheme as follows:
+\begin{itemize}
+    \item $\gen(1^\secpar)$: Run $\mathsf{TDF}.\gen(1^\secpar)$ to obtain $(s,t)$. Set $\pk = s$ and $\sk = t$.
+    \item $\enc(\pk, m)$: Sample $x \sample D(s)$ and compute $y \gets f(s, x)$. Sample $r \sample \{0,1\}^{|x|}$ and output $c = (y, r, m \oplus \mathsf{HC}(x,r))$, where $\mathsf{HC}$ is the hardness concentration bit, as defined in~Section~\ref{sec:levin-owf}.
+    \item $\dec(\sk, c)$: Parse $c = (y, r, z)$ and output $m = z \oplus \mathsf{HC}(f^{-1}(t, y), r)$.
+\end{itemize}
+
+\paragraph{Proof Sketch.} To show that the above scheme is CPA secure, observe that the message space $\{0,1\}$. So the only two messages the distinguisher can pick are $m_0=0$ and $m_1=1$. Now if the distinguisher can indeed distinguish between encryptions of $m_0$ and $m_1$, then the same distinguisher can be used to identify the hardness concentration bit. By using a similar strategy as in the proof of~Theorem~\ref{thm:hard-concentrate-bit}, we can recover the pre-image $x$ of the trapdoor function. Thus, violating the one-wayness of the trapdoor function.
+
+
+
