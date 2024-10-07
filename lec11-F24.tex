@@ -147,4 +147,15 @@ The construction is almost identical except that we replace the hardness concent
     \item $\enc(\pk, m)$: Sample $x \sample D(s)$ and compute $y \gets f(s, x)$. Encrypt $m$ using a symmetric encryption scheme with key $H(x)$ as $z \gets \mathsf{Sym}.\enc(H(x), m)$. Output $c = (y, z)$.
     \item $\dec(\sk, c)$: Parse $c = (y, z)$ and compute $x \gets f^{-1}(t, y)$. Decrypt $z$ using the symmetric encryption scheme with key $H(x)$ as $m \gets z \oplus \mathsf{Sym}.\dec(H(x), z)$. Output $m$.
 \end{itemize}
+The same idea can be extended to the CDH based public key encryption scheme.
 
+\begin{theorem}
+    The construction above is IND-CPA secure in the random oracle model assuming $f$ is a trapdoor function.
+\end{theorem}
+\begin{proof}
+    Given an adversary $\adv$ that can win the IND-CPA game, with non-negligible advantage, we construct an adversary $\advb$ that can break either the one-wayness of the trapdoor function or the security of the with non-negligible advantage.
+
+    Let $s, y^*$ be the challenge given to $\advb()$. $\advb$ provides $\adv$ with $\pk \coloneq s$. $\adv$ outputs $(m_0, m_1)$ and in response $\advb$ computes a challenge ciphertext as follows: Sample $b \sample \{0,1\}$, a random key $k^* \sample \{0,1\}^{|B|}$ and set $z^* \gets \mathsf{Sym}.\enc(k^*, m_b)$. $\advb$ also lazily samples responses to random oracle queries except if a query $q$ satisfies $f(s, q) = y^*$, then $\advb$ sets $H(q) = k^*$, and outputs $q$ as the inverse image of $y^*$ under $f$.
+
+    We now argue that $\adv$ queries the random oracle on an element $q$ such that $f(s, q) = y^*$, with non-negligible probability. If this never occurs, then $\adv$ never receives receive $k^*$ but is able to distinguish symmetric-key encryptions of $m_0$ from encryptions of $m_1$ with non-negligible probability. This violates the security of the symmetric encryption scheme. Thus, $\adv$ must query the random oracle on an element $q$ such that $f(s, q) = y^*$ with non-negligible probability and hence $\advb$ succeeds with non-negligible probability.
+\end{proof}
