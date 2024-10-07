@@ -16,7 +16,7 @@ Note that while a pairing provides us with additional \emph{functionality}, it a
     \Pr\left[ \adv(g_1, g_2, g_1^a, g_1^b, g_2^b) \to g_1^{ab} \mid a,b \sample \mathbb{Z}_p \right] \leq \negl
 \end{align*}
 
-\paragraph{BLS Signature scheme.} We are now ready to describe the BLS signature scheme~\cite{AC:BonLynSha01}.
+\paragraph{BLS Signature scheme.} We are now ready to describe the BLS signature scheme%~\cite{AC:BonLynSha01}.
 \begin{itemize}
     \item $\Gen(1^\lambda)$: Sample $\sk \sample \mathbb{Z}_p$ and set $\vk \gets g_2^\sk$. Output $(\vk, \sk)$.
     \item $\Sign(\sk, m)$: Given a message $m \in \{0,1\}^*$, output $\sigma \gets H(m)^{\sk}$, where $H: \{0,1\}^* \to \mathbb{G}_1$ is a hash function that maps arbitrary strings to elements in $\mathbb{G}_1$.
@@ -51,7 +51,9 @@ Note that while a pairing provides us with additional \emph{functionality}, it a
 
 \chapter{Public Key Encryption}
 Public key encryption allows two parties
-to communicate with each other with the guarantees of privacy for their messages against an eavesdropper who monitors all communication between the two parties. Recall that we were able to build Digital Signatures and Symmetric Key Encryption, from the weakest building block in cryptography -- one-way functions. However, there are lower bounds~\cite{STOC:ImpRud89} suggesting that public key encryption cannot be built from one-way functions alone. Instead, we will build public key encryption from more structured assumptions (which are a \emph{stronger} assumption in the sense that they imply one-way functions).
+to communicate with each other with the guarantees of privacy for their messages against an eavesdropper who monitors all communication between the two parties. Recall that we were able to build Digital Signatures and Symmetric Key Encryption, from the weakest building block in cryptography -- one-way functions. However, there are lower bounds
+%~\cite{STOC:ImpRud89} 
+suggesting that public key encryption cannot be built from one-way functions alone. Instead, we will build public key encryption from more structured assumptions (which are a \emph{stronger} assumption in the sense that they imply one-way functions).
 
 \section{Definitions}
 \begin{definition}[Public Key Encryption]
@@ -127,7 +129,8 @@ Given a trapdoor function, we can build a public key encryption scheme as follow
 \paragraph{Proof Sketch.} To show that the above scheme is CPA secure, observe that the message space $\{0,1\}$. So the only two messages the distinguisher can pick are $m_0=0$ and $m_1=1$. Now if the distinguisher can indeed distinguish between encryptions of $m_0$ and $m_1$, then the same distinguisher can be used to identify the hardness concentration bit. By using a similar strategy as in the proof of~Theorem~\ref{thm:hard-concentrate-bit}, we can recover the pre-image $x$ of the trapdoor function. Thus, violating the one-wayness of the trapdoor function.
 
 \section{Public Key Encryption from Computational Diffie-Hellman}
-Although we have a construction of public key encryption from trapdoor functions, we did not know how to build trapdoor functions from some very natural assumptions such as CDH for quite some time. It was only recently that Garg and Hajiabadi~\cite{C:GarHaj18} showed that this was indeed possible. Given the non-trivial nature of the construction, we will not cover it in this course and instead provide a \emph{direct} construction of public key encryption from the Computational Diffie-Hellman (CDH) assumption.
+Although we have a construction of public key encryption from trapdoor functions, we did not know how to build trapdoor functions from some very natural assumptions such as CDH for quite some time. It was only recently that Garg and Hajiabadi%~\cite{C:GarHaj18} 
+showed that this was indeed possible. Given the non-trivial nature of the construction, we will not cover it in this course and instead provide a \emph{direct} construction of public key encryption from the Computational Diffie-Hellman (CDH) assumption.
 
 Let $\mathbb{G}$ be a prime order group of order $p$ with generator $g$, where the CDH problem is assumed to be hard.
 \begin{itemize}
