@@ -126,5 +126,25 @@ Given a trapdoor function, we can build a public key encryption scheme as follow
 
 \paragraph{Proof Sketch.} To show that the above scheme is CPA secure, observe that the message space $\{0,1\}$. So the only two messages the distinguisher can pick are $m_0=0$ and $m_1=1$. Now if the distinguisher can indeed distinguish between encryptions of $m_0$ and $m_1$, then the same distinguisher can be used to identify the hardness concentration bit. By using a similar strategy as in the proof of~Theorem~\ref{thm:hard-concentrate-bit}, we can recover the pre-image $x$ of the trapdoor function. Thus, violating the one-wayness of the trapdoor function.
 
+\section{Public Key Encryption from Computational Diffie-Hellman}
+Although we have a construction of public key encryption from trapdoor functions, we did not know how to build trapdoor functions from some very natural assumptions such as CDH for quite some time. It was only recently that Garg and Hajiabadi~\cite{C:GarHaj18} showed that this was indeed possible. Given the non-trivial nature of the construction, we will not cover it in this course and instead provide a \emph{direct} construction of public key encryption from the Computational Diffie-Hellman (CDH) assumption.
 
+Let $\mathbb{G}$ be a prime order group of order $p$ with generator $g$, where the CDH problem is assumed to be hard.
+\begin{itemize}
+    \item $\gen(1^\secpar)$: Sample $\sk \sample \mathbb{Z}_p$ and set $\pk \gets g^\sk$. Output $(\pk, \sk)$.
+    \item $\enc(\pk, m)$: Sample $\alpha \sample \mathbb{Z}_p$, and set $y \gets g^\alpha$, $k \gets \pk^\alpha$. Now sample $r \sample \{0,1\}^{|B|}$ and output $c = (y, r, m \oplus \mathsf{HC}(k, r))$.
+    \item $\dec(\sk, c)$: Parse $c = (y, r, z)$ and compute $k \gets y^\sk$. Output $m = z \oplus \mathsf{HC}(k, r)$.
+\end{itemize}
+
+\paragraph{Proof Sketch.} The proof of security is similar to the proof of security for the trapdoor function based public key encryption scheme. The only difference is that we now we reduce the hardness of the CDH problem.
+
+\section{Improving Efficiency.}
+The above construction can only be used to encrypt a single bit and results in a ciphertext of size $O(\poly)$. Encrypting a message with $M$ bits, results in a ciphertext of size $O(M \cdot \poly)$. Encryption and decryption also requires $O(M)$ public-key operations (evaluating the TDF/group operations) and we would like to bring this down to $O(1)$. The idea is to extract a symmetric key instead of a single bit by replacing the hardness concentration function with a random oracle. We can then use the symmetric key to encrypt long message with constant rate.
+
+The construction is almost identical except that we replace the hardness concentration bit with a random oracle to extract a symmetric key that can be used to encrypt a long message. Given a trapdoor function the construction works as follows:
+\begin{itemize}
+    \item $\gen(1^\secpar)$: Run $\mathsf{TDF}.\gen(1^\secpar)$ to obtain $(s,t)$. Set $\pk = s$ and $\sk = t$.
+    \item $\enc(\pk, m)$: Sample $x \sample D(s)$ and compute $y \gets f(s, x)$. Encrypt $m$ using a symmetric encryption scheme with key $H(x)$ as $z \gets \mathsf{Sym}.\enc(H(x), m)$. Output $c = (y, z)$.
+    \item $\dec(\sk, c)$: Parse $c = (y, z)$ and compute $x \gets f^{-1}(t, y)$. Decrypt $z$ using the symmetric encryption scheme with key $H(x)$ as $m \gets z \oplus \mathsf{Sym}.\dec(H(x), z)$. Output $m$.
+\end{itemize}
 
