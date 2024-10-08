@@ -1,3 +1,90 @@
+We show how to use the arbitrary-length WOOF we constructed to boost this one-time, fixed-length digital signature scheme into a one-time, arbitrary-length digital signature scheme. 
+
+\subsection{Removing Length-Restriction from One-Time Digital Signatures} 
+
+Let $(\Gen_\ell, \Sign_\ell, \Verify_\ell)$ be a length-restricted one-time digital signature for messages of length $\ell(n)$. 
+Let $h_s: \{0,1\}^* \to \{0,1\}^n$ be a WOOF. 
+First we will review an \emph{insecure} first attempt at a construction for $\ell(n) = n$: 
+\begin{itemize}
+    \item $\Gen^{\text{BAD}}(1^n)$: Run $(pk_\ell, sk_\ell) \leftarrow \Gen_\ell(1^n)$, $s \leftarrow I(1^n)$. Output $((pk_\ell,s),sk_\ell)$.
+
+    \item $\Sign^{\text{BAD}}(sk=sk_\ell, m)$: Output $\Sign_\ell(sk_\ell, h_s(m))$. 
+
+    \item $\Verify^{\text{BAD}}(pk=(pk_\ell,s), m, \sigma)$: Output $\Verify_\ell(pk_\ell, h_s(m), \sigma)$. 
+\end{itemize}
+Notice that this construction does not work because the seed for the WOOF is revealed before the message is chosen, in which case WOOF security does not apply. 
+
+To avoid this, we can use the following construction for $\ell(n) = k(n) + n$ where $k(n)$ is the length of the seed produced by $I(1^n)$: 
+\begin{itemize}
+    \item $\Gen(1^n)$: Run $(pk_\ell, sk_\ell) \leftarrow \Gen_\ell(1^n)$. Output $(pk_\ell,sk_\ell)$.
+
+    \item $\Sign(sk=sk_\ell, m)$: Run $s \leftarrow I(1^n)$ and $\sigma_\ell \leftarrow \Sign_\ell(sk_\ell, s || h_s(m))$. Output $(\sigma_\ell, s)$. 
+
+    \item $\Verify(pk=pk_\ell, m, \sigma = (\sigma_\ell, s))$: Output $\Verify_\ell(pk_\ell, s || h_s(m), \sigma_\ell)$. 
+\end{itemize}
+Note that now the seed is chosen after the message. 
+We will give a proof sketch of the security for this construction. 
+Assume for contradiction that we have a nu-PPT adversary $\adv$ which succeeds with non-negligible probability at the digital signature security game for $(\Gen, \Sign, \Verify)$. 
+We will now construct a nu-PPT adversary $\advb$ who succeeds with non-negligible probability at the digital signature security game for $(\Gen_\ell, \Sign_\ell, \Verify_\ell)$, a contradiction. 
+$\advb$ receives $pk_\ell$ from its challenger and passes this along to $\adv$. 
+When $\adv$ queries the signing oracle with message $m$, $\advb$ runs $s \leftarrow I(1^n)$, computes $m_{\ell} = s || h_{s}(m)$, queries its signing oracle with message $m_{\ell}$ to receive $\sigma_\ell$ and returns $\sigma = (s, \sigma_{\ell})$ to $\adv$. 
+Finally, when $\adv$ returns $m^*, \sigma^* = (s^*, \sigma_{\ell}^*)$, $\advb$ outputs $m^*_{\ell} = s^* || h_{s^*}(m^*), \sigma_{\ell}^*$. 
+
+Since we have replicated the expected input distribution for $\adv$, it will succeed with non-negligible probability. 
+Notice that $\advb$ will succeed when $\adv$ does as long as $m^*_{\ell} \not = m_{\ell}$. 
+In analyzing the success probability of $\advb$ we have two cases to consider based on whether $s^* = s$. 
+Notice that $\adv$ must have non-negligible success either when $s^* = s$ or when $s^* \not = s$ or both. 
+If $\Pr[s^* \not = s \land \adv \text{ succeeds}]$ is non-negligible, then $\advb$ also succeeds with non-negligible probability since $m^*_{\ell} = s^* || h_{s^*}(m^*) \not = s || h_{s}(m) = m_{\ell}$ in this case. 
+Now assume that $\Pr[s^* = s \land \adv \text{ succeeds}]$ is non-negligible. When $\adv$ succeeds in this case, it must have found $m^* \not = m$, and so $h_{s^*}(m^*) = h_{s}(m)$ with only negligible probability because otherwise WOOF security is broken. 
+Thus with non-negligible probability $m^*_{\ell} \not = m_{\ell}$ and $\advb$ succeeds as well. 
+Therefore either way $\advb$ succeeds in the digital signature game against $(\Gen_\ell, \Sign_\ell, \Verify_\ell)$ with non-negligible probability. 
+
+\section{Multiple-Message Digital Signatures} 
+
+Now we will show how to covert this one-time, no-length restriction digital signature scheme $(\Gen, \Sign, \Verify)$ into a ef-ema no-length restriction digital signature scheme by utilizing a pseudorandom function $PRF$. 
+For each $\alpha \in \{\epsilon\} \cup \{0,1\}^{\leq n}$, let $pk_\alpha, sk_\alpha = \Gen(1^n; PRF_s(\alpha 10 \ldots 0))$ such that $|\alpha 10 \ldots 0| = n+1$ (i.e. $\Gen$ is run with randomness determined by the PRF on an input specified by $\alpha$). 
+We will use these to make a tree of keys so that the keys used for each message will be distinct with high probability, so WOOF security will continue to apply each time the scheme is used. 
+Note that whenever $\Sign$ is called, we require the WOOF to be run with a deterministic seed $s_{\alpha}^W = PRF_{s'}(\alpha 10 \ldots 0)$. 
+This way paths through the tree will deterministically map to the corresponding signatures. 
+The construction is as follows: 
+\begin{itemize}
+    \item $\mathsf{GEN}(1^n)$: Output $(pk_\epsilon, s \leftarrow \{0,1\}^n)$, namely the root public key and the seed for the PRF so the rest of the keys can be generated. 
+
+    \item $\mathsf{SIGN}(sk, m)$: 
+    \begin{enumerate}
+        \item Draw a random path through the key tree $r \leftarrow \{0,1\}^n$. 
+
+        \item Now use the secret key at each level to sign its children's public keys and continue to do this along the random path until a leaf is hit, i.e. iteratively sign the random path and its co-path. 
+        Namely, for each $i = 0, 1, \ldots, n-1$, let $\alpha_i = r_1 r_2 \cdots r_i$, $m_i = pk_{\alpha_i || 0} || pk_{\alpha_i || 1}$, and $\sigma_i = \Sign(sk_{\alpha_i}, m_i)$. 
+
+        \item Let $\sigma_n = \Sign(sk_r, m)$. 
+
+        \item Output $\Sigma = (r, m_0, \sigma_0, \ldots, m_{n-1}, \sigma_{n-1}, \sigma_n)$. 
+    \end{enumerate} 
+
+    \item $\mathsf{VERIFY}(pk, m, \Sigma = (r, \sigma_0, \ldots, \sigma_{n-1}, \sigma_n))$: Use $r$ and the $m_i$ to determine $pk_{\alpha_i}$ and for each $i \in [n]$ run $\Verify(pk_{\alpha_i}, m_i, \sigma_i)$, accepting if all of those do. 
+\end{itemize}
+The idea is that because the root $pk_{\epsilon}$ is trusted and the corresponding secret keys of one level are used to validate the $pk$ of the level below, trust is maintained down the path and the ultimate $pk_r$ can be trusted to be used to check the signature on $m$ itself. 
+
+We will now give a proof sketch for the security of this construction. 
+Assume for contradiction that we have a nu-PPT adversary $\adv$ which succeeds with non-negligible probability at the digital signature security game for $(\mathsf{GEN}, \mathsf{SIGN}, \mathsf{VERIFY})$. 
+Let $\adv$'s interaction with this security game be called Hybrid $H_0$. 
+First we will consider the hybrid $H_1$ where the PRF is replaced by a truly random function. 
+$\adv$'s success probability in $H_1$ is still some non-negligible $\epsilon(n)$ due to PRF security. 
+Now we will consider the hybrid $H_2$ where if the randomness returned by any two of the signing oracle queries is equal, i.e. $r_j = r_{j'}$ for some distinct $j, j' \in [q]$, then $\adv$ aborts. 
+Notice that the probability of this happening is only $q^2/2^n$, a negligible amount, so $\adv$'s success probability $\epsilon(n) - q^2/2^n$ remains non-negligible. 
+Thus going forward we can assume that the randomness $r_j$ used by the oracle to sign each query $m_j$ is distinct. 
+
+Now notice that either $\adv$ outputs a message-signature pair $(M^*, \Sigma^*)$ which uses $r^* = r_j$ for some $j \in [q]$ or $r^* \not = r_j$ for all $j \in [q]$. 
+We will give some intuition for what happens in each of these cases. 
+In the first case, since signatures in this scheme are deterministic, to succeed $\adv$'s signatures must be the same as $\Sigma_j$'s along the path $r^* = r_j$ until doing a forgery at the leaf, breaking the $(\Gen, \Sign, \Verify)$ scheme for $M^*$ which is distinct from all of the $m_j$ queries. 
+In the second case, $\adv$ goes along a path $r^* \not = r_j$, so at the first node which diverges from all $r_j$ it must forge a signature that verifies with an honest public key from the level above, breaking the $(\Gen, \Sign, \Verify)$ scheme for the corresponding $\alpha_i^*$ which is distinct from all of the other $\alpha_i^j$ that were used to answer queries. 
+
+This can be formalized by constructing a nu-PPT adversary $\advb$ for the one-time digital signature security game of $(\Gen, \Sign, \Verify)$ who takes the $pk$ it's been given and guesses which query $\adv$ forges for, using its $pk$ and one-time oracle to provide a signature for that query and otherwise answering honestly using self-generated keys. 
+This degrades $\advb$'s probability of success by $\epsilon(n)/q$ which is still non-negligible. 
+
+Next, after introducing collision resistant hash functions, we will see a different, though closely related, alternate construction for multiple-message digital signatures. 
+
 
 \section{Collision Resistant Hash Functions}
 
@@ -45,7 +132,7 @@ r_1+xs_1 &=& r_2 + xs_2\\
 We infer that $s_2 \neq s_1$. Otherwise, we get that $r_1 = r_2$ and hence, $(r_1,s_1) = (r_2,s_2)$. Thus, we can compute $x = \frac{r_1-r_2}{s_1 - s_2}$ and hence the discrete logarithm of $h$ is computable.
 
 
-\section{Multiple-Message Digital Signature}
+\section{CRHF-Based Multiple-Message Digital Signature}
 
 We now explain how to combine collision-resistant hash functions and one-time signatures to get a signature scheme for multiple messages. We first construct an intermediate primitive wherein we will still have the same security property as that of one-time signature but we would be able to sign messages longer than the length of the public-key.\footnote{Note that in the one-time signature scheme that we constructed earlier, the length of message that can be signed is same as the length of the public-key.}
 
@@ -77,6 +164,38 @@ We will now describe the construction of signature scheme for multiple messages.
 \end{enumerate}
 
 To prove security, we will first use the security of the PRF to replace the outputs with random strings. We will then use the security of the one-time signature scheme to argue that the adversary cannot mount an existential forgery.
+
+\section{Trapdoor Permutations and RSA} 
+
+\begin{definition}[Trapdoor Permutation] 
+A function family $\{f_s: D_s \to D_s\}_{s \in \{0,1\}^*}$ is a \emph{one-way trapdoor permutation} if there exists PPT $I, D, F, F^{-1}$ such that 
+\begin{itemize}
+    \item $(s, \tau) \leftarrow I(1^n)$ produces the seed and trapdoor, 
+    
+    \item $D(s)$ outputs a uniformly random element of $D_s$, 
+
+    \item $\forall s \in I(1^n), x \in D_s$, $F(s, x) = f_s(x)$, 
+
+    \item $\forall (s, \tau) \in I(1^n), y \in D_s$, $F^{-1}(\tau, y) = f_s^{-1}(x)$, and 
+
+    \item $f_s$ is one-way. 
+\end{itemize}
+\end{definition} 
+
+The RSA trapdoor permutation construction is as follows: 
+\begin{itemize} 
+    
+    \item $I_{RSA}(1^n) \rightarrow (s = (N, e), \tau = (N, d)$ for $N = PQ$ for $2^{n-1} \leq P < Q \leq 2^n$ such that $d = e^{-1} \mod \phi(n)$ for $e < N$ which is coprime to $\phi(n) = (P-1)(Q-1)$. 
+    Let $D_s = \{1, \ldots, N\}$. 
+
+    \item $F_{RSA}(s, x) = x^e \mod N$. 
+
+    \item $F_{RSA}^{-1}(\tau, x) = y^d \mod N$. 
+\end{itemize}
+Unfortunately, under the assumption that factoring is hard, we still don't have a security proof for the RSA trapdoor permutation in the plain model. 
+However, we will see a proof in what's called the ``random oracle model'' next. 
+
+
 
 \section*{Exercises}
 \begin{exercise}

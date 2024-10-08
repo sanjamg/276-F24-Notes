@@ -73,4 +73,4 @@ vk_{1,1} & \ldots& vk_{n,1} \\
 \end{enumerate}
 We first note that conditioned on $\advb$ not outputting $\abort_1$ or $\abort_2$, the probability that $\advb$ outputs a valid preimage of $y$ is $\mu(n)$. Now, probability $\advb$ does not output $\abort_1$ or $\abort_2$ is $1/2n$ (this is because $\abort_1$ is not output with probability $1/2$ and conditioned on not outputting $\abort_1$, $\abort_2$ is not output with probability $1/n$). Thus, $\advb$ outputs a valid preimage with probability $\mu(n)/2n$. This completes the proof of security.
 
-We now try to extend this one-time signature scheme to digital signatures. For this purpose, we will rely on a primitive called as collision-resistant hash functions.
+We now try to extend this one-time signature scheme to digital signatures.
