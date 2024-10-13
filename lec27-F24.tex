@@ -1,0 +1,408 @@
+% !TEX root = collection.tex
+
+\chapter{Obfustopia}
+
+
+\section{Witness Encryption: A Story}\label{story}
+
+Imagine that a billionaire who loves mathematics, would like to award with 1 million dollars the mathematician(s) who will prove the Riemann Hypothesis. Of course, neither does the billionaire know if the Riemann Hypothesis is true, nor if he will be still alive (if and) when a mathematician will come up with a proof. To overcome these couple of problems, the billionaire decides to:
+
+\begin{enumerate}
+
+\item Put 1 million dollars in gold in a big treasure chest.
+
+\item Choose an arbitrary place of the world, dig up a hole, and hide the treasure chest.
+
+\item Encrypt the coordinates of the treasure chest in a message so that only the mathematician(s) who can actually prove the Riemann Hypothesis can decrypt it.
+
+\item Publish the ciphertext in every newspaper in the world.
+
+\end{enumerate}
+
+The goal of this lecture is to help the billionaire with step 3. To do so, we will assume for simplicity  that the proof is at most 10000 pages long. The latter assumption implies that the language
+\begin{align*}
+L = \{ x \text{ such that } x \text{ is an acceptable Riemann Hypothesis proof} \}
+\end{align*}
+ is in NP and therefore, using a reduction, we can come up with a circuit $C$ that takes as input $x$ and outputs $1$ if $x$ is a proof for the Riemann Hypothesis and $0$ otherwise.
+
+\smallskip
+Our goal now is to  design a pair of PPT machines $(\mathrm{Enc},\mathrm{Dec})$ such that:
+
+\begin{enumerate}
+\item $\mathrm{Enc}(C,m)$ takes as input the circuit $C$ and $m \in \{0,1\}$ and outputs a ciphertext $e \in \{0,1\}^{*}$.
+
+\item $\mathrm{Dec}(C,e,w)$ takes as input the circuit $C$, the cipertext $e$ and a witness $w \in \{0,1\}^{*}$ and outputs $m$ if if $C(w) = 1$ or $\perp$ otherwise.
+\end{enumerate}
+
+and so that they satisfy the following correctness and security requirements:
+
+\begin{itemize}
+
+\item \textbf{Correctness:} If $\exists w$ such that $C(w) = 1$ then $\mathrm{Dec}(C,e,w)$ outputs $m$.
+
+\item \textbf{Security:} If $\nexists w$ such that $C(w) = 1$ then $\mathrm{Enc}(C,0)   \approx^{c} \mathrm{Enc}(C,1) \!\ $ (where $ \approx^{c}$ means  ``computationally indistinguishable'').
+
+\end{itemize}
+
+
+\section{A Simple Language }
+
+As a first example, we show how we can design such an encryption scheme for a simple language. Let $G$ be a group of prime order and  $g$ be a generator of the group. For elements $A, B, T \in G$ consider the language $L = \{(a,b): A = g^a, B = g^b, T = g^{ab} \}$. An encryption scheme for that language with the correctness and security requirements of Section~\ref{story} is the following:
+
+\smallskip
+
+\begin{itemize}
+
+\item \textbf{Encryption$(g,A,B,T,G)$:}
+
+\begin{itemize}
+\item Choose elements $r_1, r_2 \in \mathbb{Z}_p^*$ uniformly and independently.
+
+\item Let $c_1 = A^{r_1} g^{r_2} $, $c_2 =  g^m T^{r_1} B^{r_2}$, where $m \in \{0,1\}$ is the message we want to encrypt.
+
+\item Output $c = (c_1, c_2)$
+
+\end{itemize}
+
+\item \textbf{Decryption($b$):}
+
+
+\begin{itemize}
+
+\item Output $\frac{c_2}{c_1^b}$
+
+\end{itemize}
+
+\end{itemize}
+
+
+\textbf{Correctness:}
+The correcntess of the above encryption scheme follows from the fact that if there exist $(a,b) \in L$ then:
+
+\begin{eqnarray*}
+\frac{c_2}{c_1^b} & = &  \frac{g^m T^{r_1} B^{r_2}  }{ \left( A^{r_1}g^{r_2}\right)^b } \\
+& = & \frac{g^m \left(g^{ab}\right)^{r_1} \left( g^{b} \right)^{r_2}  }{ \left( g^{a} \right)^{r_1 b} g^{r_2 b} } \\
+& = & g^{m}
+\end{eqnarray*}
+
+Since $m \in \{0,1\}$ and we know $g$, the value of $g^m$ implies the value of $m$.
+
+\smallskip
+\textbf{Security:}
+As far as the security of the scheme is concerned, since $L$ is quite simple, we can actually prove that $m$ is information-theoretically hidden. To see this, assume there does not exist $(a,b) \in L$, but an adversary has the power to compute discrete logarithms. In that case, given $c_1$ and $c_2$ the adversary could get a system of the form:
+\begin{eqnarray*}
+ar_1 + r_2 & = & s_1 \\
+m + r r_1 + b r_2 &=& s_2
+\end{eqnarray*}
+where $s_1$ and $s_2$ are   the discrete logarithms of $c_1$ and $c_2$ respectively (with base $g$), and $r \ne ab$ is an element of $  \mathbb{Z}_{p}^*$ such that $T = g^r$. Observe now that for each value of $m$ there exist numbers $r_1$ and $r_2$ so that the above system has a solution, and thus $m$ is indeed information-theoretically hidden (on the other hand, if we had that $ab = r$ then the equations are linearly dependent).
+
+\newpage
+\section{An  NP Complete Language }
+
+In this section we focus on our original goal of designing an encryption for an NP complete language $L$. Specifically, we will consider the NP-complete problem \emph{exact cover}. Besides that, we introduce the $n$-Multilinear  Decisional Diffie-Hellman ($n$-MDDH) assumption  and the Decisional Multilinear No-Exact-Cover Assumption.  %(see also~\cite{Sanjam}). 
+The latter will guarantee the security of our construction.
+
+\subsection{ Exact Cover}
+
+We are given as input $x = (n, S_1, S_2, \ldots, S_l)$, where $n$ is an integer and each $S_i, i \in [l]$ is a subset of $[n]$, and our goal is to find a subset of indices $T \subseteq [l]$ such that:
+
+\begin{enumerate}
+\item $\cup_{i \in T} S_i = [n] $ and
+
+\item $\forall i, j \in T$ such that $i \ne j$ we have that $S_i \cap S_j = \emptyset$.
+\end{enumerate}
+
+If such a $T$ exists, we say that $T$ is an exact cover of $x$.
+
+\subsection{Multilinear Maps}
+
+Mutlinear maps is a generalization of bilinear maps (which we have already seen) that will be useful in our construction. Specifically, we assume the existence of a group generator $\mathcal{G}$, which takes as input a security parameter $\lambda$ and a positive integer $n$ to indicate the number of allowed operations. $\mathcal{G}(1^{\lambda},n)$ outputs a sequence of groups $\vec{\mathbb{G}}= (\mathbb{G}_1, \mathbb{G}_2, \ldots, \mathbb{G}_n)$  each of large prime order $P > 2^{\lambda}$. In addition, we let $g_i$ be a canonical generator of $\mathbb{G}_i$  (and is known from the group's description).
+
+We also assume the existence of a set of bilinear maps $\{e_{i,j}: \mathbb{G}_i \times \mathbb{G}_j \rightarrow \mathbb{G}_{i+j} \mid i, j \ge 1; i+j \le n \}.$ The map $e_{i,j}$ satisfies the following relation:
+\begin{align}
+e_{i,j}\left(g_i^{a},g_j^{b}\right) = g^{ab}_{i+j}: \forall a,b \in \mathbb{Z}_p \label{vasikoni}
+\end{align}
+and we observe that one consequence of this is that $e_{i,j} (g_i, g_j) = g_{i+j}$ for each valid $i,j$.
+
+\subsection{The $n$-MDDH Assumption  }
+
+The $n$-Multilinear Decisional Diffie-Hellman ($n$-MDDH) problem states the following: A challenger runs $\mathcal{G}(1^{\lambda},n ) $ to generate groups and generators of order $p$. Then it picks random $s, c_1, \ldots, c_n  \in \mathbb{Z}_p$.  The assumption then states that given $g= g_1, g^{s}, g^{c_1}, \ldots,g^{c_n}$ it is hard to distinguish $T = g_n^{s \prod_{j \in [1,n ] } c_j}$ from a random group element in $G_n$, with better than negligible advantage (in security parameter $\lambda$).
+
+\newpage
+
+
+\subsection{Decisional Multilinear  No-Exact-Cover  Assumption}
+Let $x = (n, S_1, \ldots, S_l)$ be an instance of the exact cover problem that has no solution. Let $\mathrm{param} \leftarrow \mathcal{G}(1^{1+n},n)$ be a description of a multilinear group family with order $p = p(\lambda)$. Let $a_1, a_2, \ldots, a_n,r$ be uniformly random in $\mathbb{Z}_p$. For $i \in [l]$, let $c_i  = g_{|S_i|}^{ \prod_{j \in S_i} a_j}$. Distiguish between the two distributions:
+\begin{align*}
+(\mathrm{params}, c_1, \ldots,c_l,g_n^{a_1a_2\ldots a_n}) \text{ and } (\mathrm{params},c_1, \ldots,c_l,g_n^r)
+\end{align*}
+
+The Decisional Multilinear No-Exact-Cover Assumption is that for all adversaries $\mathcal{A}$, there exists a fixed negligible function $\nu(\cdot)$ such that for all instances $x$ with no solution, $\mathcal{A}$'s distinguishing advantage against the Decisional Multilinear No-Exact-Cover Problem  for $x$ is at most $\nu(\lambda)$.
+
+\subsection{The Encryption Scheme  }
+
+We are now ready to give the description of our encryption scheme.
+
+\begin{itemize}
+
+\item $\mathrm{Enc}(x,m)$ takes as input $x=(n, S_1, \ldots,S_l)$ and the message $m \in \{0,1\}$ and:
+
+\begin{itemize}
+
+\item Samples $a_{0}, a_1, \ldots, a_{n}$ uniformly and independently from $\mathbb{Z}_p^*$.
+
+\item $\forall i \in [l]$ let $c_i = g^{\prod_{j\in S_j} a_j}_{|S_i|}$
+
+\item Sample uniformly an element $r \in \mathbb{Z}_p^*$
+
+\item Let $d = d(m) $ be $  g_n^{\prod_{j \in [n]}a_j}$ if $m = 1 $ or $g_n^r$ if $m = 0$.
+
+\item Output $c = (d, c_1, \ldots,c_l)$
+\end{itemize}
+
+\item $\mathrm{Dec}(x,T)$, where $T \subseteq[l]$ is a set of indices, computes $\prod_{i \in T}c_i$ and outputs $1$ if the latter value equals to $d$ or $0$ otherwise.
+
+\end{itemize}
+
+
+\begin{itemize}
+
+\item \textbf{Correctness:} Assume that $T$ is an exact cover of $x$. Then, it is not hard to see that:
+\begin{eqnarray*}
+\prod_{i \in T} c_i & = & \prod_{i \in T} g^{\prod_{j\in S_j} a_j}_{|S_i|} \\
+& = & g_n^{\prod_{j \in [n]}a_j}
+\end{eqnarray*}
+where we have used~\eqref{vasikoni} repeatedly and the fact that $T$ is an exact cover (to show that $\sum_{i \in T} |S_i| = n$ and that $\prod_{i \in T} \prod_{j \in S_i} a_j = \prod_{i \in [n]} a_i$).
+
+\item \textbf{Security:} Intuitively, the construction is secure, since the only way to make $g_n^{\prod_{ j \in [n] }a_i}$ is to find an exact cover of $[n]$.  As a matter of fact, observe that if an exact cover does not exist, then for each subset of indices $T'$( such that $\cup_{i \in T'}S_j  = [n]$) we have that
+\begin{align*}
+\sum_{i =1 }^{n} |S_i| > n,
+\end{align*}
+which means that   $\prod_{i \in T} \prod_{j \in S_i} a_j$ is different than $\prod_{j \in [n]}a_j$. Formally, the security is based on the Decisional Multilinear No-Exact-Cover Assumption.
+
+\end{itemize}
+
+
+%\bibliographystyle{plain}
+%\bibliography{smoser}
+
+
+% !TEX root = collection.tex
+
+%\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\ABS}[1]{\left\vert#1\right\vert}
+\newcommand{\SET}[1]{\left\{#1\right\}}  
+\newcommand{\INP}[1]{\left(#1\right)}
+\newcommand{\POLY}[1]{\ensuremath{\mathop{\mathrm{poly}}\INP{#1}}}
+%\newcommand{\iO}[1]{\ensuremath{\mathop{i\mathcal{O}}\INP{#1}}}
+\newcommand{\ENC}[1]{\ensuremath{\mathop{\mathrm{Enc}}\INP{#1}}}
+\newcommand{\DEC}[1]{\ensuremath{\mathop{\mathrm{Dec}}\INP{#1}}}
+%\bibliographystyle{plain}
+
+\section{Obfuscation}
+The problem of program obfuscation asks whether one can transform a program (e.g., circuits, Turing machines) to another semantically equivalent program (i.e., having the same input/output behavior), but is otherwise intelligible.
+It was originally formalized by Barak et al. who constructed a family of circuits that are non-obfuscatable under the most natural virtual black box (VBB) security.
+\section{VBB Obfuscation}
+As a motivation, recall that in a private-key encryption setting, we have a secret key $k$, encryption $E_k$ and decryption $D_k$.
+A natural candidate for public-key encryption would be to simply release an encryption $E'_k \equiv E_k$ (i.e. $E'_k$ semantically equivalent to $E_k$, but computationally bounded adversaries would have a hard time figuring out $k$ from $E'_k$.
+
+\begin{definition}[Obfuscator of circuits under VBB]
+	$O$ is an \emph{obfuscator} of circuits if %for every circuit $c$ we have,
+	\begin{enumerate}
+		\item
+			Correctness:
+	$\forall c, O(c) \equiv c$.
+	\item
+		Efficiency:
+		$\forall c, \ABS{O(c)} \le \POLY{\ABS{c}}$.
+	\item
+		VBB:
+		$\forall A, A$ is PPT bounded, $\exists$ S (also PPT) s.t. $\forall c$,
+		\[
+			\ABS{\Pr\left[ A\left( O(c) \right) = 1\right] - \Pr\left[ S^c(1^{\ABS{c}}) = 1 \right]} \le \mathrm{negl}(\ABS{c}).
+		\]
+	\end{enumerate}
+\end{definition}
+
+Similarly we can define it for Turing machines.
+\begin{definition}[Obfuscator of TMs under VBB]
+	$O$ is an \emph{obfuscator} of Turing machines if %for every circuit $c$ we have,
+	\begin{enumerate}
+		\item
+			Correctness:
+	$\forall M, O(M) \equiv M$.
+	\item
+		Efficiency:
+		$\exists q(\cdot) = \POLY{\cdot}, \forall M \left( M(x) \hbox{ halts in }t \hbox{ steps} \implies O(M)(x) \hbox{ halts in }q(t) \hbox{ steps}\right)$.
+	\item
+		VBB:
+		Let $M'(t,x)$ be a TM that runs $M(x)$ for $t$ steps.
+		$\forall A, A$ is PPT bounded, $\exists$ Sim (also PPT) s.t. $\forall c$,
+		\[
+			\ABS{\Pr\left[ A\left( O(M) \right) = 1\right] - \Pr\left[ S^{M'}(1^{\ABS{M'}}) = 1 \right]} \le \mathrm{negl}(\ABS{M'}).
+		\]
+	\end{enumerate}
+\end{definition}
+
+Let's show that our candidate PKE from VBB obfuscator $O$ is semantic secure, using a simple hybrid argument.
+
+\proof
+Recall the public key $PK=O(E_k)$.
+Let's assume $E_k$ is a circuit.
+\begin{align*}
+	H_0 :& A(\SET{(PK, E_k(m_0))}) & \\
+	H_1 :& S^c(\SET{E_k(m_0)}) & \hbox{ by VBB} \\
+	H_2 :& S^c(\SET{E_k(m_1)}) & \hbox{ by semantic security of private key encryption} \\
+	H_3 :& A(\SET{(PK, E_k(m_1))}) & \hbox{ by VBB}
+\end{align*}
+\qed
+
+Unfortunately VBB obfuscator for all circuits does not exist. Now we show the impossiblity result of VBB obfuscator.
+\begin{theorem}
+	Let $O$ be an obfuscator.
+	There exists PPT bounded $A$, and a family (ensemble) of functions $\SET{H_n}$, $\SET{Z_n}$ s.t.
+	for every PPT bounded simulator $S$,
+\begin{gather*}
+	A\left( O(H_n) \right) = 1 \ \ \& \ \ A\left( O(Z_n) \right) = 0\\
+	\ABS{\Pr\left[ S^{H_n} \left( 1^{\ABS{H_n}} \right) = 1 \right] - \Pr \left[ S^{Z_n} \left(1^{\ABS{Z_n}}\right) =1 \right]} \le\mathrm{negl}(n).
+\end{gather*}
+\end{theorem}
+
+\proof
+Let $\alpha, \beta \overset{\$}{\leftarrow} \SET{0,1}^n$.
+
+We start by constructing $A',C_{\alpha,\beta}, D_{\alpha,\beta}$ s.t.
+\begin{gather*}
+	A'\left( O(C_{\alpha,\beta}), O(D_{\alpha,\beta}) \right) = 1 \ \ \& \ \ A'\left( O(Z_n), O(D_{\alpha,\beta}) \right) = 0\\
+	\ABS{\Pr\left[ S^{C_{\alpha,\beta},D_{\alpha,\beta}} \left( \mathbf{1} \right) = 1 \right] - \Pr \left[ S^{Z_n,D_{\alpha,\beta}} \left(\mathbf{1}\right) =1 \right]} \le\mathrm{negl}(n).
+\end{gather*}
+
+\begin{gather*}
+C_{\alpha,\beta}(x) =
+\begin{cases}
+	\beta, & \hbox{if } x = \alpha,\\
+	0^n, & \hbox{o/w}
+\end{cases} \\
+D_{\alpha,\beta}(c)=
+\begin{cases}
+	1,& \hbox{if } c(\alpha) = \beta,\\
+	0, & \hbox{o/w}.
+\end{cases}
+\end{gather*}
+
+Clearly $A'(X,Y) = Y(X)$ works.
+Now notice that input length to $D$ grows as the size of $O(C)$.
+
+However for Turing machines which can have the same description length, one could combine the two in the following way:
+
+$F_{\alpha,\beta}(b, x) =
+\begin{cases}
+	C_{\alpha,\beta}(x), & b=0\\
+	D_{\alpha,\beta}(x), & b=1\\
+\end{cases}.$
+
+Let $OF= O(F_{\alpha,\beta})$, $OF_0(x) = OF(0,x)$, similarly for $OF_1$, then $A$ would be just $A(OF) = OF_1(OF_0)$.
+
+Now assuming OWF exists, specifically we already have priavte-key encryption, we modify $D$ as follows.
+\begin{gather*}
+	D_k^{\alpha,\beta}(1,i) = \mathrm{Enc}_k(\alpha_i) \\
+	D_k^{\alpha,\beta}(2,c,d,\odot) = \mathrm{Enc}_k(\mathrm{Dec}_k(c) \odot \mathrm{Dec}_k(d)), \hbox{where $\odot$ is a gate of AND, OR, NOT} \\
+	D_k^{\alpha,\beta}(3, \gamma_1,\cdots,\gamma_n) =
+	\begin{cases}
+		1,& \forall i, \mathrm{Dec}_k(\gamma_i) = \beta_i,\\
+		0, & \hbox{o/w}.
+	\end{cases}
+\end{gather*}
+
+Now the adversary $A$ just simulate $O(C)$ gate by gate with a much smaller $O(D)$, thus we can use the combining tricks as for the Turing machines.
+\qed
+
+\section{Indistinguishability Obfuscation}
+
+%\begin{definition}[Indistinguishability Obfuscation]
+%	$\iO{\cdot}$ is an \emph{indistinguishability obfuscation} if $\forall c_1, c_2$ such that $\ABS{c_1}= \ABS{c_2}$ and $c_1\equiv c_2$, we have
+%	\[
+%		\iO{c_1} \overset{c}{\approx} \iO{c_2}.
+%	\]
+%\end{definition}
+
+
+%\newcommand{\iO}{\ensuremath{i\mathcal{O}}}
+\newcommand{\Ck}{\ensuremath{\mathcal{C}_\kappa}}
+
+\begin{definition}[Indistinguishability Obfuscator]
+A uniform PPT machine $\iO$ is an \emph{indistinguishability obfuscator}
+for a collection of circuits $\Ck$ if the following conditions hold:
+\begin{itemize}
+
+\item \emph{Correctness.}
+For every circuit $C \in \Ck$ and for all inputs $x$,
+$C(x) = \iO(C(x))$.
+
+\item \emph{Polynomial slowdown.}
+For every circuit $C \in \Ck$, $|\iO(C)| \leq p(|C|)$ for some
+polynomial $p$.
+
+\item \emph{Indistinguishability.}
+For all pairs of circuits $C_1, C_2 \in \Ck$, if $|C_1| = |C_2|$ and
+$C_1(x) = C_2(x)$ for all inputs $x$, then
+$\iO(C_1) \overset{c}{\simeq} \iO(C_2)$.
+More precisely, there is a negligible function $\nu(k)$ such that for
+any (possibly non-uniform) PPT $A$,
+\begin{equation*}
+\big| \Pr[A(\iO(C_1)) = 1] - \Pr[A(\iO(C_2)) = 1] \big| \leq \nu(k).
+\end{equation*}
+
+\end{itemize}
+\end{definition}
+
+
+\begin{lemma}
+	Indistinguishability obfuscation implies witness encryption.
+\end{lemma}
+\proof
+Recall the witness encryption scheme, with which one could encrypt a message $m$ to an instance $x$ of an NP language $L$, such that $\DEC{x,w,\ENC{x,m}}=
+\begin{cases}
+	m, \hbox{if} (x,w)\in L, \\
+	\bot, \hbox{o/w}
+\end{cases}$
+
+Let $C_{x,m}(w)$ be a circuit that on input $w$, outputs $m$ if and only if $(x,w) \in L$.
+Now we construct witness encryption as follows:
+$\ENC{x,m}=\iO{C_{x,m}}, \DEC{x,w,c}=c(w)$.
+
+Semantic security follows from the fact that, for $x\not\in L$, $C_{x,m}$ is just a circuit that always output $\bot$, and by indistinguishability obfuscation, we could replace it with a constant circuit (padding if necessary), and then change the message, and change the circuit back.
+\qed
+
+
+\begin{lemma}
+	Indistinguishability obfuscation and OWFs imply public key encryption.
+\end{lemma}
+\proof
+We'll use a length doubling PRG $F: \SET{0,1}^n \to \SET{0,1}^{2n}$, together with a witness encryption scheme $(E,D)$.
+The NP language for the encryption scheme would be the image of $F$.
+\begin{align*}
+	&\mathrm{Gen}(1^n) = (PK = F(s), SK=s), s\overset{\$}{\leftarrow} \SET{0,1}^n\\
+	&\ENC{PK,m} = E(x=PK,m)\\
+	&\DEC{e,SK=s} = D(x=PK,w=s,c=e).
+\end{align*}
+\qed
+
+\begin{lemma}
+	Every best possible obfuscator could be equivalently achieved with an indistinguishability obfuscation (up to padding and computationally bounded).
+\end{lemma}
+
+\proof
+Consider circuit $c$, the \emph{best possible obfuscated} $BPO(c)$, and $c'$ which is just padding $c$ to the same size of $BPO(c)$.
+Computationally bounded adversaries cannot distinguish between $\iO{c'}$ and $\iO{BPO(c)}$.
+
+Note that doing iO never decreases the ``entropy'' of a circuit, so $\iO{BPO(c)}$ is at least as secure as $BPO(c)$.
+\qed
+
+
+
+% !TEX root = collection.tex
+
+%\section{Using Indistinguishability Obfuscation}
+
+
