@@ -49,6 +49,12 @@ Note that while a pairing provides us with additional \emph{functionality}, it a
     Thus, by contradiction, the BLS signature scheme is existentially unforgeable under chosen message attacks assuming the co-CDH problem is hard in the random oracle model.
 \end{proof}
 
+
+\section*{Exercises}
+\begin{exercise}
+\textbf{Digital signature schemes can be made deterministic.} Given a digital signature scheme $(\mathsf{Gen}, \mathsf{Sign}, \mathsf{Verify})$ for which $\mathsf{Sign}$ is probabilistic, provide a construction of a digital signature scheme $(\mathsf{Gen}', \mathsf{Sign}', \mathsf{Verify}')$ where $\mathsf{Sign}'$ is deterministic.
+\end{exercise}
+
 \chapter{Public Key Encryption}
 Public key encryption allows two parties
 to communicate with each other with the guarantees of privacy for their messages against an eavesdropper who monitors all communication between the two parties. Recall that we were able to build Digital Signatures and Symmetric Key Encryption, from the weakest building block in cryptography -- one-way functions. However, there are lower bounds

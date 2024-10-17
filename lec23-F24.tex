@@ -1,0 +1,43 @@
+\section*{Exercises}
+\begin{exercise}[Leaky ZK proof] Formally define:
+\begin{enumerate}
+  \item 
+What it means for an  interactive proof $(P,V)$ to be \textbf{first-bit leaky} zero-knowledge, where we require that the protocol doesn't leak anything more than the first bit of the witness.
+
+\item What it means for an  interactive proof $(P,V)$ to be \textbf{one-bit leaky} zero-knowledge, where we require that the protocol doesn't leak anything more than one bit that is an arbitrary adversarial chosen function of the witness.
+    \end{enumerate}
+\end{exercise}
+
+\begin{exercise}[Proving OR of two statements] Give a statistical zero-knowledge proof system $\Pi = (P,V)$ (with efficient prover) for the following language.
+    \[ L = \left\{((G_0,G_1),(G_0',G_1'))\left| G_0 \simeq G_1 \bigvee G_0' \simeq G_1'\right.\right\}\]\\
+    \textbf{Caution:} Make sure the verifier doesn't learn which of the two pairs of graphs is isomorphic.
+\end{exercise}
+
+\begin{exercise} [ZK implies WI] Let $L \in NP$ and let $(P,V)$ be an interactive proof system for $L$. We say that $(P,V)$ is \emph{witness indistinguishable (WI)} if for all PPT $V^*$, for all $x \in L$, distinct witnesses $w_1, w_2 \in R_L(x)$ and  auxiliary input $z\in \binset{*}$, the following two views are computationally indistinguishable:
+\[View_{V^*} \left(P(x,w_1) \leftrightarrow V^*(x,z) \right) \simeq_c View_{V^*} \left(P(x,w_2) \leftrightarrow V^*(x,z) \right).\]
+\begin{enumerate}
+\item Show that if $(P,V)$ is an efficient prover zero-knowledge proof system, then it is also witness indistinguishable.
+
+\item Assume $(P,V)$ is an efficient prover zero-knowledge proof system. We have seen in the exercise that $(P,V)$ is also witness indistinguishable. Define $(\tilde P, \tilde V)$ to repeat $(P,V)$ independently for $k$ times \emph{in parallel} ($k$ is a polynomial), and $\tilde V$ accepts if and only if $V$ accepts in all the executions. Prove that $(\tilde P, \tilde V)$ is still witness indistinguishable.
+\end{enumerate}    
+\end{exercise}
+
+\begin{exercise}
+\textbf{Multi-statement NIZK.} The NIZK proof system we constructed in class required a fresh common random string (CRS) for each statement proved. In various settings we would like to reuse the same random string to prove multiple theorem statements while still preserving the zero-knowledge property.
+    
+    A multi-statement NIZK proof system $(K,P,V)$ for a language $L$ with corresponding relation $R$ is a NIZK proof system for $L$ with a stronger zero-knowledge property, defined as follows: $\exists$ a PPT machine $\mathcal{S} = (\mathcal{S}_1,\mathcal{S}_2)$ such that $\forall$ PPT machines $A_1$ and $A_2$ we have that:
+    \[\left|\Pr\left[\begin{split}\sigma \gets K(1^\kappa),\\ (\{x_i,w_i\}_{i \in [q]},\textsf{state}) \gets A_1(\sigma),\\ \text{ such that } \forall i \in [q], (x_i,w_i)\in R\\\forall i \in [q],  \pi_i \gets P(\sigma, x_i,w_i);\\
+    A_2(\textsf{state}, \{\pi_i\}_{i \in [q]}) =1\end{split}\right]
+    -
+    \Pr\left[\begin{split}(\sigma,\tau) \gets \mathcal{S}_1(1^\kappa),\\ (\{x_i,w_i\}_{i \in [q]},\textsf{state}) \gets A_1(\sigma),\\\text{ such that } \forall i \in [q], (x_i,w_i)\in R\\\forall i \in [q],  \pi_i \gets \mathcal{S}_2(\sigma, x_i,\tau);\\ A_2(\textsf{state}, \{\pi_i\}_{i \in [q]})=1\end{split}\right]\right|
+    \leq \textsf{negl}(\kappa).
+    \]
+    
+    Assuming that a single statement NIZK proof system $(K,P,V)$ for NP exists, construct a multi-statement NIZK proof system $(K',P',V')$ for NP.\\
+\textbf{Hint:} Let $g: \{0,1\}^\kappa \rightarrow \{0,1\}^{2\kappa}$ be a length doubling PRG. Let $K'$ output the output of $K$ along with $y$, a random $2\kappa$ bit string. To prove $x \in L$ the prover $P'$ proves that $\exists (w,s)$ such that either $(x,w)\in R$ or $y = g(s)$.
+\end{exercise}
+
+
+
+
+
