@@ -73,4 +73,135 @@ vk_{1,1} & \ldots& vk_{n,1} \\
 \end{enumerate}
 We first note that conditioned on $\advb$ not outputting $\abort_1$ or $\abort_2$, the probability that $\advb$ outputs a valid preimage of $y$ is $\mu(n)$. Now, probability $\advb$ does not output $\abort_1$ or $\abort_2$ is $1/2n$ (this is because $\abort_1$ is not output with probability $1/2$ and conditioned on not outputting $\abort_1$, $\abort_2$ is not output with probability $1/n$). Thus, $\advb$ outputs a valid preimage with probability $\mu(n)/2n$. This completes the proof of security.
 
-We now try to extend this one-time signature scheme to digital signatures.
+We now try to extend this one-time signature scheme to digital signatures. For this purpose, we will rely on a primitive called as collision-resistant hash functions.
+
+\section{Universal One-way Hash Function -- UOWHF}
+We now introduce a class of hash function called universal one-way hash function. 
+This form of hash function is stronger than the universal hash function in 4.10 in the sense that the attacker is allowed to select the input by itself but must do so before being presented with the functions description. 
+
+\subsection{Definition}
+We now give a formal definition of universal one-way hash function(UOWHF, also called "WOOF"). 
+\begin{definition}[Universal One-way Hash Function(UOWHF)]
+    Let $\ell$: $\mathbb{N}\rightarrow\mathbb{N}$. A \textit{collection of functions} 
+    $\{h_s: \bit^*\rightarrow\bit^{\ell(|s|)}\}_{s\in\bit^{*}}$ is called universal one-way hash functions given $\exists$ PPT machine $I$ such that: 
+    \begin{enumerate}
+        \item (Easy to compute): $\exists$ a deterministic machine $M$ such that $M(s,x)=h_s(x)$.
+        \item (Hard to form designated collisions): Given a PPT attacker $\mathcal{A}$, the probability of $\mathcal{A}$ to win WOOF game is negligible. 
+        \[
+            \Pr[WOOF^{I,h}_{\mathcal{A}}(n)=1]=\negl
+        \]
+    \end{enumerate}
+\end{definition}
+Where $WOOF^{I,h}_{\mathcal{A}}$ is defined in the following:
+\begin{enumerate}
+    \item $(state, x)\leftarrow\mathcal{A}(1^n)$.
+    \item $s\leftarrow I(1^n)$.
+    \item $y\leftarrow\mathcal{A}(state, s)$
+    \item Output $h_s(x)=h_s(y)$
+\end{enumerate}
+
+
+\subsection{Construction}
+We construct UOWHF collections in several steps, starting with a related but
+restricted notion and relaxing the restriction gradually until we reach the unrestricted notion of UOWHF collections. 
+
+\begin{definition}[$(d,r)$-UOWHFs]
+Let $d,r$: $\mathbb{N}\rightarrow\mathbb{N}$. A \textit{collection of functions} 
+    $\{h_s: \bit^{(d(|s|))}\rightarrow\bit^{r(|s|)}\}_{s\in\bit^{*}}$ is called  $(d,r)$-UOWHFs given $\exists$ PPT machine $I$ such that: 
+    \begin{enumerate}
+        \item $\exists$ a deterministic machine $M$ such that given $s$ and $x\in\bit^{(d(|s|))}$, $M(s,x)=h_s(x)$.
+        \item (Hard to form designated collisions): Given a PPT attacker $\mathcal{A}$, the probability of $\mathcal{A}$ to win WOOF game is negligible. 
+        \[
+            \Pr[WOOF^{I,h}_{\mathcal{A}}(n)=1]=\negl
+        \]
+    \end{enumerate}
+\end{definition}
+And $d,r$ satisfying $d(n)>r(n)$. The other case is trivial to discuss. 
+
+Now we discuss the construction of $4$ types of UOWHFs. We start from the simple cases and eventually lead to the full-fledged UOWHFs.
+
+\noindent\textbf{Step I: $(d, d-1)$-UOWHFs}.
+We construct UOWHFs that given arbitrary length, truncate its input length by 1. 
+\begin{construction}
+    Let $f$: $\bit^{*}\rightarrow\bit^{*}$ be a one-way permutation, and $a,b\in GF(2^n)$. We construct $h_s: \bit^{n}\rightarrow\bit^{n-1}$: 
+    \[
+        h_{s=(a,b)}(x)=chop(a\cdot f(x)+b)
+    \]
+    where $chop(\cdot)$ is the function that chops the first bit of a given bit string. 
+\end{construction}
+We then argue that $h_s$ is a $(d,d-1)$-UOWHF. 
+
+\begin{proof}
+    We prove this by contradiction. If an adversary $\mathcal{A}$ can break the security of UOWHF, we can construct an adversary $\mathcal{B}$ that breaks the OWF $f$. 
+
+    The algorithm of $\mathcal{B}$ is as follows upon receive an input $y$:
+    \begin{enumerate}
+        \item $\mathcal{A}$ first emits the preimage $x_0$ of its chosen.
+        \item Attacker $\mathcal{B}$ compute $s=(a,b)$ such that $h_s(y)=h_s(x_0)$.
+        \item Input $s=(a,b)$ to the oracle $\mathcal{A}$ and output what $\mathcal{A}$ outputs. 
+    \end{enumerate}
+    
+    Since $h_s$ works by chopping the first bit of $af(x)+b$, there are two elements in the preimage of $h_s(x)$, namely $x$ and $x'=f^{-1}(y)$. 
+    Because it is easy to compute $a$ and $b$ that $af(x)+b=ay+b$, the hardness relies on finding $x'$ given $y$, which is inverting the one-way permutation. 
+    This creates a contradiction of one-way permutation. 
+\end{proof}
+
+\noindent\textbf{Step II: $(2n, n)$-UOWHFs}.
+Now we construct length-restricted UOWHFs that shrink their input by a factor of 2.
+
+\begin{construction}
+    Let $\{h_s: \bit^{*}\rightarrow\bit^{*-1}\}_{s\in\bit^{*}}$. We construct $H_{s_1\cdots s_n}:\bit^{2n}\rightarrow\bit^{n}$:
+    \[
+        H_{s_1\cdots s_n}=h_{s_1}^{n+1,n}(h_{s_2}^{n+2,n+1}(\cdots h_{s_n}^{2n,2n-1}(x))\cdots)
+    \]
+\end{construction}
+We now prove that $H$ is a $(2n, n)$-UOWHF given $h$ is a $(d,d-1)$-UOWHF.
+That is, if we have an attacker $\mathcal{A}$ that can break $(2n, n)$-UOWHF, we can construct an attacker $\mathcal{B}$ that can break the $(d,d-1)$-UOWHF. 
+Our intuition is that the attacker $\mathcal{B}$ can randomly inject the challenge $s_i$ into a random location of $S$ to $\mathcal{A}$ and $\mathcal{A}$ will have a non-negligible probability to create a collision. 
+
+\begin{proof}
+    Formally we define the procedure of $\mathcal{B}$:
+    \begin{enumerate}
+        \item Select $i\in [n]$.
+        \item $\forall i'\neq i$, sample $s_{i'}$.
+        \item Receive $x_0$ from $\mathcal{A}$.
+        \item Compute $x_i^0 = H_{partial}(x_0)=h_{s_{n-i+1}}^{2n-i+1,2n-i}(\dots(h_{s_n}^{2n,2n-1}(x))\dots)$, which is the input of i-th hash round select by $\mathcal{B}$
+        \item Output $x_0$ to the challenger.
+        \item Receive $S_{i}$ from the challenger. And send $\{S_0,\dots,S_n\}$ to $\mathcal{A}$.
+        \item $\mathcal{A}$ output $x_1$.
+        \item $\mathcal{B}$ compute $H_{partial}(x_1)$ and output.
+    \end{enumerate}
+
+The core idea is that if $\mathcal{A}$ can output a collision with different $x$, the output will be the same at some point in the hash chain of applying $h$. 
+Therefore $\mathcal{B}$ can randomly insert the challenge into $\mathcal{A}$.
+And with $\mu(\mathcal{A})/n$ probability $\mathcal{B}$ will succeed.  $\mu(\mathcal{A})$ is the probability that $\mathcal{A}$ succeed. 
+\end{proof}
+
+\noindent\textbf{Step III: UOWHFs that shrinks any input by a factor of two}.
+
+\begin{construction}[(a $(2n^{*}, n^{*})$-UOWHF for any length of $n^{*}$)]
+    Let $\{h_s:\bit^{2n}\rightarrow\bit^{n}\}_{s\in\bit^{*}}$. Then for every $x\in\bit^{*}$ we have
+    \[
+    H_s(x)=h_s(x_1)\cdots h_s(x_{t}10^{n^{*}-|x_t|-1})
+    \]
+    where $x=x_1\cdots x_t$, $0\leq|x_t|\leq n^{*}$ and $|x_i|=n^{*}$ for $i=1,\dots,t-1$.
+\end{construction}
+
+We now give the proof sketch here. 
+We want to prove that $H$ is a $(2n^{*}, n^{*})$-UOWHF given $h$ is a $(2n, n)$-UOWHF.
+Because $H_s(x)$ is just parallelize $(2n, n)$-UOWHF multiple times. 
+
+We assume that $\mathcal{A}$ is able to create a collision $x'$ for some input $x$ of its given and $s$.
+Some block $x'_i$ will be different than the block $x_i$. 
+Therefore we have $h_s(x'_i)=h_s(x_i)$ which create contradiction of $h$ is a $(2n, n)$-UOWHF.
+
+\noindent\textbf{Step IV: Full-Fledged UOWHFs}. 
+The last step on our way consists of using UOWHFs as constructed in Step III above to obtain
+full-fledged UOWHFs.
+\begin{construction}[(a UOWHF)]
+Let $\{h_s:\bit^{*}\rightarrow\bit^{*}\}_{s\in\bit^{*}}$, such that $|h_s(s)|=|x|/2$, for every $x\in\bit^{2i\cdot|s|}$ where $i\in\mathbb{N}$. Then for every $s_a,\cdots,s_n\in\bit^{n}$, every $t\in\mathbb{N}$ and $x\in\bit^{2^t\cdot n}$, we define
+\[
+    H_{s_1,\dots,s_n}(x)=(t,h_{s_t}(\cdots(h_{s_2}(h_{s_1}(x)))\cdots))
+\]
+\end{construction}
+The proof is similar in Step II. 
