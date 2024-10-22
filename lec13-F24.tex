@@ -1,3 +1,72 @@
 
-\section{Kyber Encryption Scheme}
+\section{Post-Quantum Public Key Encryption}
+The public-key encryption schemes discussed so far, rely on the difficulty of problems like factorization or discrete logarithms. In 1994, Peter Shor showed that these problems can be solved efficiently on a quantum computer~\cite{FOCS:Shor94}. Even though we do not have large-scale quantum computers capable of breaking current encryption schemes, there are two reasons to begin the transition of public-key encryption to quantum-resistant schemes:
+\begin{itemize}
+    \item Encrypted messages captured today can be stored and decrypted in the future when a large scale quantum computer is available. This is commonly referred to as the "harvest now, decrypt later" risk.
+    \item Transition to new encryption schemes is a slow process and it is important to start the transition well before large scale quantum computers are available.
+\end{itemize}
 
+The national institute of standards and technology (NIST) opened a call for post-quantum public-key encryption and signature schemes in 2016. In Nov 2019, it received 59 submissions for public-key encryption and 23 submissions for digital signatures. In July 2022, NIST announced the first batch of winners for public-key encryption and digital signatures. In Aug 2024, the final standard for these schemes was published and they are now making their way into existing infrastructure. There was one winner (CRYSTALS-Kyber) for public-key encryption (based on lattices) and three winners for digital signatures (two based on lattices and one based on hash functions).
+
+\begin{figure}[!htbp]
+    \begin{tikzpicture}[node distance=1.5cm and 2cm,
+            every node/.style={align=center}, % Adjust width as needed
+            >=stealth] % Nicer arrow tips
+        \node[align=center](lwe) {LWE \\ \cite{STOC:Regev05}};
+        \node[right=of lwe] (lweske) {LWE-SKE};
+        \node[right=of lweske, align=center] (lwepke) {LWE-PKE \\ \cite{STOC:Regev05} \\ LWE + LHL };
+        \node[right=of lwepke, align=center] (comlwepke) {Compact LWE-PKE \\ \cite{RSA:LinPei11} \\ LWE + LWE};
+        \node[below=of lweske, align=center] (rlwe) {RLWE \\ \cite{EC:LyuPeiReg10}};
+        \node[right=of rlwe, align=center] (rlwepke) {RLWE-PKE \\ \cite{EC:LyuPeiReg13} \\ RLWE + RLWE};
+        \node[below=of rlwe, align=center] (mlwe) {MLWE \\ \cite{ITCS:BraGenVai12,DCC:LanSte15}};
+        \node[below=of comlwepke, align=center] (kyber) {CRYSTALS-Kyber \\ MLWE + MLWE};
+
+        \draw[->] (lwe) -- (lweske);
+        \draw[->] (lweske) -- (lwepke);
+        \draw[->] (lwepke) -- (comlwepke);
+        \draw[->] (lwe) -- (rlwe);
+        \draw[->] (lwe) -- (mlwe);
+        \draw[->] (rlwe) -- (rlwepke);
+        \draw[->] (comlwepke) -- (rlwepke);
+        \draw[->] (mlwe) -- (kyber);
+        \draw[->] (comlwepke) -- (kyber);
+        \draw[->] (rlwepke) -- (kyber);
+        % Bounding box
+        % \draw[dashed, thick] ($(lwe.north west)+(-0.5,0.5)$) rectangle ($(kyber.south east)+(0.5,-3)$);
+    \end{tikzpicture}
+    \caption{A roadmap of lattice-based public-key encryption schemes ending in the standardized CRYSTALS-Kyber scheme.}
+\end{figure}
+
+
+\begin{definition}[Learning With Errors Assumption (Search)]
+    Let $m,n,q \in \mathbb{N}$ and $\chi$ be a distribution over $\mathbb{Z}_q$. The Learning With Errors (LWE) $\LWE_{n,m,q,\chi}$ problem is defined as follows:
+    \[\Pr[\adv(A,b) \to s \mid s \sample \mathbb{Z}_q^n, A \sample \mathbb{Z}_q^{m \times n}, b = A \cdot s + e ] \leq \negl\]
+\end{definition}
+
+\begin{definition}[Learning With Errors (Decision)]
+    Let $m,n,q \in \mathbb{N}$ and $\chi$ be a distribution over $\mathbb{Z}_q$. The Learning With Errors (LWE) $\LWE_{n,m,q,\chi}$ problem is defined as follows:
+    \begin{multline*}
+        |\Pr[\adv(A,b) \to 1 \mid s \sample \mathbb{Z}_q^n, A \sample \mathbb{Z}_q^{m \times n}, b = A \cdot s + e ] \\
+        - \Pr[\adv(A,b) \to 1 \mid s \sample \mathbb{Z}_q^n, A \sample \mathbb{Z}_q^{m \times n}, b \sample \mathbb{Z}_q^m ]|\leq \negl
+    \end{multline*}
+\end{definition}
+The Learning With Errors assumption is commonly referred to as a Lattice based assumption because there is a reduction from Search/Decision LWE to a ``worst-case'' lattice problem.
+
+The above assumptions have been stated with respect to some abstract distribution $\chi$ over $\mathbb{Z}_q$. But what do we actually choose this distribution to be? In the extreme case of $\chi = 0$, the LWE problem is trivial as one can simply use Gaussian Elimination. In the other extreme if $\chi$ is uniform over $\mathbb{Z}_q$, then the LWE problem is information theoretically hard (but not very useful for cryptography). We will be interested in the intermediate case where $\chi$ is a \emph{small} distribution over $\mathbb{Z}_q$, centered around 0. For eg: $\chi$ is a uniform distribution over $[-B, B]$ for some $B \ll q/2$. This will allow us to do build interesting cryptographic primitives like public key encryption and signature schemes. For provable reductions to lattice problems, we set $\mathsf{stddev}(\chi) = \Omega(\sqrt{n})$. However, there is a gap between the best known attacks on LWE and the best known reductions to lattice problems. As a result, much more aggressive parameters are used in practice, chosen based on the best known attacks. Typical parameters for LWE are $n = 512$, $q = 3329$, $\mathsf{supp}(\chi) = [-3,3]$, and $m = 768$. \cite{EPRINT:AlbPlaSco15} provides a lattice estimator \url{https://github.com/malb/lattice-estimator} that can be used to estimate the number of bits of security provided by a given set of LWE parameters.
+
+\subsection{LWE $\to$ LWE-SKE}
+As a first step, we will see how to build a symmetric key encryption scheme from LWE.
+
+\begin{itemize}
+    \item $\Gen$: Sample $s \sample \mathbb{Z}_q^n$ and output $\sk = s$.
+    \item $\Enc(\sk,\mu)$: Sample $a \sample \mathbb{Z}_q^n$, $e \sample \chi$, and compute $b \gets \langle a, s \rangle + e$. Output $c = (c_0 = a, c_1 = b + \lfloor\frac{q}{2}\rfloor\mu)$.
+    \item $\Dec(\sk,c)$: Parse $c = (c_0, c_1)$ and compute $m \gets \mathsf{Decode}(c_1 - \langle c_0, s \rangle)$, where $\mathsf{Decode}(\hat{\mu}) \to \{0,1\}$ takes a value from $\mathbb{Z}_q$ and outputs $0$ if $\hat{\mu}$ is closer to $0$ than to $\lfloor\frac{q}{2}\rfloor$ and $1$ otherwise.
+\end{itemize}
+
+\begin{theorem}
+    If the decisional variant of LWE is hard, then the above scheme is a secure symmetric key encryption scheme.
+\end{theorem}
+\begin{proof}
+    Let the ciphertext $c = (c_0, c_1)$. Then $\hat{\mu} = c_1 - \langle c_0,s\rangle = b + \lfloor\frac{q}{2} - \langle a,s\rangle = \lfloor\frac{q}{2}\rfloor\mu + e$.
+
+\end{proof}
