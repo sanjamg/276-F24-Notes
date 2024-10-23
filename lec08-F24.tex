@@ -73,135 +73,157 @@ vk_{1,1} & \ldots& vk_{n,1} \\
 \end{enumerate}
 We first note that conditioned on $\advb$ not outputting $\abort_1$ or $\abort_2$, the probability that $\advb$ outputs a valid preimage of $y$ is $\mu(n)$. Now, probability $\advb$ does not output $\abort_1$ or $\abort_2$ is $1/2n$ (this is because $\abort_1$ is not output with probability $1/2$ and conditioned on not outputting $\abort_1$, $\abort_2$ is not output with probability $1/n$). Thus, $\advb$ outputs a valid preimage with probability $\mu(n)/2n$. This completes the proof of security.
 
-We now try to extend this one-time signature scheme to digital signatures. For this purpose, we will rely on a primitive called as collision-resistant hash functions.
+We will now upgrade this one-time signature scheme to a full digital signature scheme. For this purpose, we can use either universal one-way hash functions or collision-resistant hash functions.
 
 \section{Universal One-way Hash Function -- UOWHF}
-We now introduce a class of hash function called universal one-way hash function. 
-This form of hash function is stronger than the universal hash function in 4.10 in the sense that the attacker is allowed to select the input by itself but must do so before being presented with the functions description. 
+We now introduce a universal one-way hash function (UOWHF). UOWHF is pronounced as ``woof''.
+UOWHFs are stronger than universal hash functions but weaker than collision-resistant hash functions (CRHFs). 
 
-\subsection{Definition}
-We now give a formal definition of universal one-way hash function(UOWHF, also called "WOOF"). 
-\begin{definition}[Universal One-way Hash Function(UOWHF)]
+All three primitives (universal hash functions, UOWHFs, and CRHFs) guarantee that an attacker cannot find two colliding inputs, but they differ in when the attacker must output their collision. Universal hash functions require the attacker to output both colliding inputs \textit{before} seeing the hash function's key. Collision-resistant hash functions allow the attacker to output both colliding inputs \textit{after} seeing the hash function's key. UOWHFs are in between: they require the attacker to output one colliding input before seeing the key and allow the attacker to output the second colliding input after seeing the key.
+
+Universal hash functions can be constructed unconditionally, without computational assumptions. UOWHFs can be constructed from OWFs. Finally, the existence of collision-resistant hash functions is believed to be a stronger assumption than the existence of OWFs.
+
+We now give a formal definition of universal one-way hash functions. 
+\begin{definition}[Universal One-way Hash Function (UOWHF)]
     Let $\ell$: $\mathbb{N}\rightarrow\mathbb{N}$. A \textit{collection of functions} 
-    $\{h_s: \bit^*\rightarrow\bit^{\ell(|s|)}\}_{s\in\bit^{*}}$ is called universal one-way hash functions given $\exists$ PPT machine $I$ such that: 
+    $\mathcal{H} = \{h_s: \bit^*\rightarrow\bit^{\ell(|s|)}\}_{s\in\bit^{*}}$ is a universal one-way hash function if:
     \begin{enumerate}
+        \item (Sampling): $\exists$ PPT machine $I$ that takes $1^n$ and samples $s$.
         \item (Easy to compute): $\exists$ a deterministic machine $M$ such that $M(s,x)=h_s(x)$.
-        \item (Hard to form designated collisions): Given a PPT attacker $\mathcal{A}$, the probability of $\mathcal{A}$ to win WOOF game is negligible. 
+        \item (Hard to find collisions): Given a PPT attacker $\mathcal{A}$, the probability that $\mathcal{A}$ wins the UOWHF game (given below) is negligible. 
         \[
-            \Pr[WOOF^{I,h}_{\mathcal{A}}(n)=1]=\negl
+            \Pr[UOWHF^{\mathcal{H}}_{\mathcal{A}}(n)=1]=\negl
         \]
     \end{enumerate}
 \end{definition}
-Where $WOOF^{I,h}_{\mathcal{A}}$ is defined in the following:
+Where $UOWHF^{\mathcal{H}}_{\mathcal{A}}$ is the following game:
 \begin{enumerate}
     \item $(state, x)\leftarrow\mathcal{A}(1^n)$.
     \item $s\leftarrow I(1^n)$.
     \item $y\leftarrow\mathcal{A}(state, s)$
-    \item Output $h_s(x)=h_s(y)$
+    \item Output $1$ if $x \neq y$ and $h_s(x)=h_s(y)$. Output $0$ otherwise.
 \end{enumerate}
 
 
 \subsection{Construction}
-We construct UOWHF collections in several steps, starting with a related but
-restricted notion and relaxing the restriction gradually until we reach the unrestricted notion of UOWHF collections. 
+We construct a UOWHF from a one-way permutation in several steps, starting with a length-restricted notion, called a $(d,r)$-UOWHF, and relaxing the restriction gradually. 
 
 \begin{definition}[$(d,r)$-UOWHFs]
-Let $d,r$: $\mathbb{N}\rightarrow\mathbb{N}$. A \textit{collection of functions} 
-    $\{h_s: \bit^{(d(|s|))}\rightarrow\bit^{r(|s|)}\}_{s\in\bit^{*}}$ is called  $(d,r)$-UOWHFs given $\exists$ PPT machine $I$ such that: 
-    \begin{enumerate}
-        \item $\exists$ a deterministic machine $M$ such that given $s$ and $x\in\bit^{(d(|s|))}$, $M(s,x)=h_s(x)$.
-        \item (Hard to form designated collisions): Given a PPT attacker $\mathcal{A}$, the probability of $\mathcal{A}$ to win WOOF game is negligible. 
-        \[
-            \Pr[WOOF^{I,h}_{\mathcal{A}}(n)=1]=\negl
-        \]
-    \end{enumerate}
+Let $d,r$: $\mathbb{N}\rightarrow\mathbb{N}$ such that $d(n) > r(n)$ for all $n \in \mathbb{N}$. A $(d,r)$-UOWHF is a collection of functions $\mathcal{H} = \{h_s: \bit^{d(|s|)}\rightarrow\bit^{r(|s|)}\}_{s\in\bit^{*}}$ that satisfies the conditions of a UOWHF.
 \end{definition}
-And $d,r$ satisfying $d(n)>r(n)$. The other case is trivial to discuss. 
 
-Now we discuss the construction of $4$ types of UOWHFs. We start from the simple cases and eventually lead to the full-fledged UOWHFs.
+The construction of a UOWHF from a OWP proceeds in the following 4 steps.
 
 \noindent\textbf{Step I: $(d, d-1)$-UOWHFs}.
-We construct UOWHFs that given arbitrary length, truncate its input length by 1. 
-\begin{construction}
-    Let $f$: $\bit^{*}\rightarrow\bit^{*}$ be a one-way permutation, and $a,b\in GF(2^n)$. We construct $h_s: \bit^{n}\rightarrow\bit^{n-1}$: 
+We construct a UOWHF that takes an input of arbitrary length and truncates its length by 1. 
+\begin{construction}\label{construction-1}
+    Let $f$: $\bit^{d}\rightarrow\bit^{d}$ be a one-way permutation, and $a,b\in GF(2^d)$. We construct $\mathcal{H}^{d, d-1} = \{h_s: \bit^{d}\rightarrow\bit^{d-1}\}_{s \in \bit^*}$ as follows: 
     \[
         h_{s=(a,b)}(x)=chop(a\cdot f(x)+b)
     \]
-    where $chop(\cdot)$ is the function that chops the first bit of a given bit string. 
+    where $chop(\cdot)$ is the function that removes the first bit of a given bit string. 
 \end{construction}
-We then argue that $h_s$ is a $(d,d-1)$-UOWHF. 
+
+\begin{claim}
+    The $\mathcal{H}^{d, d-1}$ given in construction \ref{construction-1} is a $(d,d-1)$-UOWHF.
+\end{claim} 
 
 \begin{proof}
-    We prove this by contradiction. If an adversary $\mathcal{A}$ can break the security of UOWHF, we can construct an adversary $\mathcal{B}$ that breaks the OWF $f$. 
+    We prove this by contradiction. If an adversary $\mathcal{A}$ can break the UOWHF security of $\mathcal{H}^{d, d-1}$, then we can construct an adversary $\mathcal{B}$ that breaks the OWP security of $f$. 
 
-    The algorithm of $\mathcal{B}$ is as follows upon receive an input $y$:
     \begin{enumerate}
-        \item $\mathcal{A}$ first emits the preimage $x_0$ of its chosen.
-        \item Attacker $\mathcal{B}$ compute $s=(a,b)$ such that $h_s(y)=h_s(x_0)$.
-        \item Input $s=(a,b)$ to the oracle $\mathcal{A}$ and output what $\mathcal{A}$ outputs. 
-    \end{enumerate}
+        \item $\mathcal{B}$ receives from its challenger a value $y = f(x^*)$ for a uniformly random $x^* \in \bit^d$.
+        \item $\mathcal{B}$ runs $\mathcal{A}$ internally. $\cA$ outputs the first preimage $x_0$.
+        \item $\mathcal{B}$ computes a value of $s=(a,b)$ such that 
+        \[a \cdot y + b = a \cdot f(x_0) + b + (1 || 0^{d-1})\] 
+        In other words $h_s(x^*) = h_s(x_0)$. Then $\cB$ sends $s$ to $\cA$.
+        \item Finally, $\mathcal{A}$ outputs $x_1$, which $\cB$ outputs as its guess for $x^*$. 
+    \end{enumerate} 
     
-    Since $h_s$ works by chopping the first bit of $af(x)+b$, there are two elements in the preimage of $h_s(x)$, namely $x$ and $x'=f^{-1}(y)$. 
-    Because it is easy to compute $a$ and $b$ that $af(x)+b=ay+b$, the hardness relies on finding $x'$ given $y$, which is inverting the one-way permutation. 
-    This creates a contradiction of one-way permutation. 
+    Every output of $h$ has exactly two pre-images. This is because the mapping $x \to a \cdot f(x) + b$ is one-to-one (as long as $a \neq 0$), and the mapping $y \to chop(y)$ is two-to-one.
+
+    The only two preimages of $h_s(x^*)$ are $x^*$ and $x_0$ (assuming that $x^* \neq x_0$, which is true with overwhelming probability). In order to break UOWHF security, $\cA$ must output a preimage $x_1$ of $h_s(x_0)$ that is different from $x_0$. The only correct answer that $\cA$ can give is $x_1 = x^*$. If $x_1 = x^*$, then $\cB$ wins the OWP security game.
 \end{proof}
+\vspace{5mm}
 
 \noindent\textbf{Step II: $(2n, n)$-UOWHFs}.
 Now we construct length-restricted UOWHFs that shrink their input by a factor of 2.
 
-\begin{construction}
-    Let $\{h_s: \bit^{*}\rightarrow\bit^{*-1}\}_{s\in\bit^{*}}$. We construct $H_{s_1\cdots s_n}:\bit^{2n}\rightarrow\bit^{n}$:
+\begin{construction}\label{construction-2}
+    For any given $d \in \{n, \dots, 2n\}$, let $\mathcal{H}^{d, d-1} = \{h_s^{d, d-1}: \bit^{d}\rightarrow\bit^{d-1}\}_{s\in\bit^{*}}$ be a $(d, d-1)$-UOWHF. For a given $n$, we construct $\mathcal{H}^{2n, n} = \{H^{2n, n}_{s_1\cdots s_n}:\bit^{2n}\rightarrow\bit^{n}\}_{s \in \bit^*}$ as follows:
     \[
-        H_{s_1\cdots s_n}=h_{s_1}^{n+1,n}(h_{s_2}^{n+2,n+1}(\cdots h_{s_n}^{2n,2n-1}(x))\cdots)
+        H^{2n, n}_{s_1\cdots s_n}=h_{s_1}^{n+1,n}(h_{s_2}^{n+2,n+1}(\cdots h_{s_n}^{2n,2n-1}(x))\cdots)
     \]
 \end{construction}
-We now prove that $H$ is a $(2n, n)$-UOWHF given $h$ is a $(d,d-1)$-UOWHF.
-That is, if we have an attacker $\mathcal{A}$ that can break $(2n, n)$-UOWHF, we can construct an attacker $\mathcal{B}$ that can break the $(d,d-1)$-UOWHF. 
-Our intuition is that the attacker $\mathcal{B}$ can randomly inject the challenge $s_i$ into a random location of $S$ to $\mathcal{A}$ and $\mathcal{A}$ will have a non-negligible probability to create a collision. 
 
+\begin{claim}
+    The $\mathcal{H}^{2n, n}$ constructed in construction \ref{construction-2} is a $(2n, n)$-UOWHF.
+\end{claim}
 \begin{proof}
+    We will show that if we have an attacker $\mathcal{A}$ that can break the UOWHF security of $H$, then we can construct an attacker $\mathcal{B}$ that can break the UOWHF security of $h$. The intuition is that the attacker $\mathcal{B}$ can randomly inject the challenge $s$ into a random layer of $H$, and $\mathcal{A}$ will, with non-negligible probability, find a collision in that layer.
+
+    Let $H_{partial}^i$ compute the first $i$ layers of $H$. For any given $i \in [n]$ and $x \in \bit^{2n}$:
+    \[H_{partial}^i(x) = h_{s_{n-i+1}}^{2n-i+1, 2n-i}( \dots h_{s_n}^{2n, 2n-1}(x) \dots )\]
+
     Formally we define the procedure of $\mathcal{B}$:
     \begin{enumerate}
-        \item Select $i\in [n]$.
+        \item Sample $i \getsr [n]$.
         \item $\forall i'\neq i$, sample $s_{i'}$.
         \item Receive $x_0$ from $\mathcal{A}$.
-        \item Compute $x_i^0 = H_{partial}(x_0)=h_{s_{n-i+1}}^{2n-i+1,2n-i}(\dots(h_{s_n}^{2n,2n-1}(x))\dots)$, which is the input of i-th hash round select by $\mathcal{B}$
-        \item Output $x_0$ to the challenger.
-        \item Receive $S_{i}$ from the challenger. And send $\{S_0,\dots,S_n\}$ to $\mathcal{A}$.
-        \item $\mathcal{A}$ output $x_1$.
-        \item $\mathcal{B}$ compute $H_{partial}(x_1)$ and output.
+        \item Compute $x_0' = H_{partial}^{i-1}(x_0)$, which is the input of $i$-th layer.
+        \item Output $x_0'$ to the challenger.
+        \item Receive $s$ from the challenger, and set $s_i = s$. Then send $(s_1,\dots,s_n)$ to $\mathcal{A}$.
+        \item Receive $x_1$ from $\mathcal{A}$.
+        \item Compute $x_1' = H_{partial}^{i-1}(x_1)$ and output it to the challenger.
     \end{enumerate}
 
-The core idea is that if $\mathcal{A}$ can output a collision with different $x$, the output will be the same at some point in the hash chain of applying $h$. 
-Therefore $\mathcal{B}$ can randomly insert the challenge into $\mathcal{A}$.
-And with $\mu(\mathcal{A})/n$ probability $\mathcal{B}$ will succeed.  $\mu(\mathcal{A})$ is the probability that $\mathcal{A}$ succeed. 
+If $\mathcal{A}$ can find two distinct inputs $x_0$ and $x_1$ that collide in $H$, then there must exist some layer $i^* \in [n]$ such that $H_{partial}^{i^*-1}(x_0) \neq H_{partial}^{i^*-1}(x_1)$, but $H_{partial}^{i^*}(x_0) = H_{partial}^{i^*}(x_1)$. That means $H_{partial}^{i^*-1}(x_0)$ and $H_{partial}^{i^*-1}(x_1)$ represent a collision in $h_{s_{n-i^*+1}}^{2n-i^*+1, 2n-i^*}$, the $i^*$-th layer of $H$. 
+
+Furthermore, the index $i^*$ at which the collision occurs will, with probability $= 1/n$, be the $i$-value sampled by $\cB$. This is because $\cA$ has no information about which $i$-value $\cB$ sampled, so $i$ is uniformly random and independent of $i^*$.
+
+Then $\Pr[\cB \text{ finds a collision in } h] \geq \frac{1}{n} \cdot \Pr[\cA \text{ finds a collision in } H]$. If $\cA$'s success probability is non-negligible, then so is $\cB$'s success probability. 
 \end{proof}
+\vspace{5mm}
 
-\noindent\textbf{Step III: UOWHFs that shrinks any input by a factor of two}.
+\noindent\textbf{Step III: UOWHF that shrinks any input by a factor of two}.
+Let us define a $(2{*}, {*})$-UOWHF to be a hash function that takes inputs $x$ of arbitrary length, outputs a string that is half the length of the input, and satisfies the conditions of a UOWHF.
 
-\begin{construction}[(a $(2n^{*}, n^{*})$-UOWHF for any length of $n^{*}$)]
-    Let $\{h_s:\bit^{2n}\rightarrow\bit^{n}\}_{s\in\bit^{*}}$. Then for every $x\in\bit^{*}$ we have
+\begin{construction}[a $(2{*}, {*})$-UOWHF]
+    For a given $n$, let $\mathcal{H}^{2n, n} = \{h_s:\bit^{2n}\rightarrow\bit^{n}\}_{s\in\bit^{*}}$ be a $(2n, n)-UOWHF$. Then we construct a function $H_s:\bit^{2*} \to \bit^*$ as follows. 
+    
+    For any $x \in \bit^*$, let us split it into chunks: $x=x_1 || \dots || x_t$ where $|x_i|=2n$ for $i=1,\dots,t-1$, and $0\leq|x_t|\leq 2n$. Then
     \[
-    H_s(x)=h_s(x_1)\cdots h_s(x_{t}10^{n^{*}-|x_t|-1})
+    \text{let } H_s(x)=h_s(x_1)\cdots h_s(x_{t}10^{2n-|x_t|-1})
     \]
-    where $x=x_1\cdots x_t$, $0\leq|x_t|\leq n^{*}$ and $|x_i|=n^{*}$ for $i=1,\dots,t-1$.
+    Finally, let $\mathcal{H}^{2*, *} = \{H_s\}_{s \in \bit^*}$.
 \end{construction}
+Note that we reuse the same $s$ for every component of the output $h_s(x_i)$, which is an important gain in efficiency.
 
-We now give the proof sketch here. 
-We want to prove that $H$ is a $(2n^{*}, n^{*})$-UOWHF given $h$ is a $(2n, n)$-UOWHF.
-Because $H_s(x)$ is just parallelize $(2n, n)$-UOWHF multiple times. 
+\begin{claim}
+    $\mathcal{H}^{2*, *}$ is a $(2{*}, {*})$-UOWHF.
+\end{claim}
+\begin{proof}
+If there is an adversary $\mathcal{A}$ that can create a collision, $x^0$ and $x^1$, in $H$, then we can construct an adversary $\mathcal{B}$ that can create a collision in $h$. The construction of $\mathcal{B}$ is as follows:
+\begin{enumerate}
+    \item Run $\mathcal{A}$ until it outputs $x^0$. Compute $t = \lceil\frac{|x^0|}{2n}\rceil$.
+    \item Sample $i \getsr [t]$. Then output $x'^0 = x^0_{i}$ to the challenger.
+    \item Receive seed $s$ from the challenger and send $s$ to $\mathcal{A}$.
+    \item Run $\mathcal{A}$ until it outputs $x^1$. Then output $x'^1 = x^1_{i}$.
+\end{enumerate}
 
-We assume that $\mathcal{A}$ is able to create a collision $x'$ for some input $x$ of its given and $s$.
-Some block $x'_i$ will be different than the block $x_i$. 
-Therefore we have $h_s(x'_i)=h_s(x_i)$ which create contradiction of $h$ is a $(2n, n)$-UOWHF.
+If $\mathcal{A}$ breaks the UOWHF security of $H$, then with non-negligible probability, it outputs an $x^0$ and $x^1$ such that $x^0 \neq x^1$ but $h_s(x^0_{i'})=h_s(x^1_{i'})$ for every $i' \in [t]$. If $x^0 \neq x^1$, then there is at least one component $i^* \in [t]$ for which $x^0_{i^*} \neq x^1_{i^*}$. With probability $\geq \frac{1}{t}$, $\mathcal{B}$ will sample an $i \in [t]$ such that $x^0_{i} \neq x^1_{i}$.
+\end{proof}
+\vspace{5mm}
 
 \noindent\textbf{Step IV: Full-Fledged UOWHFs}. 
-The last step on our way consists of using UOWHFs as constructed in Step III above to obtain
-full-fledged UOWHFs.
 \begin{construction}[(a UOWHF)]
-Let $\{h_s:\bit^{*}\rightarrow\bit^{*}\}_{s\in\bit^{*}}$, such that $|h_s(s)|=|x|/2$, for every $x\in\bit^{2i\cdot|s|}$ where $i\in\mathbb{N}$. Then for every $s_a,\cdots,s_n\in\bit^{n}$, every $t\in\mathbb{N}$ and $x\in\bit^{2^t\cdot n}$, we define
+Let $\mathcal{H}^{2*, *} = \{h_s:\bit^{*}\rightarrow\bit^{*}\}_{s\in\bit^{*}}$ be a $(2*, *)$-UOWHF. Then for any $(s_1,\cdots,s_n) \in \bit^*$, any $n, t\in\mathbb{N}$ and $x\in\bit^{2^t\cdot n}$, we define
 \[
     H_{s_1,\dots,s_n}(x)=(t,h_{s_t}(\cdots(h_{s_2}(h_{s_1}(x)))\cdots))
 \]
+Also let $\mathcal{H} = \{H_s\}_{s \in \bit^*}$.
 \end{construction}
-The proof is similar in Step II. 
+\begin{claim}
+    $\mathcal{H}$ is a secure UOWHF.
+\end{claim}
+The proof is similar to the one in Step II.\\\\
