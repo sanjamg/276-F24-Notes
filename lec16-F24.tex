@@ -1,0 +1,80 @@
+\section{Fully Homomorphic Encryption}
+So far, we've seen private and public key encryption and different security properties (CPA, CCA). We've also seen some advanced encrpytion schemes like Identity-Based Encryption (IBE) that allow us to encrypt to an identity rather than a public key. 
+
+Consider an example where Alice has a complex tax return to fill out and decides to use a tax return preparation service. The current pipeline is as follows:
+\begin{enumerate}
+    \item Alice sends her tax forms (W2, 1099, etc) to the service.
+    \item The service prepares the tax return and sends it back to Alice.
+    \item Alice sends the tax return to the IRS.
+\end{enumerate}
+However, in this process, the service has access to all of Alice's tax information, which is a privacy concern. 
+
+Consider an alternate scenario where Alice encrypts her tax forms before sending them to the service. It would be ideal if the service could still prepare the tax return without decrypting the forms by performing operations on the encrypted data. In this case, the service learns nothing about Alice's tax information but is still able to prepare the tax return. This is the idea behind Fully Homomorphic Encryption (FHE). FHE was first presented in [Gentry09]~\cite{STOC:Gentry09} and has since been improved upon. We will present the construction from [GSW13]~\cite{C:GenSahWat13}.
+
+FHE can be defined in either private or public key settings. The below construction is defined in the private key setting for message space $\mathbb{Z}_2$.
+
+\begin{definition}[Fully Homomorphic Encryption (FHE)]
+    A FHE scheme for message space $\mathbb{Z}_2$ and circuit class $\mathcal{C}$ is a tuple of algorithms $(\mathsf{Gen}, \mathsf{Enc}, \mathsf{Dec}, \mathsf{Eval})$ such that:
+    \begin{itemize}
+        \item $\mathsf{Gen}(1^\lambda) \rightarrow (\ek, \sk)$: The key generation algorithm takes a security parameter $\lambda$ and outputs a secret key $\sk$ and evaluation key $\ek$.
+        \item $\mathsf{Enc}(\sk, m) \rightarrow c$: The encryption algorithm takes a public key $\sk$ and message $m$ and outputs a ciphertext $c$.
+        \item $\mathsf{Dec}(\sk, c) \rightarrow m$: The decryption algorithm takes a secret key $\sk$ and ciphertext $c$ and outputs a message $m$.
+        \item $\mathsf{Eval}(\ek, F, c_1, \ldots, c_l) \rightarrow c$: The evaluation algorithm takes an evaluation key $\ek$, a circuit $F \in \mathcal{C}$, and $l$ ciphertexts $c_1, \ldots, c_l$ and outputs a ciphertext $\tilde{c}$.
+    \end{itemize}
+\end{definition}
+
+A FHE scheme satisfies the following properties:
+\begin{itemize}
+    \item \textbf{Correctness}: $\forall n \in \mathbb{N},\, \forall F \in \mathcal{C},\, \forall (\mu_1, \mu_2, \dots, \mu_l) \in \mathbb{Z}_2^l$,
+    \begin{align*}
+        \Pr[\mathsf{Dec}(\sk, \mathsf{Eval}(\ek, F, \mathsf{Enc}(\sk, \mu_1), \dots, \mathsf{Enc}(\sk, \mu_l))) &= F(\mu_1, \mu_2, \dots, \mu_l)] \\
+        &= 1 - \text{negl}(\lambda)
+    \end{align*}
+
+    \item \textbf{Security}: The following two distributions are computationally indistinguishable:
+    \begin{align*}
+        \{(\ek, \mathsf{ct}_0): \mathsf{ct}_0 \gets \mathsf{Enc}(\sk, 0), (\ek, \sk) \gets \mathsf{Gen}(1^\lambda)\} \\
+        \{(\ek, \mathsf{ct}_1): \mathsf{ct}_1 \gets \mathsf{Enc}(\sk, 1), (\ek, \sk) \gets \mathsf{Gen}(1^\lambda)\}
+    \end{align*}
+
+    \item \textbf{Compactness}: The size of the ciphertext $\mathsf{Eval}(\ek, F, c_1, \ldots, c_l)$ is equal to a fresh encryption of the output of the circuit $F$ on the plaintexts $\mu_1, \ldots, \mu_l$:
+    \begin{align*}
+        \forall i,\, c_i &= \mathsf{Enc}(\sk, \mu_i) \\
+        \lvert \mathsf{Eval}(\ek, F, c_1, \ldots, c_l) \rvert &= \lvert \mathsf{Enc}(\sk, F(\mu_1, \ldots, \mu_l)) \rvert
+    \end{align*}
+\end{itemize}
+
+The construction of FHE is based on the Learning With Errors (LWE) problem. The high-level construction is done in two steps:
+\begin{enumerate}
+    \item \textbf{Leveled FHE}: We first construct a leveled FHE scheme that can evaluate arbitrary circuits of bounded depth.
+    \item \textbf{Bootstrapping}: We then use the leveled FHE scheme to construct a fully homomorphic encryption scheme.
+\end{enumerate}
+
+\subsection{Leveled FHE}
+To present some intuition for how we get homomorphic properties, consider the following construction. Let $C \in \mathbb{Z}_q^{l \times l}$ be a matrix and $v \in \mathbb{Z}_q^l$ be an eigenvector of this matrix. The eigenvalue is chosen as the message being encrypted. \\
+Given this, we can easily perform operations on ciphertexts that correspond to operations on the underlying plaintexts.
+\begin{itemize}
+    \item \textbf{Addition}: Given two ciphertexts $C_1$ and $C_2$, we have $(C_1 + C_2) v = C_1 v + C_2 v = (m_1 + m_2) v$.
+    \item \textbf{Multiplication}: Given two ciphertexts $C_1$ and $C_2$, we have $(C_1 \cdot C_2) v = C_1 (C_2 v) = C_1 (m_2 v) = m_1 m_2 v$.
+\end{itemize}
+Note that this is not a secure construction as presented, since with enough samples we can solve a linear system to obtain the secret key. However, this gives us some intuition for how we can perform operations on encrypted data. To make this construction secure, we need to add noise to the ciphertexts (which is where LWE comes in). \\
+However, a naive way of doing this does not work; suppose we have that $Cv = m v + e$ where $e$ is the (small) noise term. Then, even a single multiplication gives us $C_1 C_2 v = m_1 m_2 v + C_1 e_2$, where the noise term is no longer guaranteed to be small since $C$ has no such guarantees.
+
+The construction of the leveled FHE scheme is as follows. We use the LWE problem with parameters $(n, m, q, \chi)$ where $n$ is the dimension of the secret key, $m$ is the dimension of the public key, $q$ is the modulus, and $\chi$ is the noise distribution. The scheme is defined for message space $\mathbb{Z}_2$. Additionally, set $l = (n+1) \log q$.
+\begin{itemize}
+    \item $\mathsf{Gen}(1^\lambda) \rightarrow (\ek, \sk)$: Sample $s' \gets \mathbb{Z}_q^{n}$ and set $s =  
+    \begin{bmatrix}
+        -s' \\
+        1
+    \end{bmatrix} \in \mathbb{Z}_q^{n+1}$. 
+
+    \item $\mathsf{Enc}(\sk \in \mathbb{Z}_q^{n+1}, m \in \mathbb{Z}_2) \rightarrow C \in \mathbb{Z}_q^{l \times (n+1)}$: Sample $A \gets \mathbb{Z}_q^{l \times n}$ and $e \gets \chi^{l}$. Define $B = A \| As' + e$ and $C = B + m \cdot G$ for a fixed gadget~\cite{EC:MicPei12} matrix $G \in \mathbb{Z}_q^{l \times (n+1)}$.
+    
+    \begin{itemize}
+        \item Note that by choice of $B$, we have that $Bs = A(-s') + A(s') + e = e$ is an encryption of zero (with noise). Similarly, $Cs = Bs + msG = e + msG$. 
+        \item $G$ is a block matrix containing $(n+1)$ block column vectors of size $\log q$ each. Each vector is $g = (1, 2, 4, \ldots, 2^{\log q - 1})$. Concisely, we can define $G = I_{n+1} \otimes g$ where $\otimes$ is the Kronecker product.
+        \item We also define a $\mathsf{Flatten}$ operation on the ciphertext that converts $C \in \mathbb{Z}_q^{l \times (n+1)}$ to $\tilde{C} \in \mathbb{Z}_q^{l \times l}$ by bit decomposing each element of $C$ and replacing the element with its bit vector. \\
+        This ensures that each element of this matrix is a bit. Looking ahead, this allows us to multiply ciphertexts without too much noise growth.
+    \end{itemize}
+    
+\end{itemize}
