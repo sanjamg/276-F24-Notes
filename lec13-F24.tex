@@ -60,13 +60,89 @@ As a first step, we will see how to build a symmetric key encryption scheme from
 \begin{itemize}
     \item $\Gen$: Sample $s \sample \mathbb{Z}_q^n$ and output $\sk = s$.
     \item $\Enc(\sk,\mu)$: Sample $a \sample \mathbb{Z}_q^n$, $e \sample \chi$, and compute $b \gets \langle a, s \rangle + e$. Output $c = (c_0 = a, c_1 = b + \lfloor\frac{q}{2}\rfloor\mu)$.
-    \item $\Dec(\sk,c)$: Parse $c = (c_0, c_1)$ and compute $m \gets \mathsf{Decode}(c_1 - \langle c_0, s \rangle)$, where $\mathsf{Decode}(\hat{\mu}) \to \{0,1\}$ takes a value from $\mathbb{Z}_q$ and outputs $0$ if $\hat{\mu}$ is closer to $0$ than to $\lfloor\frac{q}{2}\rfloor$ and $1$ otherwise.
+    \item $\Dec(\sk,c)$: Parse $c = (c_0, c_1)$ and compute $m \gets \mathsf{Decode}(c_1 - \langle c_0, s \rangle)$, where $\mathsf{Decode}(\hat{\mu}) \to \{0,1\}$ takes a value from $\mathbb{Z}_q$ and outputs $0$ if $\hat{\mu} \in [\lfloor\frac{-q}{4}\rfloor, \lfloor\frac{q}{4}\rfloor]$ and $1$ otherwise.
 \end{itemize}
 
 \begin{theorem}
-    If the decisional variant of LWE is hard, then the above scheme is a secure symmetric key encryption scheme.
+    If the decisional variant of $\LWE_{n,1,q,\chi}$ is hard, then the above scheme is an IND-CPA secure symmetric key encryption scheme.
 \end{theorem}
 \begin{proof}
-    Let the ciphertext $c = (c_0, c_1)$. Then $\hat{\mu} = c_1 - \langle c_0,s\rangle = b + \lfloor\frac{q}{2} - \langle a,s\rangle = \lfloor\frac{q}{2}\rfloor\mu + e$.
-
+    Let the ciphertext $c = (c_0, c_1)$. Then $\hat{\mu} = c_1 - \langle c_0,s\rangle = b + \lfloor\frac{q}{2}\rfloor - \langle a,s\rangle = \lfloor\frac{q}{2}\rfloor\mu + e$. Upon applying the $\mathsf{Decode}$ function, we recover the message $\mu$ if $|e| < \lfloor\frac{q}{4}\rfloor$.
+    One can choose the noise distribution $\chi$ such that
+    $\Pr[|e| \geq \lfloor\frac{q}{4}\rfloor] \leq \negl$, to obtain a symmetric key encryption scheme with a small correctness error. Alternatively, one can also set $\chi$ such that $\Pr[|e| \geq \lfloor\frac{q}{4}\rfloor] = 0$ to obtain a perfectly correct symmetric key encryption scheme.
+    Security reduces to hardness of the decisional $\LWE_{n,1,q,\chi}$ problem.
 \end{proof}
+
+\subsection{How to build a public key encryption scheme from LWE?}
+Our first observation is that LWE samples offer a limited amount of homomorphism. Given LWE samples $(a_1, b_1 = \langle a_1, s\rangle + e_1)$ and $(a_2, b_2 = \langle a_2, s\rangle + e_2)$, one can \emph{add} them up to get $(a_1 + a_2, b_1 + b_2 = \langle a_1 + a_2, s\rangle + (e_1+e_2))$. Observe that as long as $e_1 + e_2$ is small, we can still build useful cryptography as done in the symmetric key encryption scheme above.
+
+Now to build public key encryption, we \emph{delegate} the power to create LWE samples, without revealing the secret $s$. We achieve this by setting the public key to be many symmetric key encryptions of $0$. The scheme below was originally proposed by Regev in 2005~\cite{STOC:Regev05}.
+
+\begin{itemize}
+    \item $\Gen$: Sample $s \sample \mathbb{Z}_q^n$, $A \sample \mathbb{Z}_q^{m \times n}$, $e \sample \chi^m$, $b \gets As + e$ and output $(\pk = (A,b), \sk = s)$.
+    \item $\Enc(\pk, \mu)$: Sample $u \sample \{0,1\}^m$. Output $c = (c_0 = A^\intercal u,c_1 =  b^\intercal u + \lfloor\frac{q}{2}\rfloor\mu)$.
+    \item $\Dec(\sk, c)$: Output $\mathsf{Decode}(c_1 - \langle c_0, s\rangle)$.
+\end{itemize}
+
+Observe that $b$ is actually just $m$ encryptions of $0$. Moreover, $m$ influences the size of the public key and we would like to make this as small as possible. The exact parameter will be chosen based on what we can actually prove security for.
+
+\begin{proof}
+    For correctness observe that as before $c_1 - \langle c_0, s\rangle = b^\intercal u + \lfloor\frac{q}{2}\rfloor\mu - \langle A^\intercal u, s\rangle = u^\intercal e + \lfloor\frac{q}.{2}\rfloor\mu$. $\mathsf{Decode}$ will recover $\mu$ if $|u^\intercal e| < \lfloor\frac{q}{4}\rfloor$, and one can choose $\chi$ to ensure this with high probability.
+
+    For security, we describe a sequence of hybrids starting from the public-key IND-CPA game, where the challenger receives $(\mu_0, \mu_1)$, and responds with an encryption of $\mu_0$. We then end in a hybrid where the challenger responds with an encryption of $\mu_1$, while showing that consecutive hybrids are indistinguishable.
+
+    \begin{itemize}
+        \item \textbf{Hybrid 0}: This is the original public-key IND-CPA game, where the challenger samples $(\pk, \sk)$ as described in the protocol and receives $(\mu_0, \mu_1)$ from $\adv$. The challenger responds with an encryption of $\mu_0$ and $\adv$ outputs a guess $b'$.
+        \item \textbf{Hybrid 1}: This hybrid is identical to Hybrid 0, except that the challenger sets $\pk = (A \sample \mathbb{Z}_q^{m \times n}, b \sample \mathbb{Z}_q^m)$. From the hardness of the decisional $\LWE_{n,m,q,\chi}$ problem, these two hybrids are computationally indistinguishable.
+        \item \textbf{Hybrid 2}: In this hybrid we replace the ciphertext with a uniformly random string $c\in \mathbb{Z}_p^{n} \times \mathbb{Z}_p$. We now argue that this hybrid is statistically indistinguishable from the previous hybrid. Let $u \sample \{0,1\}^m$, and $\gamma \sample \mathbb{Z}_p^n$. Then $\mathbb{E}_{C \in \mathbb{Z}_q^{n \times m}}[\mathsf{SD}(C u, \gamma)] \leq \frac{1}{2} \sqrt{\frac{q^n}{2^m}}$. If we set $m = n \log{q} + 2\lambda$, then the statistical distance is negligible in the security parameter.
+
+              To prove the above we will use the leftover hash lemma. Let $p_c(w) = \Pr_{u \sample \{0,1\}^m} [C u = w]$. Then,
+              \[\sum_{w \in \mathbb{Z}_q^n} p_c(w)^2 = \Pr_{u_0, u_1 \sample \{0,1\}^m} [Cu_0 = Cu_1] = \frac{1}{2^m} + \mathbb{E}_C[\Pr_{u_0 \neq u_1}[C(u_0 - u_1) = 0]] = \frac{1}{2^m} + \frac{1}{q^n} \]
+
+              Thus, $\mathbb{E}_{C \in \mathbb{Z}_q^{n \times m}}[\mathsf{SD}(C u, \gamma)] = \frac{1}{2}\mathbb{E}_{C}[\sum_w |p_c(w) - \frac{1}{q^n}|]\leq \frac{1}{2}\sqrt{q^n}\mathbb{E}_{C}\left[ \sqrt{\sum_w (p_c(w) - \frac{1}{q^n})^2} \right]$,
+              where the inequality follows from Cauchy-Schwarz. Next, using Jensen's inequality we have
+              \[ \frac{1}{2}\sqrt{q^n}\mathbb{E}_C\left[ \sqrt{\sum_w (p_c(w) - \frac{1}{q^n})^2}\right] \leq \frac{1}{2}\sqrt{q^n}\sqrt{\mathbb{E}_C \left[\sum_w (p_c(w)^2 - \frac{1}{q^n})\right] } = \frac{1}{2}\sqrt{\frac{q^n}{2^m}}\]
+    \end{itemize}
+    The remaining hybrids are symmetric to end in the IND-CPA game with challenge response set to an encryption of $\mu_1$.
+\end{proof}
+\subsection{Improving Efficiency}
+It is worthwhile asking whether the parameter $m$ can be made smaller. Recall that when using the leftover hash lemma we needed to set $m = n\log{q} + 2\lambda$ but we got a statistical guarantee of indistinguishability. This \emph{overkill} in some sense because we still rely on the LWE assumption in a different hybrid. We can then ask the question of whether it's possible to improve efficiency and obtain \emph{compact} LWE public-key encryption if we relied on computational hardness instead of a statistical guarantee.
+
+This was the approach taken in~\cite{RSA:LinPei11}, where they used the hardness of LWE instead of the leftover hash lemma to switch ciphertexts to uniformly random strings in the proof of IND-CPA security. The scheme is essentially identical to the previous construction except, the secret key is also sampled from the error distribution instead of uniformly over the entire field. This is necessary for correctness. But we are no longer working with LWE samples as the secret key is no longer uniform. These new type of instance are referred to as Hermite normal form LWE instances. We will later show that distinguishing HNF-LWE samples from a uniform distribution is just as hard distinguishing LWE samples from the uniform distribution.
+
+\begin{definition}[HNF-LWE]
+    Let $m,n,q \in \mathbb{N}$ and $\chi$ be a distribution over $\mathbb{Z}_q$. The Learning With Errors (LWE) $\LWE_{n,m,q,\chi}$ problem is defined as follows:
+    \begin{multline*}
+        |\Pr[\adv(A,b) \to 1 \mid s \sample \chi_q^n, A \sample \mathbb{Z}_q^{m \times n}, b = A \cdot s + e ] \\
+        - \Pr[\adv(A,b) \to 1 \mid A \sample \mathbb{Z}_q^{m \times n}, b \sample \mathbb{Z}_q^m ]|\leq \negl
+    \end{multline*}
+\end{definition}
+
+\begin{lemma}[$\LWE_{n,q,\chi,m} \leq \mathsf{HNF-LWE}_{n,q,\chi,m-n}$]
+\end{lemma}
+\begin{proof}
+    Parse $A$ and $b$ as:
+    \[A:\begin{bmatrix} A_1 \\ A_2 \end{bmatrix} \quad b:\begin{bmatrix} b_1 \\ b_2 \end{bmatrix} = \begin{bmatrix} A_1 s + e_1 \\ A_2 s + e_2 \end{bmatrix}\]
+    and bbort if $A_1$ is not invertible. This happens with probability $\le 0.91$. Next, provide
+    \[\begin{pmatrix} \tilde{A} := A_2 \cdot A_1^{-1} \\ \tilde{b} := -A_2 \cdot A_1^{-1} \cdot b_1 + b_2 \end{pmatrix}\] to the HNF-LWE solver. Note that $\tilde{b}$ simplifies to
+    \begin{equation*}
+        \begin{aligned}
+            \tilde{b} & = A_2 A_1^{-1} (A_1 s + e_1) + A_2 s + e_2 \\
+                      & = A_2 s - A_2 A_1^{-1} e_1 + A_2 s + e_2   \\
+                      & = A_2 e_1 + e_2                            \\
+        \end{aligned}
+    \end{equation*}
+    which is actually an HNF-LWE sample. Hence, if the HNF-LWE solver succeeds with non-negligible probability, then the LWE solver also succeeds with non-negligible probability.
+\end{proof}
+
+\begin{construction}[Compact LWE-PKE \cite{RSA:LinPei11}]
+    \hfill
+    \begin{itemize}
+        \item $\Gen$: Sample $s \sample \chi_q^n$, $A \sample \mathbb{Z}_q^{n \times n}$, $e \sample \chi^n$, $b \gets As + e$ and output $(\pk = (A,b), \sk = s)$.
+        \item $\Enc(\pk, \mu)$: Sample $u \sample \mathbb{Z}_q^n$, $e_0 \sample \chi^n$ and $e_1 \sample \chi$. Output $c = (c_0 = A^\intercal u + e_0,c_1 =  b^\intercal u + e_1 + \lfloor\frac{q}{2}\rfloor\mu)$.
+        \item $\Dec(\sk, c)$: Output $\mathsf{Decode}(c_1 - \langle c_0, s\rangle)$.
+    \end{itemize}
+\end{construction}
+
+The proof of security follows a similar strategy as earlier, except when replacing the ciphertext with a uniformly random string, we use the hardness of HNF-LWE.
+
