@@ -12,13 +12,13 @@ The national institute of standards and technology (NIST) opened a call for post
     \begin{tikzpicture}[node distance=1.5cm and 2cm,
             every node/.style={align=center}, % Adjust width as needed
             >=stealth] % Nicer arrow tips
-        \node[align=center](lwe) {LWE \\ \cite{STOC:Regev05}};
+        \node[align=center](lwe) {LWE \\ \citep{STOC:Regev05}};
         \node[right=of lwe] (lweske) {LWE-SKE};
-        \node[right=of lweske, align=center] (lwepke) {LWE-PKE \\ \cite{STOC:Regev05} \\ LWE + LHL };
-        \node[right=of lwepke, align=center] (comlwepke) {Compact LWE-PKE \\ \cite{RSA:LinPei11} \\ LWE + LWE};
-        \node[below=of lweske, align=center] (rlwe) {RLWE \\ \cite{EC:LyuPeiReg10}};
-        \node[right=of rlwe, align=center] (rlwepke) {RLWE-PKE \\ \cite{EC:LyuPeiReg13} \\ RLWE + RLWE};
-        \node[below=of rlwe, align=center] (mlwe) {MLWE \\ \cite{ITCS:BraGenVai12,DCC:LanSte15}};
+        \node[right=of lweske, align=center] (lwepke) {LWE-PKE \\ \citep{STOC:Regev05} \\ LWE + LHL };
+        \node[right=of lwepke, align=center] (comlwepke) {Compact LWE-PKE \\ \citep{RSA:LinPei11} \\ LWE + LWE};
+        \node[below=of lweske, align=center] (rlwe) {RLWE \\ \citep{EC:LyuPeiReg10}};
+        \node[right=of rlwe, align=center] (rlwepke) {RLWE-PKE \\ \citep{EC:LyuPeiReg13} \\ RLWE + RLWE};
+        \node[below=of rlwe, align=center] (mlwe) {MLWE \\ \citep{ITCS:BraGenVai12,DCC:LanSte15}};
         \node[below=of comlwepke, align=center] (kyber) {CRYSTALS-Kyber \\ MLWE + MLWE};
 
         \draw[->] (lwe) -- (lweske);
@@ -135,7 +135,7 @@ This was the approach taken in~\cite{RSA:LinPei11}, where they used the hardness
     which is actually an HNF-LWE sample. Hence, if the HNF-LWE solver succeeds with non-negligible probability, then the LWE solver also succeeds with non-negligible probability.
 \end{proof}
 
-\begin{construction}[Compact LWE-PKE \cite{RSA:LinPei11}]
+\begin{construction}[Compact LWE-PKE \citep{RSA:LinPei11}]
     \hfill
     \begin{itemize}
         \item $\Gen$: Sample $s \sample \chi_q^n$, $A \sample \mathbb{Z}_q^{n \times n}$, $e \sample \chi^n$, $b \gets As + e$ and output $(\pk = (A,b), \sk = s)$.
