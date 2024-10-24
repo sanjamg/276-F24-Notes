@@ -146,3 +146,96 @@ This was the approach taken in~\cite{RSA:LinPei11}, where they used the hardness
 
 The proof of security follows a similar strategy as earlier, except when replacing the ciphertext with a uniformly random string, we use the hardness of HNF-LWE.
 
+% Stuff from Lec 16 
+\subsection{Ring-LWE}
+From the same motivation as above, we would like to improve the efficiency of our scheme by decreasing the number of random elements we sample (to get the matrix $A$). Note that the methods we used above require sampling $O(n^2)$ random elements to form the random matrix. 
+\begin{itemize}
+    \item Instead, we could replace $A$ with a structured (cyclic) matrix where each row is a cyclic shift of the previous row. This only requires $O(n)$ random elements to be sampled. However, this turns out to not be secure. \\
+    Assuming that $q = 1 \mod n$, we can write this in polynomial form as $a(x) \cdot s(x) + e(x) = b(x) \mod (x^n - 1)$. The assumption on $q$ is made so that number theoretic transforms can be used to efficiently multiply polynomials. Since $x^n - 1$ is divisible by $x-1$, we have the additional relation $a(1) \cdot s(1) + e(1) = b(1)$ where both $s(1)$ and $e(1)$ are small. This allows us to construct a distinguisher.
+
+    \item To prevent this, we would like to choose a irreducible polynomial instead, say, $x^n + 1$. Using negacyclic matrices instead (and $q = 1 \mod 2n$), we get a similar relation $a(x) \cdot s(x) + e(x) = b(x) \mod (x^n + 1)$. However, this does not have the same issue as before. This forms the basis of the Ring-LWE assumption. Other cyclotomic polynomials can also be used and we work in the ring $\mathbb{Z}_q[x]/<x^n + 1>$. \\
+    This construction was shown to be secure in \cite{EC:LyuPeiReg10}.
+\end{itemize}
+
+\begin{definition}[HNF-RLWE]
+    Let $n$ be the ring dimension, $q$ be the modulus, and $\chi$ be a distribution over $R_q$ where $R_q = \mathbb{Z}_q[x]/<x^n + 1>$. The HNF-RLWE problem is defined as follows:  
+    \begin{align*}
+        a(x) &\getsr R_q \\
+        s(x) &\getsr \chi \\
+        e(x) &\getsr \chi \\
+        b(x) &\gets a(x) \cdot s(x) + e(x) \\
+        \text{Distinguish } (a(x), b(x)) &\text{ from } (a(x), b'(x)) \text{ where } b'(x) \getsr R_q 
+    \end{align*}
+\end{definition}
+\begin{itemize}
+    \item RLWE has similar worst-case to average-case reductions to hard lattice problems as LWE. However, these hard problems are on "ideal lattices" which are structured lattices. 
+    $$\text{Worst-case ``ideal lattice'' problems} \leq \text{Search RLWE} \leq \text{Decision RLWE}$$
+
+    \item $\text{RLWE} \leq \text{HNF-RLWE}$
+    \item On the plus side, state of the art attacks on RLWE do not exploit the ring structure and instead treat it as a LWE instance.
+\end{itemize}
+
+We can also build a public-key encryption scheme from RLWE, similar to the compact LWE-PKE scheme. The security proof is also similar.
+\begin{construction}[RLWE-PKE]
+    \hfill
+    \begin{itemize}
+        \item $\Gen$: Sample $s(x) \sample \chi_q$, $a(x) \sample R_q$, $e(x) \sample \chi$, $b(x) \gets a(x) \cdot s(x) + e(x)$ and output $(\pk = (a(x),b(x)), \sk = s(x))$.
+        \item $\Enc(\pk, \mu)$: Sample $u(x) \sample R_q$, $e_0(x) \sample \chi$ and $e_1(x) \sample \chi$. Output $c = (c_0 = a(x) \cdot u(x) + e_0(x),c_1 =  b(x) \cdot u(x) + e_1(x) + \lfloor\frac{q}{2}\rfloor\mu)$.
+        \item $\Dec(\sk, (c_0,c_1))$: Output $\mathsf{Decode}(c_1(x) - c_0(x) \cdot s(x))$.
+    \end{itemize}
+\end{construction}
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        & LWE & RLWE \\
+        \hline
+        Public Key Size & $(n^2 + n) \log q$ & $2n \log q$ \\
+        \hline
+        Ciphertext Size & $(n+1) \log q$ & $2n \log q$ \\
+        \hline
+        Message Length & $1$ & $n$ \\
+        \hline
+        Computation Cost & $O(n^2)$ & $\tilde{O}(n)$ \\
+        \hline
+    \end{tabular}
+    \caption{Comparison of LWE and RLWE}
+\end{table}
+
+\subsection{Module LWE}
+\cite{ITCS:BraGenVai12}, along with the first implementable FHE scheme, introduced the Module-LWE assumption. This is a generalization of LWE and RLWE, and was initially created for notational purposes to avoid having to write two different definitions. Setting parameters to certain values returns LWE or RLWE. However, there are middle cases that are not covered by LWE or RLWE. 
+
+The Module-LWE assumption is defined as follows:
+\begin{definition}[Module-LWE]
+    Let $n$ be the degree, $q$ be the modulus, and $\chi$ be a distribution over $R_q$. Additionally, let $m$ be the number of samples and $k$ be the dimension.
+    The Module-LWE problem is defined as follows: 
+    \begin{align*}
+        A &\getsr R_q^{m \times k} \\
+        s &\getsr \chi^k \\
+        e &\getsr \chi^m \\
+        b &\gets A \cdot s + e \\
+        \text{Distinguish } (A,b) &\text{ from } (A,b') \text{ where } b' \getsr R_q^m
+    \end{align*}
+\end{definition}
+
+Note that this is the same as LWE when $k = 1$ and RLWE when $n = 1$. 
+
+\begin{itemize}
+    \item $\text{Worst-case ``rank-k" lattice problems} \leq \text{Search Module-LWE} \leq \text{Decision Module-LWE}$
+    \item $\text{Module-LWE} \leq \text{HNF-Module-LWE}$ ~\cite{DCC:LanSte15}
+    \item Why use MLWE? - Efficiency and Flexibility.
+    \begin{itemize}
+        \item Powers of two are sparse, we would need to jump from $n=512$ to $n=1024$ for instance.
+        \item New Hope is another NIST candidate based on RLWE. It has parameters $n=1024$, $q=12289$ while Kyber has $n=256$, $q=3329$. The ring LWE condition requires $q = 1 \mod 2n$, and hence the larger $q$. 
+    \end{itemize}
+    \item Other engineering considerations for Kyber:
+    \begin{itemize}
+        \item The Fujisaki-Okamoto transform is used to obtain CCA security.
+        \item Note that Kyber's prime does not satisfy $q = 1 \mod 2n$, and they only get incomplete NTT speedups.
+        \item The matrix $A$ can be compressed using a random oracle or hash.
+        \item The error distribution is restricted to $[-3,3]$. In addition, for easier sampling, instead of using a uniform distribution, they use a centered binomial distribution (sampling from this only requires sampling some bits and adding them).
+        \item Another optimization for proof size is to drop the last bit of the ciphertext.
+    \end{itemize}
+    \item Finally, Kyber gets a public key size of $800$ bytes, a ciphertext size of $768$ bytes, and decryption failure probability of $2^{-139}$.
+\end{itemize} 
