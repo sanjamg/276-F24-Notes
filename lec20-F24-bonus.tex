@@ -77,7 +77,7 @@ verifier, and the prover can choose which clouds to clear.)
 Which satisfies the completeness, soundness, and zero-knowledge properties as
 previously defined.
 \end{definition}
-
+The above definition is not necessarily very useful in its own right, but it is helpful as a stepping stone toward a more useful construction.
 
 \begin{theorem}\label{thm:NIZK-amplify}
     Given a NIZK $(P_H, V_H)$ in the hidden-bit model, we can construct a NIZK
@@ -127,15 +127,14 @@ However, a cheating $P^*$ may be able to cleverly pick $f$ to influence $r_i$,
 allowing him to cheat. Since we know there are only $2^k$ possible choices of
 $f$ (the verifier confirms $f$ is properly sampled), we can use the union bound
 to prove soundness:
-$$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2^{-k}.$$
+$$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2^{k} \cdot 2^{-2k} = 2^{-k}.$$
 
 Note that more serious problems can occur if $V$ does not confirm $f\in \mathcal{F}$. For example, if $f$ is not a permutation, then
 $f^{-1}(\sigma_i)$ can be multi-valued, and the prover can choose to ``explain"
 $\sigma_i$ using either $\alpha_i$ or $\alpha_i'$ -- which is a problem if
 $B(\alpha_i) \neq B(\alpha_i')$.
 
-To prove zero-knowledge, we construct a sequence of prover-hybrids.
-Differences from the previous hybrid are in red:
+To prove zero-knowledge, we construct a sequence of prover-hybrids. The hybrid $H_0$ is the ``honest" scenario. Differences from the previous hybrid are in red:
 
 %\newcommand{\htitle}[1]{#1\\
 %\rule{0.2\textwidth}{0.4pt}}
@@ -155,10 +154,10 @@ Differences from the previous hybrid are in red:
 
 \htitle{H_1}
 \begin{enumerate}
+    \item \diff{$r_i \gets \bit ~\forall i \in [\ell]$}
     \item $(f, f^{-1}) \gets \mathcal{F}$
-    \item \diff{$\alpha_i \rgets \{0, 1\}^k ~\forall i \in [\ell]$}
+    \item \diff{$\alpha_i \rgets \{0, 1\}^k\ \text{such that}\ r_i = B(f^{-1}(\sigma_i)) ~\forall i \in [\ell]$}
     \item \diff{$\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$}
-    \item $r_i = B(\alpha_i) ~\forall i \in [\ell]$
     \item $(I, \phi) \gets P_H(r, x, \omega)$
     \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
 \end{enumerate}
@@ -168,11 +167,11 @@ is a permutation.
 
 \htitle{H_2}
 \begin{enumerate}
+    \item $r_i \rgets \{0, 1\} ~\forall i \in [\ell]$
     \item $(f, f^{-1}) \gets \mathcal{F}$
-    \item \diff{$r_i \rgets \{0, 1\} ~\forall i \in [\ell]$}
+    \item \diff{$(I, \phi) \gets P_H(r, x, \omega)$}
     \item \diff{$\alpha_i \rgets B^{-1}(r_i) ~\forall i \in [\ell]$}
     \item $\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$
-    \item $(I, \phi) \gets P_H(r, x, \omega)$
     \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
 \end{enumerate}
 In $H_2$, we again switch the sampling order: first sample the (unbiased) bit
@@ -311,7 +310,7 @@ the set $I$ will be revealed to the verifier.
 \end{table}
 
 
-Let the graph be $G=(V,E)$ with $|V|=n$.
+Let the graph be $G=(V,E)$ with $|V|=n$. Note that the content of $G$ is public.
 The objective is to convince the verifier that the assertion is correct (the graph $G$
 is Hamiltonian).
 
@@ -327,7 +326,7 @@ $M_c[\phi(x_i),\phi(x_{i+1})]=1$ for each edge $(x_i,x_{i+1})$ in the Hamiltonia
 This means that all the edges of $M_c$ will be covered by edges of $G$. Conversely, all the
 non-edges of $G$ must be taken to non-edges of $M_c$.
 
-So the strategy for the prover is to reveal the mapping $\phi$ and also reveal entries of $M_c$ corresponding to $\phi(e)$ where $e \notin E$. More precisely, for the set
+So the strategy for the prover is to reveal the mapping $\phi$ and also reveal entries of $M_c$ corresponding to $\phi(e)$ where $e \notin E$, so $e \in V \times V \setminus E$. More precisely, for the set
 $I=\{(\phi(u),\phi(v)) \mid (u,v)\notin E\}$, $P$ reveals
 $M_c[\phi(u),\phi(v)]=0$,
 which proves that $(\phi(u),\phi(v))$ is a non-edge of $M_c$.

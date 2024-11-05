@@ -31,12 +31,13 @@ considering the language $L \cap \{0, 1\}^{P(k)}$.
 \noindent\textbf{Completeness.} $\forall x \in L, \forall \omega \in R_L(x)$:
     $$\Pr[\sigma \gets K(1^k), \pi \gets P(\sigma, x, \omega) : V(\sigma, x,
     \pi) = 1] = 1.$$
+There is an alternate definition of Statistical Correctness, where the probability above is $1 - \mathsf{negl}(n)$ instead of $1$. For this explanation, though, Completeness will be used.
 
 \medskip
 \noindent\textbf{Non-Adaptive Soundness.} $\forall x \not\in L$:
     $$\Pr[\sigma \gets K(1^k): \exists~\pi \st V(\sigma, x, \pi)
     = 1] = \mathsf{negl}(k).$$
-The above definition is ``non-adaptive", because it does not allow a cheating
+If the value of $\sigma$ that is picked is a ``bad" value, then there does not exist a proof $\pi$ for $x$ and $\sigma$. The above definition is ``non-adaptive", because it does not allow a cheating
 prover to decide which statement to prove after seeing the randomness $\sigma$.
 We may also consider the stronger notion of ``adaptive soundness", where the
 prover is allowed to decide $x$ after seeing $\sigma$:
@@ -48,7 +49,7 @@ prover is allowed to decide $x$ after seeing $\sigma$:
     
 \medskip
 \noindent\textbf{(Non-Adaptive) Zero-Knowledge.}
-    The exists a PPT simulator $S$ such that $\forall x \in L, \omega \in
+    There exists a PPT simulator $S$ such that $\forall x \in L, \omega \in
     R_L(x)$, the two distributions are computationally indistinguishable:
 
 \begin{minipage}{0.5\textwidth}
@@ -78,7 +79,7 @@ choose $x$ after seeing $\sigma$:
 
 \medskip
 \noindent\textbf{(Adaptive) Zero-Knowledge.}
-    The exists a PPT simulator split into two stages $S_1, S_2$ such that
+    There exists a PPT simulator split into two stages $S_1, S_2$ such that
     for all PPT attackers $\ma$,
     the two distributions are computationally indistinguishable:
 
@@ -108,7 +109,7 @@ choose $x$ after seeing $\sigma$:
 Now we show that adaptive soundness is not harder to achieve than non-adaptive soundness.
 \begin{theorem}\label{thm:amplify-soundness}
     Given a NIZK $(K, P, V)$ that is \emph{non-adaptively sound}, we can
-    construct a NIZK that is \emph{adaptively sound}.
+    construct a NIZK $(K', P', V')$ that is \emph{adaptively sound}.
 \end{theorem}
 \proof
 For $x_0 \not\in L$, let us call a particular $\sigma$ ``bad for $x_0$" if 
@@ -120,7 +121,7 @@ $\Pr_\sigma[\sigma \text{ bad for } x_0] = \mathsf{negl}(k)$.
 Now we construct a new NIZK $(K',P',V')$ by repeating $(K,P,V)$ polynomially-many times
 (using fresh randomness, and $V'$ accepts if and only if $V$ accepts in each iteration).
 We can ensure that $\mathsf{negl}(k) \leq 2^{-2P(k)}$.
-Now by  union bound:
+Now by union bound:
 $$
 \Pr[\sigma \gets K'(1^k): \exists~ (x, \pi) \st V'(\sigma, x, \pi) = 1] \leq
 2^{P(k)}\cdot \Pr_\sigma[\sigma \text{ bad for } x_0] \leq 2^{-P(k)}.$$
