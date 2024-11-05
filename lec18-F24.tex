@@ -3,24 +3,28 @@
 Traditional Euclidean style proofs allow us to prove veracity of statements to others. However, such proof systems have two shortcomings: (1) the running time of the verifier needs to grow with the length of the proof, and (2) the proof itself needs to be disclosed to the verifier. In this chapter, we will provide methods enabling provers to prove veracity of statements of their choice to verifiers while avoiding the aforementioned limitations. In realizing such methods we will allow the prover and verifier to be probabilistic and also allow them to interact with each other.\footnote{Formally, they can be modeled as interactive PPT Turing Machines.}
 
 \section{Interactive Proofs}
-\begin{definition} {\normalfont\textbf{(Interactive Proof System)}} For a language L we have an \textit{interactive proof system} if $\exists$ a pair of algorithms (or better, interacting machines) $(\mathcal{P},\mathcal{V})$, where $\mathcal{V}$ is polynomial in $|x|$, and both can flip coins, such that:
+\begin{definition} {\normalfont\textbf{(Interactive Proof System)}} For a language L we have an \textit{interactive proof system} if $\exists$ a pair of algorithms (or better, interacting machines) $(\mathcal{P},\mathcal{V})$, where $\mathcal{V}$ runs in polynomial time in its input length, and both can flip coins, such that:
 		\begin{itemize}
 			\item Completeness: $\forall x\in L$
 		$$\Pr_{\mathcal{P},\mathcal{V}} \left[Output_{\mathcal{V}}(\mathcal{P}(x) \leftrightarrow \mathcal{V}(x))=1\right]=1,$$
-			\item Soundness: $\forall x\notin L$, $\forall \mathcal{P}^*$
-		$$\Pr_{\mathcal{V}} \left[Output_{\mathcal{V}}(\mathcal{P}^*(x) \leftrightarrow \mathcal{V}(x))=1\right]<neg(|x|),$$
+			\item Soundness: $\forall x\notin L$, $\forall \mathcal{P}^*$ (unbounded)
+		$$\Pr_{\mathcal{V}} \left[Output_{\mathcal{V}}(\mathcal{P}^*(x) \leftrightarrow \mathcal{V}(x))=1\right]<\mathsf{negl}(|x|),$$
 		\end{itemize} where $Output_{\mathcal{V}}(\mathcal{P}(x) \leftrightarrow \mathcal{V}(x))$ denotes the output of $\mathcal{V}$ in the interaction between $\mathcal{P}$ and $\mathcal{V}$ where both parties get $x$ as input.
 		We stress that $\mathcal{P}$ and $\mathcal{P}^*$ can be computationally unbounded. 
   \end{definition}
+We can also consider other variants of this definition, e.g. imperfect completeness.
 
+To understand the above definition, let's consider two languages over a pair of graphs $G_0$ and $G_1$: 
+\begin{enumerate}
+	\item Graph Isomorphism (GI): We say that two graphs $G_0$ and $G_1$ are isomorphic, denoted $G_0 \cong G_1$, if $\exists$ an isomorphism $f: V(G_0) \rightarrow V(G_1)$ s.t. $(u,v)\in E(G_0)$ iff $(f(u),f(v))\in E(G_1)$, where $V(G)$ and $E(G)$ are the vertex and edge sets of some graph $G$. Let $GI=\lbrace(G_0,G_1)|\  G_0\cong G_1\rbrace$ be the language that consists of pairs of graphs that are isomorphic.
+	\item Graph Non-Isomorphism (GNI): On the other hand, $G_0$ and $G_1$ are said to be non-isomorphic, $G_0 \ncong G_1$, if $\nexists$ any such $f$, and let $GNI=\lbrace(G_0,G_1)|\  G_0\ncong G_1\rbrace$ be the language that consists of pairs of graphs that are not isomorphic.
+\end{enumerate}
+ 
+\paragraph{Trivial Case of Graph Isomorphism (GI).} A prover can easily prove to a verifier that two graphs are isomorphic by directly providing the isomorphism $f$ between them. The verifier can confirm the isomorphism in time polynomial in the size of the graphs (i.e., its input); hence we have perfect completeness. If the graphs are not isomorphic, no isomorphism exists, and the verifier always rejects; we have perfect soundness too. This proof was trivial, and we didn't even require (back-and-forth) interaction. We now look at a more interesting case of GNI. Moreover, looking ahead, we will see more interesting properties that we can ask of proof systems, like zero-knowledge, where this trivial proof system terribly fails, and we will revisit the GI problem to see how we can prove it with zero-knowledge.
 
+\paragraph{Interactive Proof for Graph Non-Isomorphism (GNI).}  Unlike the case of GI, for GNI, there is no succinct (e.g., linear in the size of graphs) information that the prover can provide, and consequently, no ``efficient'' (polynomial time in the graphs) verification that the verifier can do. This is where the {\em power of interaction} comes in. In other words, since GNI is not believed to have short proofs, an {\em interactive} proof could offer the prover a mechanism to prove to a polynomially bounded verifier that two graphs are non-isomorphic. We will now describe an interactive proof system for GNI.
 
-\paragraph{Interactive Proof for Graph Non-Isomorphism (GNI).} We say that two graphs $G_0$ and $G_1$ are isomorphic, denoted $G_0 \cong G_1$, if $\exists$ an isomorphism $f: V(G_0) \rightarrow V(G_1)$ s.t. $(u,v)\in E(G_0)$ iff $(f(u),f(v))\in E(G_1)$, where $V(G)$ and $E(G)$ are the vertex and edge sets of some graph $G$. On the other hand, $G_0$ and $G_1$ are said to be non-isomorphic, $G_0 \ncong G_1$, if $\nexists$ any such $f$, and $GNI=\lbrace(G_0,G_1)|\  G_0\ncong G_1\rbrace$ be the language that consists of pairs of graphs that are not isomorphic. 
-
-GNI is not believed to have short proofs so an interactive proof could offer a prover a mechanism to prove to a polynomially bounded verifier that two graphs are non-isomorphic. 
-
-
-The intuition behind a protocol to accomplish the above task is simple. Consider a verifier that randomly rename the vertices of one of the graphs and give it to the prover. Can the prover given the relabeled graph figure out which graph did the verifier start with?  If $G_0$ and $G_1$ were not isomorphic  then an unbounded prover can figure this out. However, in case $G_0$ and $G_1$ {are} isomorphic then the distribution resulting form random relabelings of $G_0$ and $G_1$ are actually identical. Therefore, even an unbounded prover has no way of distinguishing which graph the verifier started with. So the prover has only a $\frac12$ probability of guessing which graph the verifier started with. Note that by repeating this process we can reduce the success probability of a cheating prover to negligible. More formally:
+The intuition is simple. Consider a verifier that randomly renames the vertices of one of the graphs and give it to the prover. Can the prover, given the relabeled graph, figure out which graph did the verifier start with?  If $G_0$ and $G_1$ were not isomorphic, then an unbounded-time prover can figure this out. However, in case $G_0$ and $G_1$ {are} isomorphic, then the distributions resulting form random relabelings of $G_0$ and $G_1$ are actually identical. Therefore, even an unbounded prover has no way of distinguishing which graph the verifier started with. So the prover has only a $\frac12$ probability of guessing which graph the verifier started with. Note that by repeating this process we can reduce the success probability of a cheating prover to negligible\footnote{This strategy is called soundness amplification by ``sequential'' repetition. Later, we might cover proof systems where we additionally consider ``parallel'' repetition to achieve different security properties.}. More formally, given a claim $(G_0,G_1)\in GNI$, we define the following interactive proof system:
 
 %		If they consistently answer correctly, however, it would be hard to remain skeptical against $G_0 \ncong G_1$ as they beat the odds to almost impossible limits.  And so this interaction can ``prove" very strongly to the verifier that $(G_0,G_1)\in$ GNI.  Consider the protocol we can define from this:
 
@@ -30,34 +34,34 @@ The intuition behind a protocol to accomplish the above task is simple. Consider
 
 		\begin{itemize}
 			\item Completeness: If $(G_0,G_1)\in$ GNI, then the unbounded $\mathcal{P}$ can distinguish isomorphism of $G_0$ against those of $G_1$ and can always return the correct $b'$.  Thus, $\mathcal{V}$ will always output 1 for this case.
-			\item Soundness: If $(G_0,G_1)\notin$ GNI, then it is equiprobable that $H$ is a random isomorphism of $G_0$ as it is $G_1$ and so $\mathcal{P}$'s guess for $b'$ can be correct only with a probability $\frac{1}{2}$.  Repeating this protocol $k$ times means the probability of guessing the correct $b'$ for all $k$ interactions is $\frac{1}{2^k}$.  And so the probability of $\mathcal{V}$ outputting 0 (e.g. rejecting $\mathcal{P}$'s proof at the first sign of falter) is $1-\frac{1}{2^k}$. 
+			\item Soundness: If $(G_0,G_1)\notin$ GNI, then it is equiprobable that $H$ is a random isomorphism of $G_0$ as it is of $G_1$, and so $\mathcal{P}$'s guess for $b'$ can be correct only with a probability $\frac{1}{2}$\footnote{A curious reader might notice that the challenge bit $b$ sampled by $\mathcal{V}$ is information-theoretically hidden from $\mathcal{P}$ (hidden in $H$) when $\mathcal{P}$'s claim is false. This is similar to what we saw in Hash Proof Systems before.}.  Repeating this protocol $k$ times, with fresh verifier randomness each time, means the probability of guessing the correct $b'$ for all $k$ interactions is $\frac{1}{2^k}$.  And so the probability of $\mathcal{V}$ outputting 0 (e.g. rejecting $\mathcal{P}$'s proof at the first sign of falter) is $1-\frac{1}{2^k}$.  
+
 		\end{itemize}
 
 		%The interaction between prover and verifier captures the notion of a proof system for GNI, a problem previously not known to have an efficient method of proof.  By interacting, we can prove what seemed impossible to efficiently prove before!
-
+		To conclude, the interactive proof system we described above enabled something that wasn't possible without interaction. 
 
 \section{Zero Knowledge Proofs}
-
+We saw a crucial difference between GI and GNI: in GI, the prover already holds a succinct proof to back its claim, we call this a ``witness'', while in GNI, no such succinct proof exists (i.e., there is nothing that the prover can directly send to the verifier to back its claim). From this point onwards, we exclusively focus on the languages of the first kind, i.e., where a witness for the claim exists; these languages a vast majority of the use-cases of verifiable computation. These languages are formalized as follows:
 
 \begin{definition} {\normalfont\textbf{(NP-Verifier)}} A language L has an NP-verifier if $\exists$ a verifier $\mathcal{V}$ that is polynomial time in $|x|$ such that:
 		\begin{itemize}
 			\item Completeness: $\forall x\in L,\ \exists\ a\ proof\ \pi\ s.t.\ \mathcal{V}(x,\pi)=1$
-			\item Soundness: $\forall x \notin L$ $\forall$ purported proof $\pi$ we have $\mathcal{V}(x,\pi)=0$
+			\item Soundness: $\forall x \notin L$, and $\forall$ purported proof $\pi$, we have $\mathcal{V}(x,\pi)=0$
 		\end{itemize}
   \end{definition}
 
-		That is, the conventional idea of a proof is formalized in terms of what a computer can efficiently verify.  So a set of statements considered true (e.g. in a language $L$) is complete and sound if a proof can be written down that can be ``easily" and rigorously verified if and only if a statement is in the language.
+		That is, the conventional idea of a proof is formalized in terms of what a computer can efficiently verify.\smallskip %A language $L$ has an NP-verifier if for all claims of statements $\in L$, a proof can be written down that can be ``easily'' and ``rigorously'' verified if and only if a statement is in the language.
 
+	\noindent \textit{Keeping the witness private}. The goal of a proof system is for the verifier to learn if the prover's claim is valid or not. Let's focus on what a verifier actually learns at the end of its interaction with the prover. In the trivial GI proof system we saw above, the verifier learns the entire automorphism --- in other words, the verifier learns {\em everything} that the prover knew. 
+	This is too much leakage. Imagine the prover holding some secret or valuable information (e.g., its secret key) which is leaked to the verifier. This is not desirable. We want the verifier to learn only the validity of the claim, and nothing more. This is where the notion of zero-knowledge comes in.
+	For a proof system for a language with an NP-verifier, this translates to the verifier not learning the witness from the prover.
+	
+	We now revisit the GI problem\footnote{GI is not NP-complete.} for which an NP-verifier exists, as we saw earlier. Later, we will consider NP-complete languages like graph 3-coloring --- giving us proof systems for all of NP. \smallskip
 
-\bigskip
-\noindent\textbf{Efficient Provers.}
-		Unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of.  And for cryptography we must make more reasonable assumptions about the provers.  In this case we will assume provers are also bounded to be \emph{efficient}.
-		
-		Previously, if a prover wanted to prove that two graphs, $G_0$ and $G_1$ were isomorphic, it would use its all-powerfulness to find the isomorphic mapping between the two graphs and give it to the verifier to complete the proof.  But now, being computationally bounded, the prover is in the same boat as the verifier and can find a proof no better than the verifier can.  In order for the prover to be able to prove something that the verifier cannot find out on their own, the prover must have some extra information.  If, for example, the prover simply knew the isomorphism between the graphs, this would be the sufficient extra information it needs to enact the proof.  That's a rather boring proof though.  We have interaction now!  Can't we do something fancier?
-		
-		What if the prover wanted to prove that two graphs were isomorphic but didn't want to fully reveal the isomorphism that they know.  If they're lying and don't know an isomorphism is their a way we can exploit them again?
-		
-		When $G_0$ and $G_1$ are isomorphic, the isomorphism between them would be a \textit{witness}, $w$, to that fact, that can be used in the proof.  Unfortunately, the prover is being stubborn and won't just tell us that isomorphism, $w:V(G_0)\rightarrow V(G_1)$, that they claim to have.  The prover is comfortable however giving us a ``scrambled" version, $\phi$, of $w$ as long as it doesn't leak any information about their precious $w$.  For example, the prover is willing to divulge $\phi = \pi \circ w$ where $\pi$ is a privately chosen random permutation of $|V|=|V(G_0)|=|V(G_1)|$ vertices.  Since $\pi$ renames vertices completely randomly, it scrambles what $w$ is doing entirely and $\phi$ is just a random permutation of $|V|$ elements.  At this point, we might be a little annoyed at the prover since we could have just created a random permutation on our own.  This might give us an idea on how to gain a little more information however, even though we gained none here:
+	\noindent \textit{Hiding witness for Graph Isomorphism}. We will build the ideas for our proof system with zero-knowledge gradually by iterating through a series of straw-man approaches. On the way, we will formally define zero knowledge. 
+
+	When $G_0$ and $G_1$ are isomorphic, the isomorphism between them would be a \textit{witness}, $w$, to that fact, that can be used in the proof.  Unfortunately, the prover is being stubborn and won't just tell us that isomorphism, $w:V(G_0)\rightarrow V(G_1)$, that they claim to have.  The prover is comfortable however giving us a ``scrambled" version, $\phi$, of $w$ as long as it doesn't leak any information about their precious $w$.  For example, the prover is willing to divulge $\phi = \pi \circ w$ where $\pi$ is a privately chosen random permutation of $|V|=|V(G_0)|=|V(G_1)|$ vertices.  Since $\pi$ renames vertices completely randomly, it scrambles what $w$ is doing entirely and $\phi$ is just a random permutation of $|V|$ elements.  At this point, we might be a little annoyed at the prover since we could have just created a random permutation on our own.  This might give us an idea on how to gain a little more information however, even though we gained none here:
 		
 		If we want to be convinced that $\phi$ really is of the form $\pi \circ w$, thus containing $w$ in its definition, and isn't just a completely random permuation, we can note that if it is of that form then $\phi(G_0)=\pi(w(G_0))=\pi(G_1)$ (since $w$ being an isomorphism implies that $w(G_0)=G_1$).  Note that we started with a mapping on input $G_0$ and ended with a mapping on input $G_1$.  With an isormphism, one could get from one graph to the other seamlessly; if the prover \textit{really} has the isomorphism it claims to have, then it should have no problem displaying this ability.  So, what if we force the prover to give us $H=\pi (G_1)$ just after randomly choosing its $\pi$ and then let it show us its ability to go from $G_1$ to $G_0$ with ease: give us a $\phi$ so that $\phi(G_0)=\pi(G_1)=H$.  The only way the prover can give a mapping that jumps from $G_0$ to $G_1$ in such a way is if they know an isomorphism; if the prover could find a $\phi$ efficiently but did \textit{not} know an isomorphism then they would have been able to see that $\pi^{-1}(\phi(G_0))=G_1$ and thus have $\pi^{-1}\circ\phi$ as an isomorphism from $G_0$ to $G_1$, which would contradict the assumed hardness of finding isomorphisms in the GI problem.  So by forcing the prover to give us $H$ as we've defined and to produce a $\phi$ so that $\phi(G_0)=H$, we've found a way to expose provers that don't really have an isomorphism and we can then be convinced that they really do know $w$ when they pass our test.  And the prover didn't directly tell us $w$, so they may be able to salvage some secrecy!
 		
@@ -99,7 +103,23 @@ In the above definition, $View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \m
 		
 		There is an interesting progression of the requirements of a proof system: Completeness, Soundness, and the Zero Knowledge property.  Completeness first cares that a prover-verifier pair exist and can capture all true things as a team that works together; they both honestly obey the protocol trying prove true statements.  Soundness, however, assumes that the prover is a liar and cares about having a strong enough verifier that can stand up to any type of prover and not be misled.  Finally, Zero Knowledge assumes that the verifier is hoping to glean information from the proof to learn the prover's secrets and this requirement makes sure the prover is clever enough that it gives no information away in its proof.
 		
-		Unlike the soundness' requirment for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol.  Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.  
+		Unlike the soundness' requirment for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol.  Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.
+
+	-----------------
+
+	We will first look at a weaker notion of zero-knowledge, called \textit{Honest Verifier Zero Knowledge} (HVZK), where we only require that an {\em honest} verifier does not learn anything from the prover. We will then move on to the stronger notion of \textit{Zero Knowledge} (ZK), where we extend this to all verifiers, including malicious verifiers. \smallskip
+
+		TODO: define NP verifier here, but say we only look at a particular statement right now - GI. Later we consider NP-complete statements like 3-COL. Then motivate the need for zk for this context because prover has something valuable to hide here (something that is not easy to compute).
+
+\bigskip
+\noindent\textbf{Efficient Provers.} TODO TODO: WE DO NOT TALK ABOUT EFFICIENT PROVERS IN THIS LECTURE. MOVE TO BEGINNING OF NEXT LECTURE.
+		Unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of.  And for cryptography we must make more reasonable assumptions about the provers.  In this case we will assume provers are also bounded to be \emph{efficient}.
+		
+		Previously, if a prover wanted to prove that two graphs, $G_0$ and $G_1$ were isomorphic, it would use its all-powerfulness to find the isomorphic mapping between the two graphs and give it to the verifier to complete the proof.  But now, being computationally bounded, the prover is in the same boat as the verifier and can find a proof no better than the verifier can.  In order for the prover to be able to prove something that the verifier cannot find out on their own, the prover must have some extra information.  If, for example, the prover simply knew the isomorphism between the graphs, this would be the sufficient extra information it needs to enact the proof.  That's a rather boring proof though.  We have interaction now!  Can't we do something fancier?
+		
+		What if the prover wanted to prove that two graphs were isomorphic but didn't want to fully reveal the isomorphism that they know.  If they're lying and don't know an isomorphism is their a way we can exploit them again?
+		
+		  
 %		These are mostly discussed (including auxiliary inputs) in the next class, although the first definition is given below:
 %		
 %		{\definition {\normalfont\textbf{(Zero Knowledge Proof [ZK])}} For a language L we have a (perfect) \textit{ZK proof system} w.r.t. witness relation $R$ if $\exists$ an interactive proof system, $(\mathcal{P},\mathcal{V})$ s.t. $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall x \in L$, $\forall w\in R(x)$, $\forall \mathcal{V}^*$, the following distributions are identical:
