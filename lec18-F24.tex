@@ -104,7 +104,7 @@ In the above definition, $View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \m
 In the above definition, the order of quantifiers is quite important. We cannot change it to: $\forall x \in L$, $\forall w\in R(x)$, $\exists$ a PPT machine $\mathcal{S}$. This is because the definition would be trivially satisfied by hardcoding the witness $w$ in the simulator $\mathcal{S}$.
 \end{remark}
 
-To prove HVZK property of the GI proof system we described earlier, we now construct a simulator $\mathcal{S}$, with input $x$, as follows:
+To prove HVZK property of the GI proof system we described earlier, we now construct a simulator $\mathcal{S}$, with input $G_0, G_1$, as follows:
 \begin{enumerate}
 	\item Sample $b\in\{0,1\}$ uniformly at random.
 	\item Sample a random permutation $\sigma$ of the vertices.
@@ -115,7 +115,7 @@ It is straightforward to see that this simulator produces the same distribution 
 	
 To recap: There is an interesting progression of the requirements of a proof system: Completeness, Soundness, and the Zero Knowledge property.  Completeness first cares that a prover-verifier pair exist and can capture all true things as a team that works together; they both honestly obey the protocol trying prove true statements.  Soundness, however, assumes that the prover is a liar and cares about having a strong enough verifier that can stand up to any type of prover and not be misled.  Finally, Zero Knowledge assumes that the verifier is hoping to glean information from the proof to learn the prover's secrets and this requirement makes sure the prover is clever enough that it gives no information away in its proof. Unlike the soundness' requirment for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol. Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.
 
-\section{Graph Isomorphism}
+\section{Zero-Knowledge for Graph Isomorphism}
 
 In this section, we construct our final zero-knowledge interactive proof system for GI where we don't have to assume an honest verifier for zero knowledge to hold. The proof system construction is exactly the same as the one we saw earlier. What changes is the definition of zero knowledge, and therefore, the simulator. 
 
@@ -126,47 +126,60 @@ $$\{View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))\} \a
 where $View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))$ is the random coins of $\mathcal{V^*}$ and all the messages $\mathcal{V^*}$ saw.
 \end{definition}
 \begin{remark}
-	Note that the order of quantifiers matters again. The definition would be stronger if we switch the order to: $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall$ PPT machines $\mathcal{V}^*$. This is because the same simulator would need to work for all possible efficient verifiers.
+	Note that the order of quantifiers matters again. The definition would be stronger if we switch the order to: $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall$ PPT machines $\mathcal{V}^*$. This is because the same simulator would need to work for all possible efficient verifiers. Interestingly, the simulator we construct below for GI satisfies this stronger definition too. In fact, most simulators we know work for all verifiers (i.e. black-box simulators). It wasn't until 2008 when Boaz Barak showed that we can also construct non-black-box simulators. 
 \end{remark}
 
-TODO: HERE 
-FIRST: WHY HVZK simulator doesn't work.
-Recall our protocol for graph isomorphism: the interaction is $P(x,w) \leftrightarrow V(x)$ where $x$ represents graphs $G_0 = (V, E_0)$ and $G_1 = (V, E_1)$ and $w$ represents a permutation $\pi$ on $V$ such that $\pi (G_0) = G_1$.
+Recall our protocol for graph isomorphism: the interaction is $P(x,w) \leftrightarrow V(x)$ where $x$ represents graphs $G_0 = (V, E_0)$ and $G_1 = (V, E_1)$ and $w$ represents a permutation on $V$ such that $w (G_0) = G_1$.
 
 \begin{enumerate}
 \item $P$ samples a random permutation $\sigma: V \to V$ and sends the graph $H = \sigma(G_1)$ to $V$.
 
 \item $V$ samples a random bit $b$ and sends it to $P$.
 
-\item If $b = 1$, then $P$ defines a permutation $\tau$ to be $\sigma$. If $b = 0$, then instead $\tau = \sigma \circ \pi$. $P$ then sends $\tau$ to $V$.
+\item If $b = 1$, then $P$ defines a permutation $\tau$ to be $\sigma$. If $b = 0$, then instead $\tau = \sigma \circ w$. $P$ then sends $\tau$ to $V$.
 
 \item $V$ verifies that $\tau(G_b) = H$ and accepts if so.
 
 \end{enumerate}
 
-We will show that this is an efficient prover zero-knowledge proof system. It is clear that if $G_0$ and $G_1$ are isomorphic, then this protocol will succeed with probability 1.
+The reason the simulator for HVZK doesn't work anymore is because a malicious verifier $\mathcal{V^*}$ could pick its bit $b$ from a biased distribution (e.g. $b$ can be a function of $H$ seen by $\mathcal{V^*}$).
 
-For soundness, observe that if $G_0$ is not isomorphic to $G_1$, then the graph $H$ that $P$ sends to $V$ in step 1 of the protocol can be isomorphic to at most one of $G_0$ or $G_1$. Since $V$ samples a bit $b$ uniformly at random in step 2, then there is a probability of at most 1/2 that $P$ can produce a valid isomorphism in step 3.
-
-For zero knowledge, consider the following simulator $S$ with input $G_0$ and $G_1$ (with vertex set $V$) and verifier $V^*$:
+For zero knowledge, consider the following simulator\footnote{The simulator satisfies a stronger ZK property where the same simulator works for all $\mathcal{V^*}$. Refer to the remark above for more details.} $S$ with input $G_0$ and $G_1$ (with vertex set $V$) and verifier $V^*$:
 
 \begin{enumerate}
-\item Guess a bit $b$ uniformly at random.
+\item For $i = 1\dots T$; $T=\mathsf{poly}(n)$:
+\begin{enumerate}
+	\item Sample a bit $b$ uniformly at random.
 
-\item Sample a permutation $\pi: V \to V$ uniformly at random and send $\pi (G_b)$ to $V^*$.
+	\item Sample a permutation $\sigma: V \to V$ uniformly at random
+	
+	\item Send $H = \sigma (G_b)$ to $V^*$.
 
-\item Receive $b'$ form $V^*$.
+	\item Receive $b'$ from $V^*$.
 
-\item If $b=b'$, then output $(\pi (G_b), b, \pi)$ and terminate. Otherwise, restart at step 1.
+	\item If $b=b'$, then output $(H, b, \sigma)$ and terminate. Otherwise, continue the loop.
+\end{enumerate}
+\item Output $\bot$.
 
 \end{enumerate}
 
-Note that if $G_0 \simeq G_1$, then $\pi(G_b)$ is statistically independent of $b$ because $b$ and $\pi$ are sampled uniformly. Thus, with probability 1/2, $V^*$ will output $b$ so on average, two attempts will be needed before $S$ terminates. It follows that $S$ will terminate in \emph{expected} polynomial time.
+We construct a sequence of hybrids to prove zero-knowledge. Let $H_0$ define the interaction between $P$ and $V^*$: $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$. Define $H_1$ as follows: 
+\begin{enumerate}
+	\item For $i = 1\dots T$:
+\begin{enumerate}
+	\item Sample a bit $b^*$ uniformly at random.
 
-Since $b$ is sampled uniformly at random, $\pi (G_b)$ is uniformly distributed with all graphs of the form $\sigma (G_1)$ where $\sigma$ is sampled uniformly at random from permutations on $V$. Thus, the output $\pi(G_b)$ in our simulator will be identically distributed with the output $H$ in our graph isomorphism protocol.
+	\item Run $H_0$, i.e., $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$.
+	
+	\item If $b^*=0$, output $View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))$.
+	
+	\item If $b^*=1$, continue with the loop.
+\end{enumerate}
+\item Output $\bot$.
+\end{enumerate}
 
-In step 3 of our graph isomorphism protocol, note that $\tau$ is distributed uniformly at random. This is because composing a uniformly random permutation with a fixed permutation will not change its distribution. Thus $\tau$ will be identically distributed with $\pi$ in our simulator. It follows that the transcripts outputted by our simulator will be identically distributed with the transcripts produced by the graph isomorphism protocol.
-		
+The hybrid $H_1$ produces identical distribution as $H_0$ except if $b^*$ in all the $T$ iterations is $0$; note that $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$ doesn't depend on $b^*$. This happens with probability at most $1/2^T$. Next, we define $H_2$ where we change the logic of which transcript is thrown away. In each iteration, if $b^* = b$, where $b$ is part of the transcript $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$, we output the transcript; otherwise, we continue with the loop. Note again that $b^*$ is still not used in any of the transcript (interaction). Therefore, distribution produced by $H_2$ is identical to $H_1$ because the interaction hasn't changed at all. Finally, we construct our last hybrid $H_3$ where the simulator $S$ is run. The distribution generated by $H_3$ is identical to $H_2$ by same argument we used for the HVZK simulator.
+
 		  
 %		These are mostly discussed (including auxiliary inputs) in the next class, although the first definition is given below:
 %		
