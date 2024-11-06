@@ -1,5 +1,9 @@
 % !TEX root = collection.tex
 
+\section{Zero-Knowledge for NP}
+
+\noindent\textbf{Efficient Provers.} Now we shift our focus to zero-knowledge proofs for NP-complete languages. So far, we have considered unbounded provers, but unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of. And for cryptography we must make more reasonable assumptions about the provers.  We will now assume provers are also bounded to be \emph{efficient}. \smallskip
+
 \begin{definition}[Efficient Prover Zero-Knowledge Proof]
 We say $(P, V)$ is an efficient prover zero-knowledge proof system for a language $L$ and relation $R_L$ if \begin{enumerate}
 
@@ -42,49 +46,11 @@ If we quantify first over the verifier $V^*$ and then over simulators $S$, then 
 
 The $z$ in item 4 is considered as \emph{auxiliary input}. The auxiliary input is crucial for the above argument of soundness amplification.
 
-We will discuss the importance of requiring expected polynomial time in the next section.
+We will discuss the importance of requiring expected polynomial time in the next section. \bigskip
 
-\section{Graph Isomorphism}
 
-Recall our protocol for graph isomorphism: the interaction is $P(x,w) \leftrightarrow V(x)$ where $x$ represents graphs $G_0 = (V, E_0)$ and $G_1 = (V, E_1)$ and $w$ represents a permutation $\pi$ on $V$ such that $\pi (G_0) = G_1$.
 
-\begin{enumerate}
-\item $P$ samples a random permutation $\sigma: V \to V$ and sends the graph $H = \sigma(G_1)$ to $V$.
-
-\item $V$ samples a random bit $b$ and sends it to $P$.
-
-\item If $b = 1$, then $P$ defines a permutation $\tau$ to be $\sigma$. If $b = 0$, then instead $\tau = \sigma \circ \pi$. $P$ then sends $\tau$ to $V$.
-
-\item $V$ verifies that $\tau(G_b) = H$ and accepts if so.
-
-\end{enumerate}
-
-We will show that this is an efficient prover zero-knowledge proof system. It is clear that if $G_0$ and $G_1$ are isomorphic, then this protocol will succeed with probability 1.
-
-For soundness, observe that if $G_0$ is not isomorphic to $G_1$, then the graph $H$ that $P$ sends to $V$ in step 1 of the protocol can be isomorphic to at most one of $G_0$ or $G_1$. Since $V$ samples a bit $b$ uniformly at random in step 2, then there is a probability of at most 1/2 that $P$ can produce a valid isomorphism in step 3.
-
-For zero knowledge, consider the following simulator $S$ with input $G_0$ and $G_1$ (with vertex set $V$) and verifier $V^*$:
-
-\begin{enumerate}
-\item Guess a bit $b$ uniformly at random.
-
-\item Sample a permutation $\pi: V \to V$ uniformly at random and send $\pi (G_b)$ to $V^*$.
-
-\item Receive $b'$ form $V^*$.
-
-\item If $b=b'$, then output $(\pi (G_b), b, \pi)$ and terminate. Otherwise, restart at step 1.
-
-\end{enumerate}
-
-Note that if $G_0 \simeq G_1$, then $\pi(G_b)$ is statistically independent of $b$ because $b$ and $\pi$ are sampled uniformly. Thus, with probability 1/2, $V^*$ will output $b$ so on average, two attempts will be needed before $S$ terminates. It follows that $S$ will terminate in \emph{expected} polynomial time.
-
-Since $b$ is sampled uniformly at random, $\pi (G_b)$ is uniformly distributed with all graphs of the form $\sigma (G_1)$ where $\sigma$ is sampled uniformly at random from permutations on $V$. Thus, the output $\pi(G_b)$ in our simulator will be identically distributed with the output $H$ in our graph isomorphism protocol.
-
-In step 3 of our graph isomorphism protocol, note that $\tau$ is distributed uniformly at random. This is because composing a uniformly random permutation with a fixed permutation will not change its distribution. Thus $\tau$ will be identically distributed with $\pi$ in our simulator. It follows that the transcripts outputted by our simulator will be identically distributed with the transcripts produced by the graph isomorphism protocol.
-
-\section{Zero-Knowledge for NP}
-
-An $n$-coloring of a graph $G = (A, E)$ is a function $c: A \to \{1, \ldots, n \}$ such that if $(i, j) \in E$, then $c(i) \neq c(j)$. So we want to paint each vertex of a graph a certain color so that the endpoints of any edge are colored differently.
+\noindent \textit{Graph 3-Coloring}. An $n$-coloring of a graph $G = (A, E)$ is a function $c: A \to \{1, \ldots, n \}$ such that if $(i, j) \in E$, then $c(i) \neq c(j)$. So we want to paint each vertex of a graph a certain color so that the endpoints of any edge are colored differently.
 
 In the graph 3-coloring problem (3COL), we are given a graph and asked if there exists a 3-coloring. In this section, we will provide a computational zero knowledge proof for 3COL. It is a fact that 3COL is NP-complete, so any problem in NP has a polynomial time reduction to 3COL. Thus, by giving a zero knowledge proof for 3COL, we will show that there are zero knowledge proofs for all of NP.
 
