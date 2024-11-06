@@ -1,0 +1,1689 @@
+\documentclass[12pt]{tufte-book}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL notes-F24-old.tex   Tue Nov  5 23:59:23 2024
+%DIF ADD notes-F24.tex       Tue Nov  5 23:51:00 2024
+\usepackage{amsthm,amssymb,amsmath,thmtools,datetime,tikz}
+\setcounter{secnumdepth}{3}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Lavender}]{definition}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{lemma}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Thistle}]{claim}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=Apricot}]{theorem}
+
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=yellow}]{remark}
+\declaretheorem[numberwithin=chapter]{exercise}
+\declaretheorem[numberwithin=chapter,shaded={bgcolor=pink}]{construction}
+\usepackage[
+    type={CC},
+    modifier={by-nc-nd},
+    version={4.0},
+]{doclicense}
+
+\usepackage{graphicx,xcolor,mdframed}
+%\usepackage[version=0.96]{pgf}
+\usepackage{enumitem}
+
+
+\def\chpcolor{blue!45}
+\def\chpcolortxt{blue!60}
+
+\iffalse
+\titleformat{\chapter}%
+  {\huge\rmfamily\itshape\color{red}}% format applied to label+text
+  {\llap{\colorbox{red}{\parbox{1.5cm}{\hfill\itshape\huge\color{white}\thechapter}}}}% label
+  {2pt}% horizontal separation between label and title body
+  {}% before the title body
+  []% after the title body
+\fi
+
+\hypersetup{colorlinks}% uncomment this line if you prefer colored hyperlinks (e.g., for onscreen viewing)
+
+%%
+% Book metadata
+\title{A Course in Theory of Cryptography}
+\author[Sanjam Garg]{Sanjam Garg}
+%\publisher{Publisher of This Book}
+
+%%
+% If they're installed, use Bergamo and Chantilly from www.fontsite.com.
+% They're clones of Bembo and Gill Sans, respectively.
+%\IfFileExists{bergamo.sty}{\usepackage[osf]{bergamo}}{}% Bembo
+%\IfFileExists{chantill.sty}{\usepackage{chantill}}{}% Gill Sans
+
+%\usepackage{microtype}
+
+%%
+% Just some sample text
+\usepackage{lipsum}
+\newcommand{\ma}{\mathcal{A}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\mb}{\mathcal{B}}
+\newcommand{\cB}{\mathcal{B}}
+
+\newcommand{\getsr}{\xleftarrow{\$}}
+\newcommand{\bit}{\{0,1\}}
+
+\newcommand{\Gen}{\mathsf{Gen}}
+\newcommand{\gen}{\mathsf{Gen}}
+\newcommand{\Enc}{\mathsf{Enc}}
+% \newcommand{\enc}{\mathsf{Enc}}
+\newcommand{\Dec}{\mathsf{Dec}}
+% \newcommand{\dec}{\mathsf{Dec}}
+% \newcommand{\pk}{\mathsf{pk}}
+% \newcommand{\sk}{\mathsf{sk}}
+\newcommand{\ek}{\mathsf{ek}}
+
+% \newcommand{\concat}[0]{\; || \;}
+
+% \newcommand{\bin}{\{0,1\}}
+% \newcommand{\adv}{\mathcal{A}}
+% \newcommand{\advb}{\mathcal{B}}
+% \newcommand{\advc}{\mathcal{C}}
+% \newcommand{\fake}{\mathsf{FAKE}}
+
+\newcommand{\Sign}{\mathsf{Sign}}
+\newcommand{\Verify}{\mathsf{Verify}}
+%\newcommand{\negl}{\mathsf{negl}}
+\newcommand{\abort}{\mathsf{abort}}
+\newcommand{\Sampler}{\mathsf{Sampler}}
+\newcommand{\Eval}{\mathsf{Eval}}
+\renewcommand{\tag}{\mathsf{tag}}
+\newcommand{\PRF}{\mathsf{PRF}}
+\newcommand{\LWE}{\mathsf{LWE}}
+%%
+% For nicely typeset tabular material
+\usepackage{booktabs}
+
+\usepackage[n,advantage,operators,sets,adversary,landau,probability,notions,logic,ff,mm,primitives,events,complexity,oracles,asymptotics,keys]{cryptocode} 
+%%
+% For graphics / images
+\usepackage{graphicx,algpseudocode}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+\graphicspath{{graphics/}}
+
+% The fancyvrb package lets us customize the formatting of verbatim
+% environments.  We use a slightly smaller font.
+\usepackage{fancyvrb}
+\fvset{fontsize=\normalsize}
+
+%%
+% Prints argument within hanging parentheses (i.e., parentheses that take
+% up no horizontal space).  Useful in tabular environments.
+\newcommand{\hangp}[1]{\makebox[0pt][r]{(}#1\makebox[0pt][l]{)}}
+
+%%
+% Prints an asterisk that takes up no horizontal space.
+% Useful in tabular environments.
+\newcommand{\hangstar}{\makebox[0pt][l]{*}}
+
+%%
+% Prints a trailing space in a smart way.
+\usepackage{xspace}
+
+%%
+% Some shortcuts for Tufte's book titles.  The lowercase commands will
+% produce the initials of the book title in italics.  The all-caps commands
+% will print out the full title of the book in italics.
+\newcommand{\vdqi}{\textit{VDQI}\xspace}
+\newcommand{\ei}{\textit{EI}\xspace}
+\newcommand{\ve}{\textit{VE}\xspace}
+\newcommand{\be}{\textit{BE}\xspace}
+\newcommand{\VDQI}{\textit{The Visual Display of Quantitative Information}\xspace}
+\newcommand{\EI}{\textit{Envisioning Information}\xspace}
+\newcommand{\VE}{\textit{Visual Explanations}\xspace}
+\newcommand{\BE}{\textit{Beautiful Evidence}\xspace}
+
+\newcommand{\TL}{Tufte-\LaTeX\xspace}
+
+% Prints the month name (e.g., January) and the year (e.g., 2008)
+\newcommand{\monthyear}{%
+  \ifcase\month\or January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or
+  December\fi\space\number\year
+}
+
+
+% Prints an epigraph and speaker in sans serif, all-caps type.
+\newcommand{\openepigraph}[2]{%
+  %\sffamily\fontsize{14}{16}\selectfont
+  \begin{fullwidth}
+  \sffamily\large
+  \begin{doublespace}
+  \noindent\allcaps{#1}\\% epigraph
+  \noindent\allcaps{#2}% author
+  \end{doublespace}
+  \end{fullwidth}
+}
+
+% Inserts a blank page
+\newcommand{\blankpage}{\newpage\hbox{}\thispagestyle{empty}\newpage}
+
+\usepackage{units}
+
+% Typesets the font size, leading, and measure in the form of 10/12x26 pc.
+\newcommand{\measure}[3]{#1/#2$\times$\unit[#3]{pc}}
+
+% Macros for typesetting the documentation
+\newcommand{\hlred}[1]{\textcolor{Maroon}{#1}}% prints in red
+\newcommand{\hangleft}[1]{\makebox[0pt][r]{#1}}
+\newcommand{\hairsp}{\hspace{1pt}}% hair space
+\newcommand{\hquad}{\hskip0.5em\relax}% half quad space
+\newcommand{\TODO}{\textcolor{red}{\bf TODO!}\xspace}
+\newcommand{\ie}{\textit{i.\hairsp{}e.}\xspace}
+\newcommand{\eg}{\textit{e.\hairsp{}g.}\xspace}
+\newcommand{\na}{\quad--}% used in tables for N/A cells
+\providecommand{\XeLaTeX}{X\lower.5ex\hbox{\kern-0.15em\reflectbox{E}}\kern-0.1em\LaTeX}
+\newcommand{\tXeLaTeX}{\XeLaTeX\index{XeLaTeX@\protect\XeLaTeX}}
+% \index{\texttt{\textbackslash xyz}@\hangleft{\texttt{\textbackslash}}\texttt{xyz}}
+\newcommand{\tuftebs}{\symbol{'134}}% a backslash in tt type in OT1/T1
+\newcommand{\doccmdnoindex}[2][]{\texttt{\tuftebs#2}}% command name -- adds backslash automatically (and doesn't add cmd to the index)
+\newcommand{\doccmddef}[2][]{%
+  \hlred{\texttt{\tuftebs#2}}\label{cmd:#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\doccmd}[2][]{%
+  \texttt{\tuftebs#2}%
+  \ifthenelse{\isempty{#1}}%
+    {% add the command to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2}}% command name
+    }%
+    {% add the command and package to the index
+      \index{#2 command@\protect\hangleft{\texttt{\tuftebs}}\texttt{#2} (\texttt{#1} package)}% command name
+      \index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}% package name
+    }%
+}% command name -- adds backslash automatically
+\newcommand{\docopt}[1]{\ensuremath{\langle}\textrm{\textit{#1}}\ensuremath{\rangle}}% optional command argument
+\newcommand{\docarg}[1]{\textrm{\textit{#1}}}% (required) command argument
+\newenvironment{docspec}{\begin{quotation}\ttfamily\parskip0pt\parindent0pt\ignorespaces}{\end{quotation}}% command specification environment
+\newcommand{\docenv}[1]{\texttt{#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docenvdef}[1]{\hlred{\texttt{#1}}\label{env:#1}\index{#1 environment@\texttt{#1} environment}\index{environments!#1@\texttt{#1}}}% environment name
+\newcommand{\docpkg}[1]{\texttt{#1}\index{#1 package@\texttt{#1} package}\index{packages!#1@\texttt{#1}}}% package name
+\newcommand{\doccls}[1]{\texttt{#1}}% document class name
+\newcommand{\docclsopt}[1]{\texttt{#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name
+\newcommand{\docclsoptdef}[1]{\hlred{\texttt{#1}}\label{clsopt:#1}\index{#1 class option@\texttt{#1} class option}\index{class options!#1@\texttt{#1}}}% document class option name defined
+\newcommand{\docmsg}[2]{\bigskip\begin{fullwidth}\noindent\ttfamily#1\end{fullwidth}\medskip\par\noindent#2}
+\newcommand{\docfilehook}[2]{\texttt{#1}\index{file hooks!#2}\index{#1@\texttt{#1}}}
+\newcommand{\doccounter}[1]{\texttt{#1}\index{#1 counter@\texttt{#1} counter}}
+
+% Generates the index
+\usepackage{makeidx}
+\makeindex
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{{\protect\color{red}\sout{#1}}}                      %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+\newcommand{\DIFscaledelfig}{0.5}
+%DIF HIGHLIGHTGRAPHICS PREAMBLE %DIF PREAMBLE
+\RequirePackage{settobox} %DIF PREAMBLE
+\RequirePackage{letltxmacro} %DIF PREAMBLE
+\newsavebox{\DIFdelgraphicsbox} %DIF PREAMBLE
+\newlength{\DIFdelgraphicswidth} %DIF PREAMBLE
+\newlength{\DIFdelgraphicsheight} %DIF PREAMBLE
+% store original definition of \includegraphics %DIF PREAMBLE
+\LetLtxMacro{\DIFOincludegraphics}{\includegraphics} %DIF PREAMBLE
+\newcommand{\DIFaddincludegraphics}[2][]{{\color{blue}\fbox{\DIFOincludegraphics[#1]{#2}}}} %DIF PREAMBLE
+\newcommand{\DIFdelincludegraphics}[2][]{% %DIF PREAMBLE
+\sbox{\DIFdelgraphicsbox}{\DIFOincludegraphics[#1]{#2}}% %DIF PREAMBLE
+\settoboxwidth{\DIFdelgraphicswidth}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\settoboxtotalheight{\DIFdelgraphicsheight}{\DIFdelgraphicsbox} %DIF PREAMBLE
+\scalebox{\DIFscaledelfig}{% %DIF PREAMBLE
+\parbox[b]{\DIFdelgraphicswidth}{\usebox{\DIFdelgraphicsbox}\\[-\baselineskip] \rule{\DIFdelgraphicswidth}{0em}}\llap{\resizebox{\DIFdelgraphicswidth}{\DIFdelgraphicsheight}{% %DIF PREAMBLE
+\setlength{\unitlength}{\DIFdelgraphicswidth}% %DIF PREAMBLE
+\begin{picture}(1,1)% %DIF PREAMBLE
+\thicklines\linethickness{2pt} %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\framebox(1,1){}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,0){\line( 1,1){1}}}% %DIF PREAMBLE
+{\color[rgb]{1,0,0}\put(0,1){\line(1,-1){1}}}% %DIF PREAMBLE
+\end{picture}% %DIF PREAMBLE
+}\hspace*{3pt}}} %DIF PREAMBLE
+} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbegin}{\DIFaddbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddend}{\DIFaddend} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbegin}{\DIFdelbegin} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelend}{\DIFdelend} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbegin}{\DIFOaddbegin \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbegin}{\DIFOdelbegin \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelend}{\DIFOaddend \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddbeginFL}{\DIFaddbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOaddendFL}{\DIFaddendFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelbeginFL}{\DIFdelbeginFL} %DIF PREAMBLE
+\LetLtxMacro{\DIFOdelendFL}{\DIFdelendFL} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddbeginFL}{\DIFOaddbeginFL \let\includegraphics\DIFaddincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFaddendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelbeginFL}{\DIFOdelbeginFL \let\includegraphics\DIFdelincludegraphics} %DIF PREAMBLE
+\DeclareRobustCommand{\DIFdelendFL}{\DIFOaddendFL \let\includegraphics\DIFOincludegraphics} %DIF PREAMBLE
+%DIF LISTINGS PREAMBLE %DIF PREAMBLE
+\RequirePackage{listings} %DIF PREAMBLE
+\RequirePackage{color} %DIF PREAMBLE
+\lstdefinelanguage{DIFcode}{ %DIF PREAMBLE
+%DIF DIFCODE_UNDERLINE %DIF PREAMBLE
+  moredelim=[il][\color{red}\sout]{\%DIF\ <\ }, %DIF PREAMBLE
+  moredelim=[il][\color{blue}\uwave]{\%DIF\ >\ } %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstdefinestyle{DIFverbatimstyle}{ %DIF PREAMBLE
+	language=DIFcode, %DIF PREAMBLE
+	basicstyle=\ttfamily, %DIF PREAMBLE
+	columns=fullflexible, %DIF PREAMBLE
+	keepspaces=true %DIF PREAMBLE
+} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim}{\lstset{style=DIFverbatimstyle}}{} %DIF PREAMBLE
+\lstnewenvironment{DIFverbatim*}{\lstset{style=DIFverbatimstyle,showspaces=true}}{} %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+\iffalse
+% Front matter
+\frontmatter
+
+% r.1 blank page
+\blankpage
+
+
+% v.2 epigraphs
+\newpage\thispagestyle{empty}
+\openepigraph{%
+The public is more familiar with bad design than good design.
+It is, in effect, conditioned to prefer bad design, 
+because that is what it lives with. 
+The new becomes threatening, the old reassuring.
+}{Paul Rand%, {\itshape Design, Form, and Chaos}
+}
+\vfill
+\openepigraph{%
+A designer knows that he has achieved perfection 
+not when there is nothing left to add, 
+but when there is nothing left to take away.
+}{Antoine de Saint-Exup\'{e}ry}
+\vfill
+\openepigraph{%
+\ldots the designer of a new system must not only be the implementor and the first 
+large-scale user; the designer should also write the first user manual\ldots 
+If I had not participated fully in all these activities, 
+literally hundreds of improvements would never have been made, 
+because I would never have thought of them or perceived 
+why they were important.
+}{Donald E. Knuth}
+\fi
+
+% r.3 full title page
+\maketitle
+
+
+% v.4 copyright page
+%\newpage
+\begin{fullwidth}
+~\vfill
+\thispagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{\baselineskip}
+Copyright \copyright\ \the\year\ \thanklessauthor
+
+%\par\smallcaps{Published by \thanklesspublisher}
+
+\par\smallcaps{This document is continually being updated. Please send us your feedback.}
+
+
+\par \doclicenseThis
+ \index{license}
+
+\par\textit{This draft was compiled on \today.}
+\end{fullwidth}
+
+% r.5 contents
+\tableofcontents
+
+%\listoffigures
+
+%\listoftables
+
+% r.7 dedication
+\iffalse
+\cleardoublepage
+~\vfill
+
+\begin{doublespace}
+\noindent\fontsize{18}{22}\selectfont\itshape
+\nohyphenation
+Dedicated to those who appreciate \LaTeX{} 
+and the work of \mbox{Edward R.~Tufte} 
+and \mbox{Donald E.~Knuth}.
+\end{doublespace}
+\vfill
+\vfill
+
+% r.9 introduction
+\cleardoublepage
+\fi
+\chapter*{Preface}
+Cryptography enables many paradoxical objects, such as public key encryption, verifiable electronic signatures, zero-knowledge protocols, and fully homomorphic encryption.  The two main steps in developing such seemingly impossible primitives are (i) defining the desired security properties formally and (ii) obtaining a construction satisfying the security property provably. In modern cryptography, the second step typically assumes (unproven) computational assumptions, which are conjectured to be computationally intractable. In this course, we will define several cryptographic primitives and argue their security based on well-studied computational hardness assumptions. However, we will largely ignore the mathematics underlying the assumed computational intractability assumptions.
+
+\section*{Acknowledgements}
+These lecture notes are based on scribe notes taken by students in CS 276 over the years. Also, thanks to Peihan Miao, Akshayaram Srinivasan, and Bhaskar Roberts for helping to improve these notes.
+%%
+% Start the main matter (normal chapters)
+\newcommand{\sanjam}[1]{{\color{red} Sanjam: #1}}
+
+\newcommand{\bhaskar}[1]{{\color{ForestGreen} Bhaskar: #1}}
+
+\mainmatter
+%\input{lec00-F24}
+%\input{lec01-F24}
+%\input{lec02-F24}
+%\input{lec03-F24}
+%\input{lec04-F24}
+%\input{lec05-F24}
+%\input{lec06-F24}
+%\input{lec07-F24}
+%\input{lec08-F24}
+%\input{lec09-F24}
+%\input{lec10-F24}
+%\input{lec11-F24}
+%\input{lec12-F24}
+%\input{lec13-F24}
+%\input{lec14-F24}
+%\input{lec15-F24}
+%\input{lec16-F24}
+%\input{lec17-F24}
+\chapter{Proving Computation Integrity}
+\section{Zero-Knowledge Proofs}
+Traditional Euclidean style proofs allow us to prove veracity of statements to others. However, such proof systems have two shortcomings: (1) the running time of the verifier needs to grow with the length of the proof, and (2) the proof itself needs to be disclosed to the verifier. In this chapter, we will provide methods enabling provers to prove veracity of statements of their choice to verifiers while avoiding the aforementioned limitations. In realizing such methods we will allow the prover and verifier to be probabilistic and also allow them to interact with each other.\footnote{Formally, they can be modeled as interactive PPT Turing Machines.}
+
+\section{Interactive Proofs}
+\begin{definition} {\normalfont\textbf{(Interactive Proof System)}} For a language L we have an \textit{interactive proof system} if $\exists$ a pair of algorithms (or better, interacting machines) $(\mathcal{P},\mathcal{V})$, where $\mathcal{V}$ \DIFdelbegin \DIFdel{is polynomial in \mbox{%DIFAUXCMD
+$|x|$
+}%DIFAUXCMD
+}\DIFdelend \DIFaddbegin \DIFadd{runs in polynomial time in its input length}\DIFaddend , and both can flip coins, such that:
+		\begin{itemize}
+			\item Completeness: $\forall x\in L$
+		$$\Pr_{\mathcal{P},\mathcal{V}} \left[Output_{\mathcal{V}}(\mathcal{P}(x) \leftrightarrow \mathcal{V}(x))=1\right]=1,$$
+			\item Soundness: $\forall x\notin L$, $\forall \mathcal{P}^*$ \DIFaddbegin \DIFadd{(unbounded)
+		}\DIFaddend $$\Pr_{\mathcal{V}} \left[Output_{\mathcal{V}}(\mathcal{P}^*(x) \leftrightarrow \mathcal{V}(x))=1\right]<\DIFdelbegin \DIFdel{neg}\DIFdelend \DIFaddbegin \DIFadd{\mathsf{negl}}\DIFaddend (|x|),$$
+		\end{itemize} where $Output_{\mathcal{V}}(\mathcal{P}(x) \leftrightarrow \mathcal{V}(x))$ denotes the output of $\mathcal{V}$ in the interaction between $\mathcal{P}$ and $\mathcal{V}$ where both parties get $x$ as input.
+		We stress that $\mathcal{P}$ and $\mathcal{P}^*$ can be computationally unbounded. 
+  \end{definition}
+\DIFaddbegin \DIFadd{We can also consider other variants of this definition, e.g. imperfect completeness.
+}\DIFaddend 
+
+\DIFdelbegin \paragraph{\DIFdel{Interactive Proof for Graph Non-Isomorphism (GNI).}} %DIFAUXCMD
+\addtocounter{paragraph}{-1}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \DIFadd{To understand the above definition, let's consider two languages over a pair of graphs \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+: 
+}\begin{enumerate}
+	\item \DIFadd{Graph Isomorphism (GI): }\DIFaddend We say that two graphs $G_0$ and $G_1$ are isomorphic, denoted $G_0 \cong G_1$, if $\exists$ an isomorphism $f: V(G_0) \rightarrow V(G_1)$ s.t. $(u,v)\in E(G_0)$ iff $(f(u),f(v))\in E(G_1)$, where $V(G)$ and $E(G)$ are the vertex and edge sets of some graph $G$. \DIFaddbegin \DIFadd{Let \mbox{%DIFAUXCMD
+$GI=\lbrace(G_0,G_1)|\  G_0\cong G_1\rbrace$
+}%DIFAUXCMD
+be the language that consists of pairs of graphs that are isomorphic.
+	}\item \DIFadd{Graph Non-Isomorphism (GNI): }\DIFaddend On the other hand, $G_0$ and $G_1$ are said to be non-isomorphic, $G_0 \ncong G_1$, if $\nexists$ any such $f$, and \DIFaddbegin \DIFadd{let }\DIFaddend $GNI=\lbrace(G_0,G_1)|\  G_0\ncong G_1\rbrace$ be the language that consists of pairs of graphs that are not isomorphic.
+\DIFaddbegin \end{enumerate}
+ \DIFaddend 
+
+\DIFdelbegin \DIFdel{GNI is }\DIFdelend \DIFaddbegin \paragraph{\DIFadd{Trivial Case of Graph Isomorphism (GI).}} \DIFadd{A prover can easily prove to a verifier that two graphs are isomorphic by directly providing the isomorphism \mbox{%DIFAUXCMD
+$f$
+}%DIFAUXCMD
+between them. The verifier can confirm the isomorphism in time polynomial in the size of the graphs (i.e., its input); hence we have perfect completeness. If the graphs are not isomorphic, no isomorphism exists, and the verifier always rejects; we have perfect soundness too. This proof was trivial, and we didn't even require (back-and-forth) interaction. We now look at a more interesting case of GNI. Moreover, looking ahead, we will see more interesting properties that we can ask of proof systems, like zero-knowledge, where this trivial proof system terribly fails, and we will revisit the GI problem to see how we can prove it with zero-knowledge.
+}
+
+\paragraph{\DIFadd{Interactive Proof for Graph Non-Isomorphism (GNI).}}  \DIFadd{Unlike the case of GI, for GNI, there is no succinct (e.g., linear in the size of graphs) information that the prover can provide, and consequently, no ``efficient'' (polynomial time in the graphs) verification that the verifier can do. This is where the }{\em \DIFadd{power of interaction}} \DIFadd{comes in. In other words, since GNI is }\DIFaddend not believed to have short proofs\DIFdelbegin \DIFdel{so an interactive }\DIFdelend \DIFaddbegin \DIFadd{, an }{\em \DIFadd{interactive}} \DIFaddend proof could offer \DIFdelbegin \DIFdel{a }\DIFdelend \DIFaddbegin \DIFadd{the }\DIFaddend prover a mechanism to prove to a polynomially bounded verifier that two graphs are non-isomorphic. \DIFaddbegin \DIFadd{We will now describe an interactive proof system for GNI.
+}\DIFaddend 
+
+The intuition \DIFdelbegin \DIFdel{behind a protocol to accomplish the above task }\DIFdelend is simple. Consider a verifier that randomly \DIFdelbegin \DIFdel{rename }\DIFdelend \DIFaddbegin \DIFadd{renames }\DIFaddend the vertices of one of the graphs and give it to the prover. Can the prover\DIFaddbegin \DIFadd{, }\DIFaddend given the relabeled graph\DIFaddbegin \DIFadd{, }\DIFaddend figure out which graph did the verifier start with?  If $G_0$ and $G_1$ were not isomorphic\DIFdelbegin \DIFdel{then an unbounded }\DIFdelend \DIFaddbegin \DIFadd{, then an unbounded-time }\DIFaddend prover can figure this out. However, in case $G_0$ and $G_1$ {are} isomorphic\DIFdelbegin \DIFdel{then the distribution }\DIFdelend \DIFaddbegin \DIFadd{, then the distributions }\DIFaddend resulting form random relabelings of $G_0$ and $G_1$ are actually identical. Therefore, even an unbounded prover has no way of distinguishing which graph the verifier started with. So the prover has only a $\frac12$ probability of guessing which graph the verifier started with. Note that by repeating this process we can reduce the success probability of a cheating prover to negligible\DIFaddbegin \footnote{\DIFadd{This strategy is called soundness amplification by ``sequential'' repetition. Later, we might cover proof systems where we additionally consider ``parallel'' repetition to achieve different security properties.}}\DIFaddend . More formally\DIFaddbegin \DIFadd{, given a claim \mbox{%DIFAUXCMD
+$(G_0,G_1)\in GNI$
+}%DIFAUXCMD
+, we define the following interactive proof system}\DIFaddend :
+
+%		If they consistently answer correctly, however, it would be hard to remain skeptical against $G_0 \ncong G_1$ as they beat the odds to almost impossible limits.  And so this interaction can ``prove" very strongly to the verifier that $(G_0,G_1)\in$ GNI.  Consider the protocol we can define from this:
+
+		\begin{center}
+			\includegraphics[scale=.51094]{Old Scribe Notes/GNI_IP_Protocol.png}
+		\end{center}
+
+		\begin{itemize}
+			\item Completeness: If $(G_0,G_1)\in$ GNI, then the unbounded $\mathcal{P}$ can distinguish isomorphism of $G_0$ against those of $G_1$ and can always return the correct $b'$.  Thus, $\mathcal{V}$ will always output 1 for this case.
+			\item Soundness: If $(G_0,G_1)\notin$ GNI, then it is equiprobable that $H$ is a random isomorphism of $G_0$ as it is \DIFaddbegin \DIFadd{of }\DIFaddend $G_1$\DIFaddbegin \DIFadd{, }\DIFaddend and so $\mathcal{P}$'s guess for $b'$ can be correct only with a probability $\frac{1}{2}$\DIFaddbegin \footnote{\DIFadd{A curious reader might notice that the challenge bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+sampled by \mbox{%DIFAUXCMD
+$\mathcal{V}$
+}%DIFAUXCMD
+is information-theoretically hidden from \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+(hidden in \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+) when \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+'s claim is false. This is similar to what we saw in Hash Proof Systems before.}}\DIFaddend .  Repeating this protocol $k$ times\DIFaddbegin \DIFadd{, with fresh verifier randomness each time, }\DIFaddend means the probability of guessing the correct $b'$ for all $k$ interactions is $\frac{1}{2^k}$.  And so the probability of $\mathcal{V}$ outputting \DIFdelbegin \DIFdel{0 }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$0$
+}%DIFAUXCMD
+}\DIFaddend (e.g. rejecting $\mathcal{P}$'s proof at the first sign of falter) is $1-\frac{1}{2^k}$.  
+\DIFaddbegin 
+
+		\DIFaddend \end{itemize}
+
+		%The interaction between prover and verifier captures the notion of a proof system for GNI, a problem previously not known to have an efficient method of proof.  By interacting, we can prove what seemed impossible to efficiently prove before!
+		\DIFaddbegin \DIFadd{To conclude, the interactive proof system we described above enabled something that wasn't possible without interaction. 
+}\DIFaddend 
+
+\section{Zero Knowledge Proofs}
+\DIFaddbegin \DIFadd{We saw a crucial difference between GI and GNI: in GI, the prover already holds a succinct proof to back its claim, we call this a ``witness'', while in GNI, no such succinct proof exists (i.e., there is nothing that the prover can directly send to the verifier to back its claim). From this point onwards, we exclusively focus on the languages of the first kind, i.e., where a witness for the claim exists; these languages cover a vast majority of the use-cases of verifiable computation, and are formalized as follows:
+}\DIFaddend 
+
+\begin{definition} {\normalfont\textbf{(NP-Verifier)}} A language L has an NP-verifier if $\exists$ a verifier $\mathcal{V}$ that is polynomial time in $|x|$ such that:
+		\begin{itemize}
+			\item Completeness: $\forall x\in L,\ \exists\ a\ proof\ \pi\ s.t.\ \mathcal{V}(x,\pi)=1$
+			\item Soundness: $\forall x \notin L$\DIFaddbegin \DIFadd{, and }\DIFaddend $\forall$ purported proof $\pi$\DIFaddbegin \DIFadd{, }\DIFaddend we have $\mathcal{V}(x,\pi)=0$
+		\end{itemize}
+  \end{definition}
+
+		That is, the conventional idea of a proof is formalized in terms of what a computer can efficiently verify.\DIFdelbegin \DIFdel{So a set of statements considered true (e. g. in a language \mbox{%DIFAUXCMD
+$L$
+}%DIFAUXCMD
+) is complete and sound if a proof can be written down that can be ``easily" and rigorously verified if and only if a statement is in the language. }\DIFdelend \DIFaddbegin \smallskip %DIF > A language $L$ has an NP-verifier if for all claims of statements $\in L$, a proof can be written down that can be ``easily'' and ``rigorously'' verified if and only if a statement is in the language.
+\DIFaddend 
+
+	\DIFdelbegin %DIFDELCMD < \bigskip
+%DIFDELCMD < %%%
+\DIFdelend \noindent \DIFdelbegin \textbf{\DIFdel{Efficient Provers.}}
+		%DIFAUXCMD
+\DIFdel{Unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of.  And for cryptography we must make more reasonable assumptions about the provers. In this case we will assume provers are also bounded to be }\emph{\DIFdel{efficient}}%DIFAUXCMD
+\DIFdelend \DIFaddbegin \textit{\DIFadd{Keeping the witness private}}\DIFadd{. The goal of a proof system is for the verifier to learn if the prover's claim is valid or not. Let's focus on what a verifier actually learns at the end of its interaction with the prover. In the trivial GI proof system we saw above, the verifier learns the entire isomorphism --- in other words, the verifier learns }{\em \DIFadd{everything}} \DIFadd{that the prover knew. 
+	This is too much leakage. Imagine the prover holding some secret or valuable information (e.g., its secret key) which is leaked to the verifier. This is not desirable. We want the verifier to learn only the validity of the claim, and nothing more. This is where the notion of zero-knowledge comes in.
+	For a proof system for a language with an NP-verifier, this translates to the verifier not learning the witness from the prover}\DIFaddend .
+
+	\DIFdelbegin \DIFdel{Previously, if a prover wanted to prove that two graphs, \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+were isomorphic, it would use its all-powerfulness to find the isomorphic mapping between the two graphs and give it to the verifier to complete the proof. 
+	But now, being computationally bounded, the prover is in the same boat as the verifier and can find a proof no better than the verifier can.
+	In order for the prover to be able to prove something that the verifier cannot find out on their own, the prover must have some extra information.
+	If, for example, the prover simply knew the isomorphism between the graphs, this would be the sufficient extra information it needs to enact the proof .  That's a rather boring proof though. We have interaction now!  Can't we do something fancier?
+		}\DIFdelend \DIFaddbegin \DIFadd{We now revisit the GI problem}\footnote{\DIFadd{GI is not NP-complete.}} \DIFadd{for which an NP-verifier exists, as we saw earlier. Later, we will consider NP-complete languages like graph 3-coloring --- giving us proof systems for all of NP. }\smallskip
+\DIFaddend 
+
+	\DIFdelbegin \DIFdel{What if the prover wanted to prove that two graphs were isomorphic but didn't want to fully reveal the isomorphism that they know.  If they're lying and don't know an isomorphism is their a way we can exploit them again?
+		}\DIFdelend \DIFaddbegin \noindent \textit{\DIFadd{Hiding witness for Graph Isomorphism}}\DIFadd{. We will build the ideas for our proof system with zero-knowledge gradually by iterating through a series of straw-man approaches. On the way, we will formally define zero knowledge. 
+}\DIFaddend 
+
+	When $G_0$ and $G_1$ are isomorphic, the isomorphism between them would be a \textit{witness}, $w$, to that fact, that can be used in the proof.  \DIFdelbegin \DIFdel{Unfortunately, the prover is being stubborn and won't just tell us that }\DIFdelend \DIFaddbegin \DIFadd{The prover doesn't want to reveal the }\DIFaddend isomorphism, $w:V(G_0)\rightarrow V(G_1)$, that they claim to have.  The prover is comfortable however giving us a ``scrambled\DIFdelbegin \DIFdel{" }\DIFdelend \DIFaddbegin \DIFadd{'' }\DIFaddend version, $\phi$, of $w$ as long as it doesn't leak any information about their precious $w$.  For example, the prover is willing to divulge $\phi = \pi \circ w$ where $\pi$ is a privately chosen random permutation of $|V|=|V(G_0)|=|V(G_1)|$ vertices.  Since $\pi$ renames vertices completely randomly, it scrambles what $w$ is doing entirely and $\phi$ is just a random permutation of $|V|$ elements.  At this point, we might be a little annoyed at the prover since we could have just created a random permutation on our own.  \DIFdelbegin \DIFdel{This might give us an idea on how to gain a little more information however, even though we gained none here:
+		}\DIFdelend \DIFaddbegin \DIFadd{Let's look at why this is still a good starting point.
+		}\DIFaddend 
+
+	If we want to be convinced that $\phi$ really is of the form $\pi \circ w$, thus containing $w$ in its definition, and isn't just a completely random permuation, we can note that if it is of that form then $\phi(G_0)=\pi(w(G_0))=\pi(G_1)$ (since $w$ being an isomorphism implies that $w(G_0)=G_1$).  Note that we started with a mapping on input $G_0$ and ended with a mapping on input $G_1$.  With an isormphism, one could get from one graph to the other seamlessly; if the prover \textit{really} has the isomorphism it claims to have, then it should have no problem displaying this ability.  So, what if we force the prover to give us $H=\pi (G_1)$ just after randomly choosing its $\pi$ and then let it show us its ability to go from $G_1$ to $G_0$ with ease: give us a $\phi$ so that $\phi(G_0)=\pi(G_1)=H$.  The only way the prover can give a mapping that jumps from $G_0$ to $G_1$ \DIFdelbegin \DIFdel{in such a way }\DIFdelend is if they know an isomorphism; \DIFaddbegin \DIFadd{in fact, }\DIFaddend if the prover could find a $\phi$ efficiently but did \textit{not} know an isomorphism then they would have been able to see that $\pi^{-1}(\phi(G_0))=G_1$ and thus have $\pi^{-1}\circ\phi$ as an isomorphism from $G_0$ to $G_1$, which would contradict the assumed hardness of finding isomorphisms in the GI problem. So by forcing the prover to give us $H$\DIFaddbegin \DIFadd{, }\DIFaddend as we've defined\DIFaddbegin \DIFadd{, }\DIFaddend and to produce a $\phi$ so that $\phi(G_0)=H$, we've found a way to expose provers that don't really have an isomorphism and we can then be convinced that they really do know $w$ when they pass our test.  \DIFdelbegin \DIFdel{And }\DIFdelend \DIFaddbegin \DIFadd{Importantly, }\DIFaddend the prover didn't directly tell us $w$, so \DIFdelbegin \DIFdel{they may be able to salvage some secrecy!
+		}\DIFdelend \DIFaddbegin \DIFadd{we are headed in the right direction.
+		}\DIFaddend 
+
+	But not everything is airtight about this interaction.  Why, for instance, would the prover be willing to provide $H=\pi(G_1)$ when they're trying to divulge as little information as possible?  The prover was comfortable giving us $\phi$ since we could have just simulated the process of getting a completely random permutation of vertices ourselves, but couldn't the additional information of $H$ reveal information about $w$?  At this point, \DIFdelbegin \DIFdel{the annoyed feeling may return as we realize that, }\DIFdelend \DIFaddbegin \DIFadd{if we look closely, we realize that }\DIFaddend $H=\pi(G_1)=\pi'(G_0)$, for some $\pi'$, is just a random isomorphic copy of $G_0$ \textit{and} $G_1$ as long as $G_0 \cong G_1$; we could have just chosen a random $\pi'$, set $H=\pi'(G_0)$, and let $\phi=\pi'$ and would have created our very own random isomorphic copy, $H$, of $G_1$ that satisfies our test condition $H=\phi(G_0)$\DIFaddbegin \DIFadd{, }\DIFaddend just like what we got from our interaction with the prover. \DIFdelbegin \DIFdel{We couldn't have gained any new information from the prover because we could have run the whole teston our own!
+		}%DIFDELCMD < 
+
+%DIFDELCMD < 		%%%
+\DIFdel{Well, something must be wrong; we couldn't have been convinced of something without gaining }\textit{\DIFdel{any}} %DIFAUXCMD
+\DIFdel{new information}\DIFdelend \DIFaddbegin \DIFadd{To our annoyance, the prover can easily fool this test}\DIFaddend . Indeed, the test has a hole in it: how can we force the prover to give us $H=\pi(G_1)$ like we asked?  If the prover is lying and it knows our test condition is to verify that $H=\phi(G_0)$, the prover might just cheat and give us $H=\pi(G_0)$ so it doesn't have to use knowledge of $w$ to switch from $G_1$ to $G_0$.  And, in fact, by doing this and sending $\phi=\pi$, the prover would fool us!
+
+	To keep the prover on their toes, though, we can randomly switch whether \DIFdelbegin \DIFdel{or not }\DIFdelend we want $H$ to equal $\phi(G_0)$ or $\phi(G_1)$.  \DIFdelbegin \DIFdel{If, in }\DIFdelend \DIFaddbegin \DIFadd{In }\DIFaddend our interaction, the prover must first provide \DIFdelbegin \DIFdel{their }\DIFdelend $H=\pi(G_1)$ before we let them know which we want\DIFdelbegin \DIFdel{, they then lock themselves }\DIFdelend \DIFaddbegin \DIFadd{. By sending \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+, the prover locks itself }\DIFaddend into a commitment to either $G_0$ or $G_1$ \DIFdelbegin \DIFdel{depending on whether they're trying to cheat or not, respectively. They only have }\DIFdelend \DIFaddbegin \DIFadd{if it is cheating, but if not, then it can easily move between the two graphs. A prover only has }\DIFaddend a $50\%$ chance of committing to the same case we want on a given round and so, if they don't have $w$ to deftly switch between $G_0$ and $G_1$ to always answer correctly, they again have to be an extremely lucky guesser if they're trying to lie.
+
+	\DIFdelbegin \DIFdel{Again}\DIFdelend \DIFaddbegin \DIFadd{Therefore}\DIFaddend , we've created an interactive scheme that can catch dishonest provers with probability 1-$\frac{1}{2^k}$ and where we always believe honest provers!
+
+		\begin{center}
+			\includegraphics[scale=.51094]{Old Scribe Notes/GI_ZK_Protocol.png}
+		\end{center}
+
+		\begin{itemize}
+			\item Completeness: If \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$(G_0,G_1)\in$
+}%DIFAUXCMD
+GI }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$(G_0,G_1)\in GI$
+}%DIFAUXCMD
+}\DIFaddend and $\mathcal{P}$ knows $w$, then whether $\mathcal{V}$ chooses $b=0$ or 1, $\mathcal{P}$ can always give the correct $\phi$ which, by definition, will always result in $H=\phi(G_b)$ and so $\mathcal{V}$ will always output 1.
+			\item Soundness: If \DIFdelbegin \DIFdel{\mbox{%DIFAUXCMD
+$(G_0,G_1)\notin$
+}%DIFAUXCMD
+GI}\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$(G_0,G_1)\notin GI$
+}%DIFAUXCMD
+}\DIFaddend , then $\mathcal{P}$ can only cheat, as discussed earlier, if the original $H$ it commits to ends up being $\pi(G_b)$ for the $b$ that is randomly chosen at the next step.  Since $b$ isn't even chosen yet, this can only happen by chance with probability $\frac{1}{2}$.  And so the probability $\mathcal{V}$ outputs \DIFdelbegin \DIFdel{0 }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$0$
+}%DIFAUXCMD
+}\DIFaddend is $1-\frac{1}{2^k}$ for $k$ rounds.
+		\end{itemize}
+
+		\DIFdelbegin \DIFdel{And so, again, we 've correctly captured the idea of a proof by having this interaction. But there's a strange feeling that may be lingering around us.
+		..
+		}\DIFdelend \DIFaddbegin \DIFadd{We have just shown that what we have so far is an interactive proof system. We now think of how the notion of zero-knowledge can be formalized here.
+		}\DIFaddend 
+
+		As a verifier, we've seen some things in interacting with the prover.  Surely, clever folks like ourselves must be able to glean \textit{some} information about $w$ after seeing enough to thoroughly convince us that the prover knows $w$.  We've first seen $H$, and we've also seen the random $b$ that we chose, along with $\phi$ at the end;  this is our whole view of information during the interaction.  But we're more bewildered than annoyed this time when we realize we could have always just chosen $b$ and $\phi$ randomly and set $H=\phi(G_b)$ on our own.  Again, everything checks out when $G_0 \cong G_1$ and we could have produced everything that we saw during the interaction before it even began.  That is, the distribution of the random variable triple ($H$, $b$, $\phi$) is identical whether it is what we saw from the prover during the interaction or it is yielded from the solitary process we just described.  We've just constructed a complete interactive proof system that entirely convinces us of the prover's knowledge of $w$, yet we could have simulated the whole experience on our own!  We couldn't have \DIFdelbegin \DIFdel{gain }\DIFdelend \DIFaddbegin \DIFadd{gained }\DIFaddend any knowledge about $w$ since we didn't see anything we couldn't have manufactured on \DIFaddbegin \DIFadd{our }\DIFaddend own, yet we are entirely convinced that $(G_0,G_1)\in$ GI and that $\mathcal{P}$ knows $w$!  And so the prover has proven something to us yet has given us absolutely zero additional knowledge!
+
+		This may feel very surprising or as if you've been swindled by a fast talker, and it very much should feel this way; it was certainly an amazing research discovery!  But this is true, and it can be made rigorous\DIFdelbegin \DIFdel{:
+		}\DIFdelend \DIFaddbegin \DIFadd{, as we do next.
+		}\DIFaddend 
+
+		We should first be sure what we want out of this new proof system.  We of course want it to be complete and sound so that we accept proofs iff they're true.  But we also want the verifier to gain zero knowledge from the interaction; that is, the verifier should have been able to simulate the whole experience on its own without the verifier.
+		Finally, we would also like all witnesses to a true statement to each be sufficient to prove the veracity of that statement and so we let $R$ be the relation s.t. $x \in L$ iff $\exists$ a witness $w$ s.t. $(x,w)\in R$.  We can then gather all witness by defining $R(x)$ to be the set of all such witnesses. \DIFaddbegin \DIFadd{We will first look at a weaker notion of zero-knowledge, called }\textit{\DIFadd{Honest Verifier Zero Knowledge}} \DIFadd{(HVZK), where we only require that an }{\em \DIFadd{honest}} \DIFadd{verifier (follows the protocol steps) does not learn anything from the prover. We will then move on to the stronger notion of }\textit{\DIFadd{Zero Knowledge}} \DIFadd{(ZK), where we extend this to all verifiers, including malicious verifiers.
+		}\DIFaddend 
+
+		\begin{definition} {\normalfont\textbf{(Honest Verifier Zero Knowledge Proof [HVZK])}} 
+			\DIFdelbegin \DIFdel{For a language L we have a }\DIFdelend \DIFaddbegin \DIFadd{\mbox{%DIFAUXCMD
+$(\mathcal{P},\mathcal{V})$
+}%DIFAUXCMD
+is a }\DIFaddend (perfect) \DIFdelbegin \textit{\DIFdel{HVZK proof system}} %DIFAUXCMD
+\DIFdelend \DIFaddbegin \DIFadd{HVZK proof system for a language \mbox{%DIFAUXCMD
+$L$
+}%DIFAUXCMD
+}\DIFaddend w.r.t. witness relation $R$ if 
+			$\exists$ \DIFdelbegin \DIFdel{an interactive proof system, \mbox{%DIFAUXCMD
+$(\mathcal{P},\mathcal{V})$
+}%DIFAUXCMD
+s.t. \mbox{%DIFAUXCMD
+$\exists$
+}%DIFAUXCMD
+}\DIFdelend a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall x \in L$, $\forall w\in R(x)$\DIFaddbegin \DIFadd{, }\DIFaddend the following distributions are \DIFdelbegin \DIFdel{identical:
+		}\DIFdelend \DIFaddbegin \DIFadd{(identical) indistinguishable:
+		}\DIFaddend $$\DIFaddbegin \DIFadd{\{}\DIFaddend View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V}(x))\DIFaddbegin \DIFadd{\} \approx \{\mathcal{S}(x)\}}\DIFaddend $$
+		\DIFdelbegin \begin{displaymath}\DIFdel{\mathcal{S}(x)}\end{displaymath}%DIFAUXCMD
+%DIFDELCMD < 		%%%
+\DIFdelend where $View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V}(x))$ is the random coins of $\mathcal{V}$ and all the messages $\mathcal{V}$ saw.
+  \end{definition}
+
+\begin{remark}
+In the above definition, $View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V}(x))$ contains both the random coins of $\mathcal{V}$ and all the messages that $\mathcal{V}$ saw, because they together constitute the view of $\mathcal{V}$, and they are correlated. If the random coins of $\mathcal{V}$ are not included in the definition of $View_{\mathcal{V}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V}(x))$, then even if $\mathcal{S}$ can generate all messages that $\mathcal{V}$ saw with the same distribution as in the real execution, the verifier may still be able to distinguish the two views using its random coins.
+\end{remark}
+
+\DIFaddbegin \begin{remark}
+\DIFadd{In the above definition, the order of quantifiers is quite important. We cannot change it to: \mbox{%DIFAUXCMD
+$\forall x \in L$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$\forall w\in R(x)$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$\exists$
+}%DIFAUXCMD
+a PPT machine \mbox{%DIFAUXCMD
+$\mathcal{S}$
+}%DIFAUXCMD
+. This is because the definition would be trivially satisfied by hardcoding the witness \mbox{%DIFAUXCMD
+$w$
+}%DIFAUXCMD
+in the simulator \mbox{%DIFAUXCMD
+$\mathcal{S}$
+}%DIFAUXCMD
+.
+}\end{remark}
+
+\DIFadd{To prove HVZK property of the GI proof system we described earlier, we now construct a simulator \mbox{%DIFAUXCMD
+$\mathcal{S}$
+}%DIFAUXCMD
+, with input \mbox{%DIFAUXCMD
+$G_0, G_1$
+}%DIFAUXCMD
+, as follows:
+}\begin{enumerate}
+	\item \DIFadd{Sample \mbox{%DIFAUXCMD
+$b\in\{0,1\}$
+}%DIFAUXCMD
+uniformly at random.
+	}\item \DIFadd{Sample a random permutation \mbox{%DIFAUXCMD
+$\sigma$
+}%DIFAUXCMD
+of the vertices.
+	}\item \DIFadd{Set \mbox{%DIFAUXCMD
+$H \gets \sigma(G_b)$
+}%DIFAUXCMD
+.
+	}\item \DIFadd{Output \mbox{%DIFAUXCMD
+$(H, b, \sigma)$
+}%DIFAUXCMD
+.
+}\end{enumerate}
+\DIFadd{It is straightforward to see that this simulator produces the same distribution as the real interaction between the prover and the verifier. This is because \mbox{%DIFAUXCMD
+$H = \sigma(G_b) = \sigma'(G_{1-b})$
+}%DIFAUXCMD
+, i.e., \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+is a random permutation of both \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+amd \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+. 
+	}
+
+\DIFadd{To recap: }\DIFaddend There is an interesting progression of the requirements of a proof system: Completeness, Soundness, and the Zero Knowledge property.  Completeness first cares that a prover-verifier pair exist and can capture all true things as a team that works together; they both honestly obey the protocol trying prove true statements.  Soundness, however, assumes that the prover is a liar and cares about having a strong enough verifier that can stand up to any type of prover and not be misled.  Finally, Zero Knowledge assumes that the verifier is hoping to glean information from the proof to learn the prover's secrets and this requirement makes sure the prover is clever enough that it gives no information away in its proof. \DIFdelbegin %DIFDELCMD < 
+
+%DIFDELCMD < 		%%%
+\DIFdelend Unlike the soundness' \DIFdelbegin \DIFdel{requirment }\DIFdelend \DIFaddbegin \DIFadd{requirement }\DIFaddend for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol. Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.
+%DIF < 		These are mostly discussed (including auxiliary inputs) in the next class, although the first definition is given below:
+%DIF < 		
+%DIF < 		{\definition {\normalfont\textbf{(Zero Knowledge Proof [ZK])}} For a language L we have a (perfect) \textit{ZK proof system} w.r.t. witness relation $R$ if $\exists$ an interactive proof system, $(\mathcal{P},\mathcal{V})$ s.t. $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall x \in L$, $\forall w\in R(x)$, $\forall \mathcal{V}^*$, the following distributions are identical:
+%DIF < 		$$View_{\mathcal{V}^*}(\mathcal{P}(x,w) \leftarrow \mathcal{V}^*(x))$$
+%DIF < 		$$\mathcal{S}^{\mathcal{V}^*}(x)$$
+%DIF < 		where $\mathcal{S}^{\mathcal{V}^*}(x)$ is the simulator with oracle access to $\mathcal{V}^*$.}
+
+%DIF <  !TEX root = collection.tex
+\DIFaddbegin \section{\DIFadd{Zero-Knowledge for Graph Isomorphism}}
+\DIFaddend 
+
+\DIFaddbegin \DIFadd{In this section, we construct our final zero-knowledge interactive proof system for GI where we don't have to assume an honest verifier for zero knowledge to hold. The proof system construction is exactly the same as the one we saw earlier. What changes is the definition of zero knowledge, and therefore, the simulator. 
+}
+
+\begin{definition} {\normalfont\textbf{\DIFadd{(Zero Knowledge Proof }[\DIFadd{ZK}]\DIFadd{)}}} 
+	\DIFadd{\mbox{%DIFAUXCMD
+$(\mathcal{P},\mathcal{V})$
+}%DIFAUXCMD
+is a (perfect) ZK proof system for a language \mbox{%DIFAUXCMD
+$L$
+}%DIFAUXCMD
+w.r.t. witness relation \mbox{%DIFAUXCMD
+$R$
+}%DIFAUXCMD
+if \mbox{%DIFAUXCMD
+$\forall$
+}%DIFAUXCMD
+PPT machines \mbox{%DIFAUXCMD
+$\mathcal{V}^*$
+}%DIFAUXCMD
+,
+	\mbox{%DIFAUXCMD
+$\exists$
+}%DIFAUXCMD
+a PPT machine \mbox{%DIFAUXCMD
+$\mathcal{S}$
+}%DIFAUXCMD
+(called the simulator) s.t. \mbox{%DIFAUXCMD
+$\forall x \in L$
+}%DIFAUXCMD
+, \mbox{%DIFAUXCMD
+$\forall w\in R(x)$
+}%DIFAUXCMD
+, the following distributions are (identical) indistinguishable:
+}$$\DIFadd{\{View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))\} \approx \{\mathcal{S}(x)\}}$$
+\DIFadd{where \mbox{%DIFAUXCMD
+$View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))$
+}%DIFAUXCMD
+is the random coins of \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+and all the messages \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+saw.
+}\end{definition}
+\begin{remark}
+	\DIFadd{Note that the order of quantifiers matters again. The definition would be stronger if we switch the order to: \mbox{%DIFAUXCMD
+$\exists$
+}%DIFAUXCMD
+a PPT machine \mbox{%DIFAUXCMD
+$\mathcal{S}$
+}%DIFAUXCMD
+(called the simulator) s.t. \mbox{%DIFAUXCMD
+$\forall$
+}%DIFAUXCMD
+PPT machines \mbox{%DIFAUXCMD
+$\mathcal{V}^*$
+}%DIFAUXCMD
+. This is because the same simulator would need to work for all possible efficient verifiers. Interestingly, the simulator we construct below for GI satisfies this stronger definition too. In fact, most simulators we know work for all verifiers (i.e. black-box simulators). It wasn't until 2008 that Boaz Barak showed that we can also construct non-black-box simulators. 
+}\end{remark}
+
+\DIFadd{Recall our protocol for graph isomorphism: the interaction is \mbox{%DIFAUXCMD
+$P(x,w) \leftrightarrow V(x)$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+represents graphs \mbox{%DIFAUXCMD
+$G_0 = (V, E_0)$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1 = (V, E_1)$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$w$
+}%DIFAUXCMD
+represents a permutation on \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$w (G_0) = G_1$
+}%DIFAUXCMD
+.
+}
+
+\begin{enumerate}
+\item \DIFadd{\mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+samples a random permutation \mbox{%DIFAUXCMD
+$\sigma: V \to V$
+}%DIFAUXCMD
+and sends the graph \mbox{%DIFAUXCMD
+$H = \sigma(G_1)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+.
+}
+
+\item \DIFadd{\mbox{%DIFAUXCMD
+$\mathcal{V}$
+}%DIFAUXCMD
+samples a random bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+and sends it to \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+.
+}
+
+\item \DIFadd{If \mbox{%DIFAUXCMD
+$b = 1$
+}%DIFAUXCMD
+, then \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+defines a permutation \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+to be \mbox{%DIFAUXCMD
+$\sigma$
+}%DIFAUXCMD
+. If \mbox{%DIFAUXCMD
+$b = 0$
+}%DIFAUXCMD
+, then instead \mbox{%DIFAUXCMD
+$\tau = \sigma \circ w$
+}%DIFAUXCMD
+. \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+then sends \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+.
+}
+
+\item \DIFadd{\mbox{%DIFAUXCMD
+$\mathcal{V}$
+}%DIFAUXCMD
+verifies that \mbox{%DIFAUXCMD
+$\tau(G_b) = H$
+}%DIFAUXCMD
+and accepts if so.
+}
+
+\end{enumerate}
+
+\DIFadd{The reason the simulator for HVZK doesn't work anymore is because a malicious verifier \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+could pick its bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+from a biased distribution (e.g. \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+can be a function of \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+seen by \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+).
+}
+
+\DIFadd{For zero knowledge, consider the following simulator}\footnote{\DIFadd{The simulator satisfies a stronger ZK property where the same simulator works for all \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+. Refer to the remark above for more details.}} \DIFadd{\mbox{%DIFAUXCMD
+$S$
+}%DIFAUXCMD
+with input \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+(with vertex set \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+) and verifier \mbox{%DIFAUXCMD
+$V^*$
+}%DIFAUXCMD
+:
+}
+
+\begin{enumerate}
+\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = 1\dots T$
+}%DIFAUXCMD
+; \mbox{%DIFAUXCMD
+$T=\mathsf{poly}(n)$
+}%DIFAUXCMD
+:
+}\begin{enumerate}
+	\item \DIFadd{Sample a bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+uniformly at random.
+}
+
+	\item \DIFadd{Sample a permutation \mbox{%DIFAUXCMD
+$\sigma: V \to V$
+}%DIFAUXCMD
+uniformly at random
+	}
+
+	\item \DIFadd{Send \mbox{%DIFAUXCMD
+$H = \sigma (G_b)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+.
+}
+
+	\item \DIFadd{Receive \mbox{%DIFAUXCMD
+$b'$
+}%DIFAUXCMD
+from \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+.
+}
+
+	\item \DIFadd{If \mbox{%DIFAUXCMD
+$b=b'$
+}%DIFAUXCMD
+, then output \mbox{%DIFAUXCMD
+$(H, b, \sigma)$
+}%DIFAUXCMD
+and terminate. Otherwise, continue the loop.
+}\end{enumerate}
+\item \DIFadd{Output \mbox{%DIFAUXCMD
+$\bot$
+}%DIFAUXCMD
+.
+}
+
+\end{enumerate}
+
+\DIFadd{We construct a sequence of hybrids to prove zero-knowledge. Let \mbox{%DIFAUXCMD
+$H_0$
+}%DIFAUXCMD
+define the interaction between \mbox{%DIFAUXCMD
+$\mathcal{P}$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$\mathcal{V^*}$
+}%DIFAUXCMD
+: \mbox{%DIFAUXCMD
+$\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$
+}%DIFAUXCMD
+. Define \mbox{%DIFAUXCMD
+$H_1$
+}%DIFAUXCMD
+as follows: 
+}\begin{enumerate}
+	\item \DIFadd{For \mbox{%DIFAUXCMD
+$i = 1\dots T$
+}%DIFAUXCMD
+:
+}\begin{enumerate}
+	\item \DIFadd{Sample a bit \mbox{%DIFAUXCMD
+$b^*$
+}%DIFAUXCMD
+uniformly at random.
+}
+
+	\item \DIFadd{Run \mbox{%DIFAUXCMD
+$H_0$
+}%DIFAUXCMD
+, i.e., \mbox{%DIFAUXCMD
+$\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$
+}%DIFAUXCMD
+.
+	}
+
+	\item \DIFadd{If \mbox{%DIFAUXCMD
+$b^*=0$
+}%DIFAUXCMD
+, output \mbox{%DIFAUXCMD
+$View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))$
+}%DIFAUXCMD
+.
+	}
+
+	\item \DIFadd{If \mbox{%DIFAUXCMD
+$b^*=1$
+}%DIFAUXCMD
+, continue with the loop.
+}\end{enumerate}
+\item \DIFadd{Output \mbox{%DIFAUXCMD
+$\bot$
+}%DIFAUXCMD
+.
+}\end{enumerate}
+
+\DIFadd{The hybrid \mbox{%DIFAUXCMD
+$H_1$
+}%DIFAUXCMD
+produces identical distribution as \mbox{%DIFAUXCMD
+$H_0$
+}%DIFAUXCMD
+except if \mbox{%DIFAUXCMD
+$b^*$
+}%DIFAUXCMD
+in all the \mbox{%DIFAUXCMD
+$T$
+}%DIFAUXCMD
+iterations is \mbox{%DIFAUXCMD
+$0$
+}%DIFAUXCMD
+; note that \mbox{%DIFAUXCMD
+$\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$
+}%DIFAUXCMD
+doesn't depend on \mbox{%DIFAUXCMD
+$b^*$
+}%DIFAUXCMD
+. This happens with probability at most \mbox{%DIFAUXCMD
+$1/2^T$
+}%DIFAUXCMD
+. Next, we define \mbox{%DIFAUXCMD
+$H_2$
+}%DIFAUXCMD
+where we change the logic of which transcript is thrown away. In each iteration, if \mbox{%DIFAUXCMD
+$b^* = b$
+}%DIFAUXCMD
+, where \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+is part of the transcript \mbox{%DIFAUXCMD
+$\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$
+}%DIFAUXCMD
+, we output the transcript; otherwise, we continue with the loop. Note again that \mbox{%DIFAUXCMD
+$b^*$
+}%DIFAUXCMD
+is still not used in any of the transcript (interaction). Therefore, distribution produced by \mbox{%DIFAUXCMD
+$H_2$
+}%DIFAUXCMD
+is identical to \mbox{%DIFAUXCMD
+$H_1$
+}%DIFAUXCMD
+because the interaction hasn't changed at all. Finally, we construct our last hybrid \mbox{%DIFAUXCMD
+$H_3$
+}%DIFAUXCMD
+where the simulator \mbox{%DIFAUXCMD
+$S$
+}%DIFAUXCMD
+is run. The distribution generated by \mbox{%DIFAUXCMD
+$H_3$
+}%DIFAUXCMD
+is identical to \mbox{%DIFAUXCMD
+$H_2$
+}%DIFAUXCMD
+by same argument we used for the HVZK simulator. }\bigskip
+
+
+\noindent\textbf{\DIFadd{Efficient Provers.}} \DIFadd{So far, we have considered unbounded provers, but unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of. And for cryptography we must make more reasonable assumptions about the provers.  We will now assume provers are also bounded to be }\emph{\DIFadd{efficient}}\DIFadd{. Note that if the prover in our GI proof system already holds the isomorphism, then generating the proof only takes polynomial time, and it is easy to see that it satisfies the definition below. }\smallskip
+
+\DIFaddend \begin{definition}[Efficient Prover Zero-Knowledge Proof]
+We say $(P, V)$ is an efficient prover zero-knowledge proof system for a language $L$ and relation $R_L$ if \begin{enumerate}
+
+\item The prover $P$ runs in polynomial time.
+
+\item The protocol is \emph{complete}. That is, for every $x \in L$ there exists a witness $w \in R_L (x)$ such that $$\Pr [P(x,w) \leftrightarrow V(x) \ \emph{accepts}] = 1.$$
+
+\item The protocol is \emph{sound} against unbounded provers. That is, for $\forall x \notin L$, we have $$\Pr [P^*(x,w) \leftrightarrow V(x) \ \emph{rejects}] \geq 1/2$$ for any prover $P^*$ of arbitrary computation power and any witness $w$.
+
+\item There exists an expected polynomial time probabilistic machine $S$ (a simulator) such that for all PPT $V^*$, for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$ we have $$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S^{V^*} (x,z) \} $$ \end{enumerate}
+
+\end{definition}
+
+The soundness probability can be amplified to be greater than any $1 - 1/2^k$, for arbitrary $k > 0$, by repeating the proof $k$ times. More precisely, we construct an efficient prover zero-knowledge proof system $(\tilde P, \tilde V)$ which repeats $(P,V)$ independently for $k$ times, and $\tilde V$ accepts if and only if $V$ accepts in all the executions.
+
+It is easy to see that $\tilde P$ runs in polynomial time and that the protocol is complete.
+Moreover, it has the following soundness guarantee:
+for $\forall x \notin L$,
+\begin{align*}
+& \Pr \left[\tilde P^*(x,w) \leftrightarrow \tilde V(x) \ \text{rejects}\right]\\
+= & 1- \Pr \left[\forall 1\leq i\leq k, P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
+= & 1- \prod_{i=1}^k \Pr \left[P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
+\geq& 1-\frac{1}{2^k}
+\end{align*}
+for any prover $\tilde P^*=(P^*_1, \cdots, P^*_k)$ of arbitrary computation power and any witness $w$.
+
+Finally, it  is zero-knowledge, namely, there exists an expected PPT $\tilde S$ such that for all PPT $\tilde V^*$, and for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$,
+$$\left\{ View_{\tilde V^*} (\tilde P(x,w) \leftrightarrow \tilde V^* (x,z)) \right\} \simeq_c \left\{ \tilde S^{\tilde V^*} (x,z) \right\}.$$
+The construction of $\tilde S$ is repeating $S$ for $k$ times. We prove by hybrid argument that the above two distributions are indistinguishable. $H_i$ is defined to be the output of repeating $S$ for the first $i$ executions with $\tilde V^*$ and repeating $P$ for the rest $k-i$ executions. Then $H_0$ is the left distribution and $H_k$ is the right one. Any attacher that can distinguish the above two distributions leads to an attacker that can distinguish $H_{i-1}$ and $H_{i}$ for some $1\leq i \leq k$, which violates the zero-knowledge property of the original proof system $(P,V)$.
+
+\DIFdelbegin %DIFDELCMD < \bigskip
+%DIFDELCMD <     %%%
+\DIFdel{The }\DIFdelend \DIFaddbegin \DIFadd{Similar to what we saw in previous definitions of zero-knowlege, the }\DIFaddend order of the quantifiers in item 4 matters.
+If we quantify over $x$ and $w$ before quantifying over the simulator,
+then we could hard-code  $x$ and $w$ into our simulator. That is, for all $x \in L, w \in R_L (x)$, there exists an expected polynomial time probabilistic machine $S_{x,w}$ such that for all PPT $V^*$ and $z \in \{ 0, 1 \}^*$,
+$$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S_{x,w}^{V^*} (x,z) \} $$
+Since we would like our simulator to be universal,  this is not acceptable.
+
+If we quantify first over the verifier $V^*$ and then over simulators $S$, then this variant is considered as \emph{non-black-box zero-knowledge}. Our standard definition is considered as \emph{black-box zero-knowledge}. There  also exist variants that use statistical indistinguishability rather than computational indistinguishability.
+
+The $z$ in item 4 is considered as \emph{auxiliary input}. The auxiliary input is crucial for the above argument of soundness amplification.
+
+We will discuss the importance of requiring expected polynomial time in the next section. \DIFaddbegin \bigskip
+%DIF > 		These are mostly discussed (including auxiliary inputs) in the next class, although the first definition is given below:
+%DIF > 		
+%DIF > 		{\definition {\normalfont\textbf{(Zero Knowledge Proof [ZK])}} For a language L we have a (perfect) \textit{ZK proof system} w.r.t. witness relation $R$ if $\exists$ an interactive proof system, $(\mathcal{P},\mathcal{V})$ s.t. $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall x \in L$, $\forall w\in R(x)$, $\forall \mathcal{V}^*$, the following distributions are identical:
+%DIF > 		$$View_{\mathcal{V}^*}(\mathcal{P}(x,w) \leftarrow \mathcal{V}^*(x))$$
+%DIF > 		$$\mathcal{S}^{\mathcal{V}^*}(x)$$
+%DIF > 		where $\mathcal{S}^{\mathcal{V}^*}(x)$ is the simulator with oracle access to $\mathcal{V}^*$.}
+\DIFaddend 
+
+
+\DIFdelbegin \section{\DIFdel{Graph Isomorphism}}
+    %DIFAUXCMD
+\addtocounter{section}{-1}%DIFAUXCMD
+\DIFdelend %DIF >  !TEX root = collection.tex
+
+\DIFdelbegin \DIFdel{Recall our protocol for graph isomorphism: the interaction is \mbox{%DIFAUXCMD
+$P(x,w) \leftrightarrow V(x)$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$x$
+}%DIFAUXCMD
+represents graphs \mbox{%DIFAUXCMD
+$G_0 = (V, E_0)$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1 = (V, E_1)$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$w$
+}%DIFAUXCMD
+represents a permutation \mbox{%DIFAUXCMD
+$\pi$
+}%DIFAUXCMD
+on \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+such that \mbox{%DIFAUXCMD
+$\pi (G_0) = G_1$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \begin{enumerate}
+\begin{enumerate}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{\mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+samples a random permutation \mbox{%DIFAUXCMD
+$\sigma: V \to V$
+}%DIFAUXCMD
+and sends the graph \mbox{%DIFAUXCMD
+$H = \sigma(G_1)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{\mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+samples a random bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+and sends it to \mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{If \mbox{%DIFAUXCMD
+$b = 1$
+}%DIFAUXCMD
+, then \mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+defines a permutation \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+to be \mbox{%DIFAUXCMD
+$\sigma$
+}%DIFAUXCMD
+. If \mbox{%DIFAUXCMD
+$b = 0$
+}%DIFAUXCMD
+, then instead \mbox{%DIFAUXCMD
+$\tau = \sigma \circ \pi$
+}%DIFAUXCMD
+. \mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+then sends \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{\mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+verifies that \mbox{%DIFAUXCMD
+$\tau(G_b) = H$
+}%DIFAUXCMD
+and accepts if so.
+    }%DIFDELCMD < 
+
+
+\end{enumerate}%DIFAUXCMD
+%DIFDELCMD <     \end{enumerate}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+\DIFdel{We will show that this is an efficient prover zero-knowledge proof system. It is clear that if \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+are isomorphic, then this protocol will succeed with probability 1.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+\DIFdel{For soundness, observe that if \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+is not isomorphic to \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+, then the graph \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+that \mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+sends to \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+in step 1 of the protocol can be isomorphic to at most one of \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+or \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+. Since \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+samples a bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+uniformly at random in step 2, then there is a probability of at most 1/2 that \mbox{%DIFAUXCMD
+$P$
+}%DIFAUXCMD
+can produce a valid isomorphism in step 3.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+\DIFdel{For zero knowledge, consider the following simulator \mbox{%DIFAUXCMD
+$S$
+}%DIFAUXCMD
+with input \mbox{%DIFAUXCMD
+$G_0$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$G_1$
+}%DIFAUXCMD
+(with vertex set \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+) and verifier \mbox{%DIFAUXCMD
+$V^*$
+}%DIFAUXCMD
+:
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \begin{enumerate}
+\begin{enumerate}%DIFAUXCMD
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Guess a bit \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+uniformly at random.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Sample a permutation \mbox{%DIFAUXCMD
+$\pi: V \to V$
+}%DIFAUXCMD
+uniformly at random and send \mbox{%DIFAUXCMD
+$\pi (G_b)$
+}%DIFAUXCMD
+to \mbox{%DIFAUXCMD
+$V^*$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{Receive \mbox{%DIFAUXCMD
+$b'$
+}%DIFAUXCMD
+form \mbox{%DIFAUXCMD
+$V^*$
+}%DIFAUXCMD
+.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     \item %%%
+\item%DIFAUXCMD
+\DIFdel{If \mbox{%DIFAUXCMD
+$b=b'$
+}%DIFAUXCMD
+, then output \mbox{%DIFAUXCMD
+$(\pi (G_b), b, \pi)$
+}%DIFAUXCMD
+and terminate. Otherwise, restart at step 1.
+    }%DIFDELCMD < 
+
+
+\end{enumerate}%DIFAUXCMD
+%DIFDELCMD <     \end{enumerate}
+%DIFDELCMD <     
+
+%DIFDELCMD <     %%%
+\DIFdel{Note that if \mbox{%DIFAUXCMD
+$G_0 \simeq G_1$
+}%DIFAUXCMD
+, then \mbox{%DIFAUXCMD
+$\pi(G_b)$
+}%DIFAUXCMD
+is statistically independent of \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+because \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+and \mbox{%DIFAUXCMD
+$\pi$
+}%DIFAUXCMD
+are sampled uniformly. Thus, with probability 1/2, \mbox{%DIFAUXCMD
+$V^*$
+}%DIFAUXCMD
+will output \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+so on average, two attempts will be needed before \mbox{%DIFAUXCMD
+$S$
+}%DIFAUXCMD
+terminates. It follows that \mbox{%DIFAUXCMD
+$S$
+}%DIFAUXCMD
+will terminate in }\emph{\DIFdel{expected}} %DIFAUXCMD
+\DIFdel{polynomial time.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+\DIFdel{Since \mbox{%DIFAUXCMD
+$b$
+}%DIFAUXCMD
+is sampled uniformly at random, \mbox{%DIFAUXCMD
+$\pi (G_b)$
+}%DIFAUXCMD
+is uniformly distributed with all graphs of the form \mbox{%DIFAUXCMD
+$\sigma (G_1)$
+}%DIFAUXCMD
+where \mbox{%DIFAUXCMD
+$\sigma$
+}%DIFAUXCMD
+is sampled uniformly at random from permutations on \mbox{%DIFAUXCMD
+$V$
+}%DIFAUXCMD
+. Thus, the output \mbox{%DIFAUXCMD
+$\pi(G_b)$
+}%DIFAUXCMD
+in our simulator will be identically distributed with the output \mbox{%DIFAUXCMD
+$H$
+}%DIFAUXCMD
+in our graph isomorphism protocol.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+\DIFdel{In step 3 of our graph isomorphism protocol, note that \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+is distributed uniformly at random. This is because composing a uniformly random permutation with a fixed permutation will not change its distribution. Thus \mbox{%DIFAUXCMD
+$\tau$
+}%DIFAUXCMD
+will be identically distributed with \mbox{%DIFAUXCMD
+$\pi$
+}%DIFAUXCMD
+in our simulator. It follows that the transcripts outputted by our simulator will be identically distributed with the transcripts produced by the graph isomorphism protocol.
+    }%DIFDELCMD < 
+
+%DIFDELCMD <     %%%
+\DIFdelend \section{Zero-Knowledge for NP}
+
+An $n$-coloring of a graph $G = (A, E)$ is a function $c: A \to \{1, \ldots, n \}$ such that if $(i, j) \in E$, then $c(i) \neq c(j)$. So we want to paint each vertex of a graph a certain color so that the endpoints of any edge are colored differently.
+
+In the graph 3-coloring problem (3COL), we are given a graph and asked if there exists a 3-coloring. In this section, we will provide a computational zero knowledge proof for 3COL. It is a fact that 3COL is NP-complete, so any problem in NP has a polynomial time reduction to 3COL. Thus, by giving a zero knowledge proof for 3COL, we will show that there are zero knowledge proofs for all of NP.
+
+We will first give a high-level description of a zero-knowledge protocol for 3COL. Suppose a prover $P$ wants to convince a verifier $V$ that his graph $G$ is 3-colorable without revealing what the coloring $c$ actually is. If the three colors we use are red, green, and blue, then note that if we colored all the red vertices blue, all the green vertices red, and all the blue vertices green, we would still have a valid 3-coloring. In fact, if $\phi$ was any permutation on the color set of red, green, and blue, then $\phi \circ c$ would be a valid 3-coloring of $G$.
+
+$P$ asks $V$ to leave the room and then samples a random permutation $\phi$ of the three colors. He colors the vertices of $G$ according to $\phi \circ c$, then covers all the vertices with cups. At this point, $P$ invites $V$ back into the room. $V$ is allowed to pick one edge and then uncover the two endpoints of the edge. If the colors on the two endpoints are the same, then $V$ rejects $P$'s claim that the graph is 3-colorable.
+
+If the colors on the two endpoints are different, then $V$ leaves the room again, $P$ samples $\phi$ randomly, and the process repeats itself. Certainly if $G$ is actually 3-colorable, then $V$ will never reject the claim. If $G$ is not 3-colorable, then there will always be an edge with endpoints that are colored identically and $V$ will eventually uncover such an edge.
+
+Note that $V$ does not gain any information on the coloring because it is masked by a (possibly) different random permutation every time $V$ uncovers an edge. Of course this protocol depends on $P$ not being able to quickly recolor the endpoints of an edge after removing the cups. This is why we need commitment schemes.
+
+\subsection{Commitment Schemes}
+
+We want to construct a protocol between a sender and a receiver where the sender sends a bit to the receiver, but the receiver will not know the value of this bit until the sender chooses to "open" the data that he sent. Of course, this protocol is no good unless the receiver can be sure that the sender was not able to change the value of his bit in between when the receiver first obtained the data and when the sender chose to open it.
+
+\begin{definition}
+A \emph{commitment scheme} is a PPT machine $C$ taking input $(b,r)$ that satisfies two properties: \begin{itemize}
+\item (perfect binding) For all $r, s$, we have $C(0,r) \neq C(1,s)$.
+
+\item (computational hiding) $\{ C(0, U_n) \} \simeq_c \{ C(1, U_n) \}$
+
+\end{itemize}
+\end{definition}
+
+So for the sender to "open" the data, he just has to send his value of $r$ to the receiver. We say that $r$ is a \emph{decommitment} for $C(x,r)$. Why do we require perfect binding instead of just statistical binding? If there existed even a single pair $r, s$ where $C(0,r) = C(1,s)$, then the sender could cheat. If he wished to reveal a bit value of 0 then he could just offer $r$ and if he wished to reveal a bit value of 1 then he could just offer $s$.
+
+We can use injective one-way functions to construct commitment schemes.
+
+\begin{theorem}
+If injective one-way functions exist, then so do commitment schemes.
+\end{theorem}
+\proof{We can let $f$ be an injective one-way function. Recall from Lecture 3 that $f' (x, r) := (f(x), r)$ will also be an injective one-way function with hard-core bit $B(x,r) := \langle x, r \rangle$. We claim that $C(b,x,r) := (f'(x,r), b \oplus B(x,r))$ is a commitment scheme.
+
+If $(x,r)  \neq (y,s)$ then $C(0,x,r) \neq C(0,y,s)$ because $f'$ is injective. Since $C(0,x,r) = (f'(x,r), B(x,r)) \neq (f'(x,r), \overline{B(x,r)}) = C(1,x,r)$, then $C$ satisfies perfect binding.
+
+Suppose $D$ can distinguish $C(0, U_n)$ from $C(1, U_n)$. Then we can distinguish $B(x,r)$ from $\overline{B(x,r)}$ given $f'(x,r)$ which contradicts the fact that $B(x,r)$ is a hard-core bit for $f'(x,r)$. Thus, $C$ has the computational hiding property.}
+\qed
+
+\medskip
+We can extend the definition of commitment schemes to hold for messages longer than a single bit. These commitment schemes will work by taking our commitment schemes for bits and concatenating them together. For the extended definition, we require that for any two messages $m_0$ and $m_1$ of the same length, the ensembles $\{ C(m_0, U_n) \}$ and $\{ C(m_1, U_n) \}$ are computationally indistinguishable.
+
+\subsection{3COL Protocol}
+
+Below we describe the protocol $P(x,z) \leftrightarrow V(x)$, where $x$ describes a graph $G = (\{1, \ldots, n \}, E)$ and $z$ describes a 3-coloring $c$:
+
+\begin{enumerate}
+\item $P$ picks a random permutation $\pi : \{ 1, 2, 3 \} \to \{ 1, 2, 3 \}$ and defines the 3-coloring $\beta := \pi \circ c$ of $G$. Using a commitment scheme $C$ for the messages $\{ 1, 2, 3 \}$, $P$ defines $\alpha_i = C(\beta(i), U_n)$ for each $i \in V$. $P$ sends $\alpha_1, \alpha_2, \ldots, \alpha_n$ to $V$.
+
+\item $V$ uniformly samples an edge $e = (i, j) \in E$ and sends it to $P$.
+
+\item $P$ opens $\alpha_i$ and $\alpha_j$.
+
+\item $V$ will accept only if it received valid decommitments for $\alpha_i$ and $\alpha_j$, and if $\beta(i)$ and $\beta(j)$ are distinct and valid colors.
+
+\end{enumerate}
+
+It is clear that this protocol is PPT. If $G$ is not 3-colorable, then there will be at least a $1/|E|$ probability that $V$ will reject $P$'s claim in step 4. Since $|E| \leq n^2$ we can repeat the protocol polynomially many times to increase the rejection probability to at least 1/2.
+
+We will now show that this protocol is zero-knowledge. We describe a simulator $S$ below, given a verifier $V^*$: \begin{enumerate}
+\item Sample an edge $e = (i, j) \in E$ uniformly at random.
+
+\item Assign $c_i$ and $c_j$ to have distinct values from $\{ 1, 2, 3 \}$ and do so uniformly at random. Set $c_k := 1$ for all $k \neq i, j$.
+
+\item Compute $n$ random keys $r_1, \ldots, r_n$ and set $\alpha_i = C(c_i, r_i)$ for all $i$.
+
+\item Let $e' \in E$ be the response of $V^*$ upon receiving $\alpha_1, \ldots, \alpha_n$.
+
+\item If $e' \neq e$, then terminate and go back to step 1. Otherwise, proceed. If $S$ returns to step 1 more than $2n |E|$ times, then output $\sf{fail}$ and halt the program.
+
+\item Print $\alpha_1, \ldots, \alpha_n, e$, send $r_i$ and $r_j$ to $V^*$ and then print whatever $V^*$ responds with.
+\end{enumerate}
+
+By construction, $S$ will run in polynomial time. However, sometimes it may output a $\sf{fail}$ message. We will show that this occurs with negligible probability.
+
+Suppose that for infinitely many graphs $G$, $V^*$ outputs $e' = e$ in step 4 with probability less than $1/2|E|$. If this is true, then it is possible for us to break the commitment scheme $C$ that we use in $S$. Consider a modified version of $S$ called $\tilde{S}$, where in step 2 we set $c_i = 1$ for all $i$. Note that in this case, $V^*$ cannot distinguish between any of the edges so the probability that it returns $e' = e$ is $1/|E|$.
+
+If we gave $V^*$ a set of commitments $\alpha_k = C(1, r_k)$ for random keys $r_k$, then we would be in the setting of $\tilde{S}$. If we gave $V^*$ the commitments $\alpha_k$ but with two of the values set to $C(c, r)$ and $C(c', r')$ where $c, c'$ are distinct random values from $\{ 1, 2, 3 \}$ and $r, r'$ are random keys, then we are in the setting of $S$. This implies that it possible to distinguish between these two commitment settings with a probability of at least $1/2|E|$ which is non-negligible. It follows that $V^*$ outputs $e' = e$ with probability less than $1/2|E|$ for only finitely many graphs $G$.
+
+Thus, the probability that $S$ outputs $\sf{fail}$ in the end is less than $(1 - 1/2|E|)^{2n|E|} < 1/e^n$ which is negligible.
+
+Now we need to argue that the transcripts generated by $S$ are computationally indistinguishable from the transcripts generated by $P \leftrightarrow V^*$. Again, we consider a modified version of $S$, called $S'$, given a 3-coloring of its input $G$ as auxiliary input. In step 2 of the simulation, $S'$ will choose a random permutation of the colors in its valid 3-coloring for the values of $c_i$ rather than setting all but two values $c_i$ and $c_j$ equal to 1. Note that this is how our protocol between $P$ and $V$ behaves.
+
+Observe that $P \leftrightarrow V^*$ is computationally indistinguishable from $S'$ because $S'$ outputs $\sf{fail}$ with negligible probability. Thus, it suffices to show that $S$ and $S'$ are computationally indistinguishable. Again, we will suppose otherwise and argue that as a result we can distinguish commitments.
+
+We consider two messages $m_0$ and $m_1$ of the same length where $m_0$ consists of $n-2$ instances of the message $1$ and two committed colors $c_i$ and $c_j$ (for a random edge $(i, j) \in E$) and $m_1$ consists of a committed random 3-coloring of $G$ (with a random edge $(i, j) \in E$) chosen. Observe that by feeding the former message to $V^*$ we are in the setting of $S'$ and by feeding the latter message to $V^*$ we are in the setting of $S$. If we could distinguish those two settings, then we could distinguish the commitments for $m_0$ and $m_1$. This contradiction completes our argument that our 3-coloring protocol is zero-knowledge.
+%DIF < \input{lec19-F24}
+\DIFaddbegin 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\DIFaddend %\input{lec20-F24}
+%\input{lec21-F24}
+%\input{lec22-F24}
+%\input{lec23-F24}
+%\input{lec24-F24}
+%\input{lec25-F24}
+%\input{lec26-F24}
+%\input{lec27-F24}
+%\input{lec28-F24}
+%%
+% The back matter contains appendices, bibliographies, indices, glossaries, etc.
+
+
+
+\backmatter
+
+\DIFdelbegin %DIFDELCMD < \begin{thebibliography}{0}
+%DIFDELCMD < \providecommand{\natexlab}[1]{#1}
+%DIFDELCMD < \providecommand{\url}[1]{\texttt{#1}}
+%DIFDELCMD < \expandafter\ifx\csname %%%
+\DIFdel{urlstyle}%DIFDELCMD < \endcsname\relax
+%DIFDELCMD <   \providecommand{\doi}[1]{doi: #1}\else
+%DIFDELCMD <   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+%DIFDELCMD < %%%
+\DIFdelend \DIFaddbegin \begin{thebibliography}{10}
+
+\bibitem{EPRINT:AlbPlaSco15}
+\DIFadd{Martin~R. Albrecht, Rachel Player, and Sam Scott.
+}\newblock \DIFadd{On the concrete hardness of learning with errors.
+}\newblock \DIFadd{Cryptology ePrint Archive, Report 2015/046, 2015.
+}
+
+\bibitem{JC:Bellare02}
+\DIFadd{Mihir Bellare.
+}\newblock \DIFadd{A note on negligible functions.
+}\newblock {\em \DIFadd{Journal of Cryptology}}\DIFadd{, 15(4):271--284, September 2002.
+}
+
+\bibitem{AC:BonLynSha01}
+\DIFadd{Dan Boneh, Ben Lynn, and Hovav Shacham.
+}\newblock \DIFadd{Short signatures from the }{\DIFadd{Weil}} \DIFadd{pairing.
+}\newblock \DIFadd{In Colin Boyd, editor, }{\em \DIFadd{Advances in Cryptology --
+  }{\DIFadd{ASIACRYPT}}\DIFadd{~2001}}\DIFadd{, volume 2248 of }{\em \DIFadd{Lecture Notes in Computer Science}}\DIFadd{,
+  pages 514--532, Gold Coast, Australia, December~9--13, 2001. Springer,
+  Berlin, Heidelberg, Germany.
+}
+
+\bibitem{ITCS:BraGenVai12}
+\DIFadd{Zvika Brakerski, Craig Gentry, and Vinod Vaikuntanathan.
+}\newblock \DIFadd{(}{\DIFadd{L}}\DIFadd{eveled) fully homomorphic encryption without bootstrapping.
+}\newblock \DIFadd{In Shafi Goldwasser, editor, }{\em \DIFadd{ITCS 2012: 3rd Innovations in
+  Theoretical Computer Science}}\DIFadd{, pages 309--325, Cambridge, MA, USA,
+  January~8--10, 2012. Association for Computing Machinery.
+}
+
+\bibitem{C:GarHaj18}
+\DIFadd{Sanjam Garg and Mohammad Hajiabadi.
+}\newblock \DIFadd{Trapdoor functions from the computational }{\DIFadd{Diffie}}\DIFadd{-}{\DIFadd{Hellman}}
+  \DIFadd{assumption.
+}\newblock \DIFadd{In Hovav Shacham and Alexandra Boldyreva, editors, }{\em \DIFadd{Advances in
+  Cryptology -- }{\DIFadd{CRYPTO}}\DIFadd{~2018, Part~II}}\DIFadd{, volume 10992 of }{\em \DIFadd{Lecture Notes in
+  Computer Science}}\DIFadd{, pages 362--391, Santa Barbara, CA, USA, August~19--23,
+  2018. Springer, Cham, Switzerland.
+}
+
+\bibitem{STOC:Gentry09}
+\DIFadd{Craig Gentry.
+}\newblock \DIFadd{Fully homomorphic encryption using ideal lattices.
+}\newblock \DIFadd{In Michael Mitzenmacher, editor, }{\em \DIFadd{41st Annual }{\DIFadd{ACM}} \DIFadd{Symposium on
+  Theory of Computing}}\DIFadd{, pages 169--178, Bethesda, MD, USA, May~31~--~June~2,
+  2009. }{\DIFadd{ACM}} \DIFadd{Press.
+}
+
+\bibitem{C:GenSahWat13}
+\DIFadd{Craig Gentry, Amit Sahai, and Brent Waters.
+}\newblock \DIFadd{Homomorphic encryption from learning with errors:
+  Conceptually-simpler, asymptotically-faster, attribute-based.
+}\newblock \DIFadd{In Ran Canetti and Juan~A. Garay, editors, }{\em \DIFadd{Advances in
+  Cryptology -- }{\DIFadd{CRYPTO}}\DIFadd{~2013, Part~I}}\DIFadd{, volume 8042 of }{\em \DIFadd{Lecture Notes in
+  Computer Science}}\DIFadd{, pages 75--92, Santa Barbara, CA, USA, August~18--22, 2013.
+  Springer, Berlin, Heidelberg, Germany.
+}
+
+\bibitem{STOC:ImpRud89}
+\DIFadd{Russell Impagliazzo and Steven Rudich.
+}\newblock \DIFadd{Limits on the provable consequences of one-way permutations.
+}\newblock \DIFadd{In }{\em \DIFadd{21st Annual }{\DIFadd{ACM}} \DIFadd{Symposium on Theory of Computing}}\DIFadd{, pages
+  44--61, Seattle, WA, USA, May~15--17, 1989. }{\DIFadd{ACM}} \DIFadd{Press.
+}
+
+\bibitem{DCC:LanSte15}
+\DIFadd{Adeline Langlois and Damien Stehl}{\DIFadd{\'e}}\DIFadd{.
+}\newblock \DIFadd{Worst-case to average-case reductions for module lattices.
+}\newblock {\em \DIFadd{Designs, Codes and Cryptography}}\DIFadd{, 75(3):565--599, 2015.
+}
+
+\bibitem{RSA:LinPei11}
+\DIFadd{Richard Lindner and Chris Peikert.
+}\newblock \DIFadd{Better key sizes (and attacks) for }{\DIFadd{LWE}}\DIFadd{-based encryption.
+}\newblock \DIFadd{In Aggelos Kiayias, editor, }{\em \DIFadd{Topics in Cryptology --
+  CT-RSA~2011}}\DIFadd{, volume 6558 of }{\em \DIFadd{Lecture Notes in Computer Science}}\DIFadd{, pages
+  319--339, San Francisco, CA, USA, February~14--18, 2011. Springer, Berlin,
+  Heidelberg, Germany.
+}
+
+\bibitem{EC:LyuPeiReg10}
+\DIFadd{Vadim Lyubashevsky, Chris Peikert, and Oded Regev.
+}\newblock \DIFadd{On ideal lattices and learning with errors over rings.
+}\newblock \DIFadd{In Henri Gilbert, editor, }{\em \DIFadd{Advances in Cryptology --
+  }{\DIFadd{EUROCRYPT}}\DIFadd{~2010}}\DIFadd{, volume 6110 of }{\em \DIFadd{Lecture Notes in Computer Science}}\DIFadd{,
+  pages 1--23, French Riviera, May~30~--~June~3, 2010. Springer, Berlin,
+  Heidelberg, Germany.
+}
+
+\bibitem{EC:LyuPeiReg13}
+\DIFadd{Vadim Lyubashevsky, Chris Peikert, and Oded Regev.
+}\newblock \DIFadd{A toolkit for ring-}{\DIFadd{LWE}} \DIFadd{cryptography.
+}\newblock \DIFadd{In Thomas Johansson and Phong~Q. Nguyen, editors, }{\em \DIFadd{Advances in
+  Cryptology -- }{\DIFadd{EUROCRYPT}}\DIFadd{~2013}}\DIFadd{, volume 7881 of }{\em \DIFadd{Lecture Notes in
+  Computer Science}}\DIFadd{, pages 35--54, Athens, Greece, May~26--30, 2013. Springer,
+  Berlin, Heidelberg, Germany.
+}
+
+\bibitem{EC:MicPei12}
+\DIFadd{Daniele Micciancio and Chris Peikert.
+}\newblock \DIFadd{Trapdoors for lattices: Simpler, tighter, faster, smaller.
+}\newblock \DIFadd{In David Pointcheval and Thomas Johansson, editors, }{\em \DIFadd{Advances in
+  Cryptology -- }{\DIFadd{EUROCRYPT}}\DIFadd{~2012}}\DIFadd{, volume 7237 of }{\em \DIFadd{Lecture Notes in
+  Computer Science}}\DIFadd{, pages 700--718, Cambridge, UK, April~15--19, 2012.
+  Springer, Berlin, Heidelberg, Germany.
+}
+
+\bibitem{STOC:Regev05}
+\DIFadd{Oded Regev.
+}\newblock \DIFadd{On lattices, learning with errors, random linear codes, and
+  cryptography.
+}\newblock \DIFadd{In Harold~N. Gabow and Ronald Fagin, editors, }{\em \DIFadd{37th Annual }{\DIFadd{ACM}}
+  \DIFadd{Symposium on Theory of Computing}}\DIFadd{, pages 84--93, Baltimore, MA, USA,
+  May~22--24, 2005. }{\DIFadd{ACM}} \DIFadd{Press.
+}
+
+\bibitem{FOCS:Shor94}
+\DIFadd{Peter~W. Shor.
+}\newblock \DIFadd{Algorithms for quantum computation: Discrete logarithms and
+  factoring.
+}\newblock \DIFadd{In }{\em \DIFadd{35th Annual Symposium on Foundations of Computer Science}}\DIFadd{,
+  pages 124--134, Santa Fe, NM, USA, November~20--22, 1994. }{\DIFadd{IEEE}} \DIFadd{Computer
+  Society Press.
+}\DIFaddend 
+
+\end{thebibliography}
+
+%\bibliographystyle{plainnat}
+\bibliographystyle{plain}
+
+
+%\printindex
+
+\end{document}
+
