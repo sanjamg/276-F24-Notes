@@ -34,7 +34,7 @@ The intuition is simple. Consider a verifier that randomly renames the vertices 
 
 		\begin{itemize}
 			\item Completeness: If $(G_0,G_1)\in$ GNI, then the unbounded $\mathcal{P}$ can distinguish isomorphism of $G_0$ against those of $G_1$ and can always return the correct $b'$.  Thus, $\mathcal{V}$ will always output 1 for this case.
-			\item Soundness: If $(G_0,G_1)\notin$ GNI, then it is equiprobable that $H$ is a random isomorphism of $G_0$ as it is of $G_1$, and so $\mathcal{P}$'s guess for $b'$ can be correct only with a probability $\frac{1}{2}$\footnote{A curious reader might notice that the challenge bit $b$ sampled by $\mathcal{V}$ is information-theoretically hidden from $\mathcal{P}$ (hidden in $H$) when $\mathcal{P}$'s claim is false. This is similar to what we saw in Hash Proof Systems before.}.  Repeating this protocol $k$ times, with fresh verifier randomness each time, means the probability of guessing the correct $b'$ for all $k$ interactions is $\frac{1}{2^k}$.  And so the probability of $\mathcal{V}$ outputting 0 (e.g. rejecting $\mathcal{P}$'s proof at the first sign of falter) is $1-\frac{1}{2^k}$.  
+			\item Soundness: If $(G_0,G_1)\notin$ GNI, then it is equiprobable that $H$ is a random isomorphism of $G_0$ as it is of $G_1$, and so $\mathcal{P}$'s guess for $b'$ can be correct only with a probability $\frac{1}{2}$\footnote{A curious reader might notice that the challenge bit $b$ sampled by $\mathcal{V}$ is information-theoretically hidden from $\mathcal{P}$ (hidden in $H$) when $\mathcal{P}$'s claim is false. This is similar to what we saw in Hash Proof Systems before.}.  Repeating this protocol $k$ times, with fresh verifier randomness each time, means the probability of guessing the correct $b'$ for all $k$ interactions is $\frac{1}{2^k}$.  And so the probability of $\mathcal{V}$ outputting $0$ (e.g. rejecting $\mathcal{P}$'s proof at the first sign of falter) is $1-\frac{1}{2^k}$.  
 
 		\end{itemize}
 
@@ -42,7 +42,7 @@ The intuition is simple. Consider a verifier that randomly renames the vertices 
 		To conclude, the interactive proof system we described above enabled something that wasn't possible without interaction. 
 
 \section{Zero Knowledge Proofs}
-We saw a crucial difference between GI and GNI: in GI, the prover already holds a succinct proof to back its claim, we call this a ``witness'', while in GNI, no such succinct proof exists (i.e., there is nothing that the prover can directly send to the verifier to back its claim). From this point onwards, we exclusively focus on the languages of the first kind, i.e., where a witness for the claim exists; these languages a vast majority of the use-cases of verifiable computation. These languages are formalized as follows:
+We saw a crucial difference between GI and GNI: in GI, the prover already holds a succinct proof to back its claim, we call this a ``witness'', while in GNI, no such succinct proof exists (i.e., there is nothing that the prover can directly send to the verifier to back its claim). From this point onwards, we exclusively focus on the languages of the first kind, i.e., where a witness for the claim exists; these languages cover a vast majority of the use-cases of verifiable computation, and are formalized as follows:
 
 \begin{definition} {\normalfont\textbf{(NP-Verifier)}} A language L has an NP-verifier if $\exists$ a verifier $\mathcal{V}$ that is polynomial time in $|x|$ such that:
 		\begin{itemize}
@@ -53,7 +53,7 @@ We saw a crucial difference between GI and GNI: in GI, the prover already holds 
 
 		That is, the conventional idea of a proof is formalized in terms of what a computer can efficiently verify.\smallskip %A language $L$ has an NP-verifier if for all claims of statements $\in L$, a proof can be written down that can be ``easily'' and ``rigorously'' verified if and only if a statement is in the language.
 
-	\noindent \textit{Keeping the witness private}. The goal of a proof system is for the verifier to learn if the prover's claim is valid or not. Let's focus on what a verifier actually learns at the end of its interaction with the prover. In the trivial GI proof system we saw above, the verifier learns the entire automorphism --- in other words, the verifier learns {\em everything} that the prover knew. 
+	\noindent \textit{Keeping the witness private}. The goal of a proof system is for the verifier to learn if the prover's claim is valid or not. Let's focus on what a verifier actually learns at the end of its interaction with the prover. In the trivial GI proof system we saw above, the verifier learns the entire isomorphism --- in other words, the verifier learns {\em everything} that the prover knew. 
 	This is too much leakage. Imagine the prover holding some secret or valuable information (e.g., its secret key) which is leaked to the verifier. This is not desirable. We want the verifier to learn only the validity of the claim, and nothing more. This is where the notion of zero-knowledge comes in.
 	For a proof system for a language with an NP-verifier, this translates to the verifier not learning the witness from the prover.
 	
@@ -61,7 +61,7 @@ We saw a crucial difference between GI and GNI: in GI, the prover already holds 
 
 	\noindent \textit{Hiding witness for Graph Isomorphism}. We will build the ideas for our proof system with zero-knowledge gradually by iterating through a series of straw-man approaches. On the way, we will formally define zero knowledge. 
 
-	When $G_0$ and $G_1$ are isomorphic, the isomorphism between them would be a \textit{witness}, $w$, to that fact, that can be used in the proof.  The prover doesn't want to reveal the isomorphism, $w:V(G_0)\rightarrow V(G_1)$, that they claim to have.  The prover is comfortable however giving us a ``scrambled'' version, $\phi$, of $w$ as long as it doesn't leak any information about their precious $w$.  For example, the prover is willing to divulge $\phi = \pi \circ w$ where $\pi$ is a privately chosen random permutation of $|V|=|V(G_0)|=|V(G_1)|$ vertices.  Since $\pi$ renames vertices completely randomly, it scrambles what $w$ is doing entirely and $\phi$ is just a random permutation of $|V|$ elements.  At this point, we might be a little annoyed at the prover since we could have just created a random permutation on our own.  Let's look at why this is a good starting point.
+	When $G_0$ and $G_1$ are isomorphic, the isomorphism between them would be a \textit{witness}, $w$, to that fact, that can be used in the proof.  The prover doesn't want to reveal the isomorphism, $w:V(G_0)\rightarrow V(G_1)$, that they claim to have.  The prover is comfortable however giving us a ``scrambled'' version, $\phi$, of $w$ as long as it doesn't leak any information about their precious $w$.  For example, the prover is willing to divulge $\phi = \pi \circ w$ where $\pi$ is a privately chosen random permutation of $|V|=|V(G_0)|=|V(G_1)|$ vertices.  Since $\pi$ renames vertices completely randomly, it scrambles what $w$ is doing entirely and $\phi$ is just a random permutation of $|V|$ elements.  At this point, we might be a little annoyed at the prover since we could have just created a random permutation on our own.  Let's look at why this is still a good starting point.
 		
 	If we want to be convinced that $\phi$ really is of the form $\pi \circ w$, thus containing $w$ in its definition, and isn't just a completely random permuation, we can note that if it is of that form then $\phi(G_0)=\pi(w(G_0))=\pi(G_1)$ (since $w$ being an isomorphism implies that $w(G_0)=G_1$).  Note that we started with a mapping on input $G_0$ and ended with a mapping on input $G_1$.  With an isormphism, one could get from one graph to the other seamlessly; if the prover \textit{really} has the isomorphism it claims to have, then it should have no problem displaying this ability.  So, what if we force the prover to give us $H=\pi (G_1)$ just after randomly choosing its $\pi$ and then let it show us its ability to go from $G_1$ to $G_0$ with ease: give us a $\phi$ so that $\phi(G_0)=\pi(G_1)=H$.  The only way the prover can give a mapping that jumps from $G_0$ to $G_1$ is if they know an isomorphism; in fact, if the prover could find a $\phi$ efficiently but did \textit{not} know an isomorphism then they would have been able to see that $\pi^{-1}(\phi(G_0))=G_1$ and thus have $\pi^{-1}\circ\phi$ as an isomorphism from $G_0$ to $G_1$, which would contradict the assumed hardness of finding isomorphisms in the GI problem. So by forcing the prover to give us $H$, as we've defined, and to produce a $\phi$ so that $\phi(G_0)=H$, we've found a way to expose provers that don't really have an isomorphism and we can then be convinced that they really do know $w$ when they pass our test.  Importantly, the prover didn't directly tell us $w$, so we are headed in the right direction.
 		
@@ -77,17 +77,17 @@ We saw a crucial difference between GI and GNI: in GI, the prover already holds 
 		
 		\begin{itemize}
 			\item Completeness: If $(G_0,G_1)\in GI$ and $\mathcal{P}$ knows $w$, then whether $\mathcal{V}$ chooses $b=0$ or 1, $\mathcal{P}$ can always give the correct $\phi$ which, by definition, will always result in $H=\phi(G_b)$ and so $\mathcal{V}$ will always output 1.
-			\item Soundness: If $(G_0,G_1)\notin GI$, then $\mathcal{P}$ can only cheat, as discussed earlier, if the original $H$ it commits to ends up being $\pi(G_b)$ for the $b$ that is randomly chosen at the next step.  Since $b$ isn't even chosen yet, this can only happen by chance with probability $\frac{1}{2}$.  And so the probability $\mathcal{V}$ outputs 0 is $1-\frac{1}{2^k}$ for $k$ rounds.
+			\item Soundness: If $(G_0,G_1)\notin GI$, then $\mathcal{P}$ can only cheat, as discussed earlier, if the original $H$ it commits to ends up being $\pi(G_b)$ for the $b$ that is randomly chosen at the next step.  Since $b$ isn't even chosen yet, this can only happen by chance with probability $\frac{1}{2}$.  And so the probability $\mathcal{V}$ outputs $0$ is $1-\frac{1}{2^k}$ for $k$ rounds.
 		\end{itemize}
 		
-		We have just shown that what have so far is an interactive proof system. We now think of how the notion of zero-knowledge can be formalized here.
+		We have just shown that what we have so far is an interactive proof system. We now think of how the notion of zero-knowledge can be formalized here.
 		
 		As a verifier, we've seen some things in interacting with the prover.  Surely, clever folks like ourselves must be able to glean \textit{some} information about $w$ after seeing enough to thoroughly convince us that the prover knows $w$.  We've first seen $H$, and we've also seen the random $b$ that we chose, along with $\phi$ at the end;  this is our whole view of information during the interaction.  But we're more bewildered than annoyed this time when we realize we could have always just chosen $b$ and $\phi$ randomly and set $H=\phi(G_b)$ on our own.  Again, everything checks out when $G_0 \cong G_1$ and we could have produced everything that we saw during the interaction before it even began.  That is, the distribution of the random variable triple ($H$, $b$, $\phi$) is identical whether it is what we saw from the prover during the interaction or it is yielded from the solitary process we just described.  We've just constructed a complete interactive proof system that entirely convinces us of the prover's knowledge of $w$, yet we could have simulated the whole experience on our own!  We couldn't have gained any knowledge about $w$ since we didn't see anything we couldn't have manufactured on our own, yet we are entirely convinced that $(G_0,G_1)\in$ GI and that $\mathcal{P}$ knows $w$!  And so the prover has proven something to us yet has given us absolutely zero additional knowledge!
 		
 		This may feel very surprising or as if you've been swindled by a fast talker, and it very much should feel this way; it was certainly an amazing research discovery!  But this is true, and it can be made rigorous, as we do next.
 		
 		We should first be sure what we want out of this new proof system.  We of course want it to be complete and sound so that we accept proofs iff they're true.  But we also want the verifier to gain zero knowledge from the interaction; that is, the verifier should have been able to simulate the whole experience on its own without the verifier.
-		Finally, we would also like all witnesses to a true statement to each be sufficient to prove the veracity of that statement and so we let $R$ be the relation s.t. $x \in L$ iff $\exists$ a witness $w$ s.t. $(x,w)\in R$.  We can then gather all witness by defining $R(x)$ to be the set of all such witnesses. We will first look at a weaker notion of zero-knowledge, called \textit{Honest Verifier Zero Knowledge} (HVZK), where we only require that an {\em honest} verifier does not learn anything from the prover. We will then move on to the stronger notion of \textit{Zero Knowledge} (ZK), where we extend this to all verifiers, including malicious verifiers.
+		Finally, we would also like all witnesses to a true statement to each be sufficient to prove the veracity of that statement and so we let $R$ be the relation s.t. $x \in L$ iff $\exists$ a witness $w$ s.t. $(x,w)\in R$.  We can then gather all witness by defining $R(x)$ to be the set of all such witnesses. We will first look at a weaker notion of zero-knowledge, called \textit{Honest Verifier Zero Knowledge} (HVZK), where we only require that an {\em honest} verifier (follows the protocol steps) does not learn anything from the prover. We will then move on to the stronger notion of \textit{Zero Knowledge} (ZK), where we extend this to all verifiers, including malicious verifiers.
 		
 		\begin{definition} {\normalfont\textbf{(Honest Verifier Zero Knowledge Proof [HVZK])}} 
 			$(\mathcal{P},\mathcal{V})$ is a (perfect) HVZK proof system for a language $L$ w.r.t. witness relation $R$ if 
@@ -113,7 +113,7 @@ To prove HVZK property of the GI proof system we described earlier, we now const
 \end{enumerate}
 It is straightforward to see that this simulator produces the same distribution as the real interaction between the prover and the verifier. This is because $H = \sigma(G_b) = \sigma'(G_{1-b})$, i.e., $H$ is a random permutation of both $G_0$ amd $G_1$. 
 	
-To recap: There is an interesting progression of the requirements of a proof system: Completeness, Soundness, and the Zero Knowledge property.  Completeness first cares that a prover-verifier pair exist and can capture all true things as a team that works together; they both honestly obey the protocol trying prove true statements.  Soundness, however, assumes that the prover is a liar and cares about having a strong enough verifier that can stand up to any type of prover and not be misled.  Finally, Zero Knowledge assumes that the verifier is hoping to glean information from the proof to learn the prover's secrets and this requirement makes sure the prover is clever enough that it gives no information away in its proof. Unlike the soundness' requirment for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol. Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.
+To recap: There is an interesting progression of the requirements of a proof system: Completeness, Soundness, and the Zero Knowledge property.  Completeness first cares that a prover-verifier pair exist and can capture all true things as a team that works together; they both honestly obey the protocol trying prove true statements.  Soundness, however, assumes that the prover is a liar and cares about having a strong enough verifier that can stand up to any type of prover and not be misled.  Finally, Zero Knowledge assumes that the verifier is hoping to glean information from the proof to learn the prover's secrets and this requirement makes sure the prover is clever enough that it gives no information away in its proof. Unlike the soundness' requirement for a verifier to combat \textit{all} malicious provers, HVZK is only concerned with the verifier in the original prover-verifier pair that follows the set protocol. Verifiers that stray from the protocol or cheat, however, are captured in the natural generalization to Zero Knowledge proofs.
 
 \section{Zero-Knowledge for Graph Isomorphism}
 
@@ -126,19 +126,19 @@ $$\{View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))\} \a
 where $View_{\mathcal{V^*}}(\mathcal{P}(x,w) \leftrightarrow \mathcal{V^*}(x))$ is the random coins of $\mathcal{V^*}$ and all the messages $\mathcal{V^*}$ saw.
 \end{definition}
 \begin{remark}
-	Note that the order of quantifiers matters again. The definition would be stronger if we switch the order to: $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall$ PPT machines $\mathcal{V}^*$. This is because the same simulator would need to work for all possible efficient verifiers. Interestingly, the simulator we construct below for GI satisfies this stronger definition too. In fact, most simulators we know work for all verifiers (i.e. black-box simulators). It wasn't until 2008 when Boaz Barak showed that we can also construct non-black-box simulators. 
+	Note that the order of quantifiers matters again. The definition would be stronger if we switch the order to: $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall$ PPT machines $\mathcal{V}^*$. This is because the same simulator would need to work for all possible efficient verifiers. Interestingly, the simulator we construct below for GI satisfies this stronger definition too. In fact, most simulators we know work for all verifiers (i.e. black-box simulators). It wasn't until 2008 that Boaz Barak showed that we can also construct non-black-box simulators. 
 \end{remark}
 
 Recall our protocol for graph isomorphism: the interaction is $P(x,w) \leftrightarrow V(x)$ where $x$ represents graphs $G_0 = (V, E_0)$ and $G_1 = (V, E_1)$ and $w$ represents a permutation on $V$ such that $w (G_0) = G_1$.
 
 \begin{enumerate}
-\item $P$ samples a random permutation $\sigma: V \to V$ and sends the graph $H = \sigma(G_1)$ to $V$.
+\item $\mathcal{P}$ samples a random permutation $\sigma: V \to V$ and sends the graph $H = \sigma(G_1)$ to $V$.
 
-\item $V$ samples a random bit $b$ and sends it to $P$.
+\item $\mathcal{V}$ samples a random bit $b$ and sends it to $\mathcal{P}$.
 
-\item If $b = 1$, then $P$ defines a permutation $\tau$ to be $\sigma$. If $b = 0$, then instead $\tau = \sigma \circ w$. $P$ then sends $\tau$ to $V$.
+\item If $b = 1$, then $\mathcal{P}$ defines a permutation $\tau$ to be $\sigma$. If $b = 0$, then instead $\tau = \sigma \circ w$. $\mathcal{P}$ then sends $\tau$ to $V$.
 
-\item $V$ verifies that $\tau(G_b) = H$ and accepts if so.
+\item $\mathcal{V}$ verifies that $\tau(G_b) = H$ and accepts if so.
 
 \end{enumerate}
 
@@ -153,9 +153,9 @@ For zero knowledge, consider the following simulator\footnote{The simulator sati
 
 	\item Sample a permutation $\sigma: V \to V$ uniformly at random
 	
-	\item Send $H = \sigma (G_b)$ to $V^*$.
+	\item Send $H = \sigma (G_b)$ to $\mathcal{V^*}$.
 
-	\item Receive $b'$ from $V^*$.
+	\item Receive $b'$ from $\mathcal{V^*}$.
 
 	\item If $b=b'$, then output $(H, b, \sigma)$ and terminate. Otherwise, continue the loop.
 \end{enumerate}
@@ -163,7 +163,7 @@ For zero knowledge, consider the following simulator\footnote{The simulator sati
 
 \end{enumerate}
 
-We construct a sequence of hybrids to prove zero-knowledge. Let $H_0$ define the interaction between $P$ and $V^*$: $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$. Define $H_1$ as follows: 
+We construct a sequence of hybrids to prove zero-knowledge. Let $H_0$ define the interaction between $\mathcal{P}$ and $\mathcal{V^*}$: $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$. Define $H_1$ as follows: 
 \begin{enumerate}
 	\item For $i = 1\dots T$:
 \begin{enumerate}
@@ -178,9 +178,52 @@ We construct a sequence of hybrids to prove zero-knowledge. Let $H_0$ define the
 \item Output $\bot$.
 \end{enumerate}
 
-The hybrid $H_1$ produces identical distribution as $H_0$ except if $b^*$ in all the $T$ iterations is $0$; note that $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$ doesn't depend on $b^*$. This happens with probability at most $1/2^T$. Next, we define $H_2$ where we change the logic of which transcript is thrown away. In each iteration, if $b^* = b$, where $b$ is part of the transcript $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$, we output the transcript; otherwise, we continue with the loop. Note again that $b^*$ is still not used in any of the transcript (interaction). Therefore, distribution produced by $H_2$ is identical to $H_1$ because the interaction hasn't changed at all. Finally, we construct our last hybrid $H_3$ where the simulator $S$ is run. The distribution generated by $H_3$ is identical to $H_2$ by same argument we used for the HVZK simulator.
+The hybrid $H_1$ produces identical distribution as $H_0$ except if $b^*$ in all the $T$ iterations is $0$; note that $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$ doesn't depend on $b^*$. This happens with probability at most $1/2^T$. Next, we define $H_2$ where we change the logic of which transcript is thrown away. In each iteration, if $b^* = b$, where $b$ is part of the transcript $\mathcal{P}(x=(G_0, G_1), w)\leftrightarrow \mathcal{V^*}(x)$, we output the transcript; otherwise, we continue with the loop. Note again that $b^*$ is still not used in any of the transcript (interaction). Therefore, distribution produced by $H_2$ is identical to $H_1$ because the interaction hasn't changed at all. Finally, we construct our last hybrid $H_3$ where the simulator $S$ is run. The distribution generated by $H_3$ is identical to $H_2$ by same argument we used for the HVZK simulator. \bigskip
 
-		  
+
+\noindent\textbf{Efficient Provers.} So far, we have considered unbounded provers, but unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of. And for cryptography we must make more reasonable assumptions about the provers.  We will now assume provers are also bounded to be \emph{efficient}. Note that if the prover in our GI proof system already holds the isomorphism, then generating the proof only takes polynomial time, and it is easy to see that it satisfies the definition below. \smallskip
+
+\begin{definition}[Efficient Prover Zero-Knowledge Proof]
+We say $(P, V)$ is an efficient prover zero-knowledge proof system for a language $L$ and relation $R_L$ if \begin{enumerate}
+
+\item The prover $P$ runs in polynomial time.
+
+\item The protocol is \emph{complete}. That is, for every $x \in L$ there exists a witness $w \in R_L (x)$ such that $$\Pr [P(x,w) \leftrightarrow V(x) \ \emph{accepts}] = 1.$$
+
+\item The protocol is \emph{sound} against unbounded provers. That is, for $\forall x \notin L$, we have $$\Pr [P^*(x,w) \leftrightarrow V(x) \ \emph{rejects}] \geq 1/2$$ for any prover $P^*$ of arbitrary computation power and any witness $w$.
+
+\item There exists an expected polynomial time probabilistic machine $S$ (a simulator) such that for all PPT $V^*$, for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$ we have $$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S^{V^*} (x,z) \} $$ \end{enumerate}
+
+\end{definition}
+
+The soundness probability can be amplified to be greater than any $1 - 1/2^k$, for arbitrary $k > 0$, by repeating the proof $k$ times. More precisely, we construct an efficient prover zero-knowledge proof system $(\tilde P, \tilde V)$ which repeats $(P,V)$ independently for $k$ times, and $\tilde V$ accepts if and only if $V$ accepts in all the executions.
+
+It is easy to see that $\tilde P$ runs in polynomial time and that the protocol is complete.
+Moreover, it has the following soundness guarantee:
+for $\forall x \notin L$,
+\begin{align*}
+& \Pr \left[\tilde P^*(x,w) \leftrightarrow \tilde V(x) \ \text{rejects}\right]\\
+= & 1- \Pr \left[\forall 1\leq i\leq k, P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
+= & 1- \prod_{i=1}^k \Pr \left[P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
+\geq& 1-\frac{1}{2^k}
+\end{align*}
+for any prover $\tilde P^*=(P^*_1, \cdots, P^*_k)$ of arbitrary computation power and any witness $w$.
+
+Finally, it  is zero-knowledge, namely, there exists an expected PPT $\tilde S$ such that for all PPT $\tilde V^*$, and for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$,
+$$\left\{ View_{\tilde V^*} (\tilde P(x,w) \leftrightarrow \tilde V^* (x,z)) \right\} \simeq_c \left\{ \tilde S^{\tilde V^*} (x,z) \right\}.$$
+The construction of $\tilde S$ is repeating $S$ for $k$ times. We prove by hybrid argument that the above two distributions are indistinguishable. $H_i$ is defined to be the output of repeating $S$ for the first $i$ executions with $\tilde V^*$ and repeating $P$ for the rest $k-i$ executions. Then $H_0$ is the left distribution and $H_k$ is the right one. Any attacher that can distinguish the above two distributions leads to an attacker that can distinguish $H_{i-1}$ and $H_{i}$ for some $1\leq i \leq k$, which violates the zero-knowledge property of the original proof system $(P,V)$.
+
+Similar to what we saw in previous definitions of zero-knowlege, the order of the quantifiers in item 4 matters.
+If we quantify over $x$ and $w$ before quantifying over the simulator,
+then we could hard-code  $x$ and $w$ into our simulator. That is, for all $x \in L, w \in R_L (x)$, there exists an expected polynomial time probabilistic machine $S_{x,w}$ such that for all PPT $V^*$ and $z \in \{ 0, 1 \}^*$,
+$$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S_{x,w}^{V^*} (x,z) \} $$
+Since we would like our simulator to be universal,  this is not acceptable.
+
+If we quantify first over the verifier $V^*$ and then over simulators $S$, then this variant is considered as \emph{non-black-box zero-knowledge}. Our standard definition is considered as \emph{black-box zero-knowledge}. There  also exist variants that use statistical indistinguishability rather than computational indistinguishability.
+
+The $z$ in item 4 is considered as \emph{auxiliary input}. The auxiliary input is crucial for the above argument of soundness amplification.
+
+We will discuss the importance of requiring expected polynomial time in the next section. \bigskip
 %		These are mostly discussed (including auxiliary inputs) in the next class, although the first definition is given below:
 %		
 %		{\definition {\normalfont\textbf{(Zero Knowledge Proof [ZK])}} For a language L we have a (perfect) \textit{ZK proof system} w.r.t. witness relation $R$ if $\exists$ an interactive proof system, $(\mathcal{P},\mathcal{V})$ s.t. $\exists$ a PPT machine $\mathcal{S}$ (called the simulator) s.t. $\forall x \in L$, $\forall w\in R(x)$, $\forall \mathcal{V}^*$, the following distributions are identical:

@@ -2,55 +2,7 @@
 
 \section{Zero-Knowledge for NP}
 
-\noindent\textbf{Efficient Provers.} Now we shift our focus to zero-knowledge proofs for NP-complete languages. So far, we have considered unbounded provers, but unfortunately (fortunately?), there aren't real-life instances of all-powerful provers that we know of. And for cryptography we must make more reasonable assumptions about the provers.  We will now assume provers are also bounded to be \emph{efficient}. \smallskip
-
-\begin{definition}[Efficient Prover Zero-Knowledge Proof]
-We say $(P, V)$ is an efficient prover zero-knowledge proof system for a language $L$ and relation $R_L$ if \begin{enumerate}
-
-\item The prover $P$ runs in polynomial time.
-
-\item The protocol is \emph{complete}. That is, for every $x \in L$ there exists a witness $w \in R_L (x)$ such that $$\Pr [P(x,w) \leftrightarrow V(x) \ \emph{accepts}] = 1.$$
-
-\item The protocol is \emph{sound} against unbounded provers. That is, for $\forall x \notin L$, we have $$\Pr [P^*(x,w) \leftrightarrow V(x) \ \emph{rejects}] \geq 1/2$$ for any prover $P^*$ of arbitrary computation power and any witness $w$.
-
-\item There exists an expected polynomial time probabilistic machine $S$ (a simulator) such that for all PPT $V^*$, for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$ we have $$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S^{V^*} (x,z) \} $$ \end{enumerate}
-
-\end{definition}
-
-The soundness probability can be amplified to be greater than any $1 - 1/2^k$, for arbitrary $k > 0$, by repeating the proof $k$ times. More precisely, we construct an efficient prover zero-knowledge proof system $(\tilde P, \tilde V)$ which repeats $(P,V)$ independently for $k$ times, and $\tilde V$ accepts if and only if $V$ accepts in all the executions.
-
-It is easy to see that $\tilde P$ runs in polynomial time and that the protocol is complete.
-Moreover, it has the following soundness guarantee:
-for $\forall x \notin L$,
-\begin{align*}
-& \Pr \left[\tilde P^*(x,w) \leftrightarrow \tilde V(x) \ \text{rejects}\right]\\
-= & 1- \Pr \left[\forall 1\leq i\leq k, P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
-= & 1- \prod_{i=1}^k \Pr \left[P^*_i(x,w) \leftrightarrow V(x) \ \text{accepts}\right] \\
-\geq& 1-\frac{1}{2^k}
-\end{align*}
-for any prover $\tilde P^*=(P^*_1, \cdots, P^*_k)$ of arbitrary computation power and any witness $w$.
-
-Finally, it  is zero-knowledge, namely, there exists an expected PPT $\tilde S$ such that for all PPT $\tilde V^*$, and for all $x \in L, w \in R_L (x), z \in \{ 0, 1 \}^*$,
-$$\left\{ View_{\tilde V^*} (\tilde P(x,w) \leftrightarrow \tilde V^* (x,z)) \right\} \simeq_c \left\{ \tilde S^{\tilde V^*} (x,z) \right\}.$$
-The construction of $\tilde S$ is repeating $S$ for $k$ times. We prove by hybrid argument that the above two distributions are indistinguishable. $H_i$ is defined to be the output of repeating $S$ for the first $i$ executions with $\tilde V^*$ and repeating $P$ for the rest $k-i$ executions. Then $H_0$ is the left distribution and $H_k$ is the right one. Any attacher that can distinguish the above two distributions leads to an attacker that can distinguish $H_{i-1}$ and $H_{i}$ for some $1\leq i \leq k$, which violates the zero-knowledge property of the original proof system $(P,V)$.
-
-
-\bigskip
-The order of the quantifiers in item 4 matters.
-If we quantify over $x$ and $w$ before quantifying over the simulator,
-then we could hard-code  $x$ and $w$ into our simulator. That is, for all $x \in L, w \in R_L (x)$, there exists an expected polynomial time probabilistic machine $S_{x,w}$ such that for all PPT $V^*$ and $z \in \{ 0, 1 \}^*$,
-$$\{ View_{V^*} (P(x,w) \leftrightarrow V^* (x,z)) \} \simeq_c \{ S_{x,w}^{V^*} (x,z) \} $$
-Since we would like our simulator to be universal,  this is not acceptable.
-
-If we quantify first over the verifier $V^*$ and then over simulators $S$, then this variant is considered as \emph{non-black-box zero-knowledge}. Our standard definition is considered as \emph{black-box zero-knowledge}. There  also exist variants that use statistical indistinguishability rather than computational indistinguishability.
-
-The $z$ in item 4 is considered as \emph{auxiliary input}. The auxiliary input is crucial for the above argument of soundness amplification.
-
-We will discuss the importance of requiring expected polynomial time in the next section. \bigskip
-
-
-
-\noindent \textit{Graph 3-Coloring}. An $n$-coloring of a graph $G = (A, E)$ is a function $c: A \to \{1, \ldots, n \}$ such that if $(i, j) \in E$, then $c(i) \neq c(j)$. So we want to paint each vertex of a graph a certain color so that the endpoints of any edge are colored differently.
+An $n$-coloring of a graph $G = (A, E)$ is a function $c: A \to \{1, \ldots, n \}$ such that if $(i, j) \in E$, then $c(i) \neq c(j)$. So we want to paint each vertex of a graph a certain color so that the endpoints of any edge are colored differently.
 
 In the graph 3-coloring problem (3COL), we are given a graph and asked if there exists a 3-coloring. In this section, we will provide a computational zero knowledge proof for 3COL. It is a fact that 3COL is NP-complete, so any problem in NP has a polynomial time reduction to 3COL. Thus, by giving a zero knowledge proof for 3COL, we will show that there are zero knowledge proofs for all of NP.
 
