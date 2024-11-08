@@ -1,0 +1,134 @@
+
+%\newcommand{\st}{~\text{s.t.}~}
+\newcommand{\rgets}{\overset{\$}{\gets}}
+%\newcommand{\ind}{\overset{c}{\approx}}
+\section{NIZK Proof Systems}
+We now consider a different class of Zero-Knowledge proof systems, where no
+interaction is required: The Prover simply sends one message to the Verifier,
+and the Verifier either accepts or rejects. Clearly for this class to be
+interesting, we must have some additional structure:
+both the Prover and Verifier additionally have access to a common random public string
+$\sigma$ (trusted to be random by both). For example, they could derive $\sigma$
+by looking at sunspot patterns. 
+
+\section{Definitions}
+
+\begin{definition}[NIZK Proof System]
+    A \emph{NIZK proof system} for input $x$ in language $L$, with witness $\omega$, is a set of
+efficient (PPT) algorithms $(K, P, V)$ such that:
+\begin{enumerate}
+    \item Key Generation: $\sigma \gets K(1^k)$ generates the random public string.
+    \item Prover: $\pi \gets P(\sigma, x, \omega)$ produces the proof.
+    \item Verifier: $V(\sigma, x, \pi)$ outputs $\{0, 1\}$ to accept/reject the proof.
+\end{enumerate}
+Which satisfies the completeness, soundness, and zero-knowledge properties below.
+\end{definition}
+Note: We will assume throughout that $x$ is of polynomially-bounded length, i.e., we are
+considering the language $L \cap \{0, 1\}^{P(k)}$.
+
+
+\medskip
+\noindent\textbf{Completeness.} $\forall x \in L, \forall \omega \in R_L(x)$:
+    $$\Pr[\sigma \gets K(1^k), \pi \gets P(\sigma, x, \omega) : V(\sigma, x,
+    \pi) = 1] = 1.$$
+\DIFaddbegin \DIFadd{There is an alternate definition of Statistical Correctness, where the probability above is $1 - \mathsf{negl}(n)$ instead of $1$. For this explanation, though, Completeness will be used.
+}\DIFaddend 
+
+\medskip
+\noindent\textbf{Non-Adaptive Soundness.} $\forall x \not\in L$:
+    $$\Pr[\sigma \gets K(1^k): \exists~\pi \st V(\sigma, x, \pi)
+    = 1] = \mathsf{negl}(k).$$
+\DIFaddbegin \DIFadd{If the value of $\sigma$ that is picked is a ``bad" value, then there does not exist a proof $\pi$ for $x$ and $\sigma$. }\DIFaddend The above definition is ``non-adaptive", because it does not allow a cheating
+prover to decide which statement to prove after seeing the randomness $\sigma$.
+We may also consider the stronger notion of ``adaptive soundness", where the
+prover is allowed to decide $x$ after seeing $\sigma$:
+
+\medskip
+\noindent\textbf{Adaptive Soundness.}
+    $$\Pr[\sigma \gets K(1^k): \exists~ (x, \pi) \st  x \not\in L, V(\sigma, x, \pi)
+    = 1] = \mathsf{negl}(k).$$
+
+\medskip
+\noindent\textbf{(Non-Adaptive) Zero-Knowledge.}
+    \DIFdelbegin \DIFdel{The }\DIFdelend \DIFaddbegin \DIFadd{There }\DIFaddend exists a PPT simulator $S$ such that $\forall x \in L, \omega \in
+    R_L(x)$, the two distributions are computationally indistinguishable:
+
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=-3pt]
+        \item $\sigma \gets K(1^k)$
+        \item $\pi \gets P(\sigma, x, \omega)$
+        \item Output $(\sigma, \pi)$
+    \end{enumerate}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}
+        \item $(\sigma, \pi) \gets S(1^k, x)$
+        \item Output $(\sigma, \pi)$
+    \end{enumerate}
+\end{minipage}
+
+\medskip
+That is, the simulator is allowed to generate the distribution of randomness
+$\sigma$ together with $\pi$. Note that if we did not allow $S$ to produce
+$\sigma$, this definition would be trivial (a verifier could convince himself by
+running the simulator, instead of interacting with $P$). Allowing $S$ to
+generate $\sigma$ still keeps the definition zero-knowledge (since a verifier sees both $(\sigma,
+\pi)$ together), but puts $P$ and $S$ on unequal footing.
+
+We could also consider the adaptive counterpart, where a cheating verifier can
+choose $x$ after seeing $\sigma$:
+
+\medskip
+\noindent\textbf{(Adaptive) Zero-Knowledge.}
+    \DIFdelbegin \DIFdel{The }\DIFdelend \DIFaddbegin \DIFadd{There }\DIFaddend exists a PPT simulator split into two stages $S_1, S_2$ such that
+    for all PPT attackers $\ma$,
+    the two distributions are computationally indistinguishable:
+
+\medskip
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=0pt]
+        \item $\sigma \gets K(1^k)$
+        \item $(x, \omega) \gets \ma(\sigma)$, s.t. $(x, \omega) \in R_L$
+        \item $\pi \gets P(\sigma, x, \omega)$
+        \item Output $(\sigma, x, \pi)$
+    \end{enumerate}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+    \begin{enumerate}[itemsep=0pt]
+        \item $(\sigma, \tau) \gets S_1(1^k)$
+        \item $(x, \omega) \gets \ma(\sigma)$
+        \item $\pi \gets S_2(\sigma, x, \tau)$
+        \item Output $(\sigma, x, \pi)$
+    \end{enumerate}
+\end{minipage}
+
+\medskip
+\noindent where $\tau$ should be thought of as local state stored by the simulator (passed
+    between stages).
+
+\bigskip
+Now we show that adaptive soundness is not harder to achieve than non-adaptive soundness.
+\begin{theorem}\label{thm:amplify-soundness}
+    Given a NIZK $(K, P, V)$ that is \emph{non-adaptively sound}, we can
+    construct a NIZK \DIFaddbegin \DIFadd{$(K', P', V')$ }\DIFaddend that is \emph{adaptively sound}.
+\end{theorem}
+\proof
+For $x_0 \not\in L$, let us call a particular $\sigma$ ``bad for $x_0$" if 
+there exists a false proof for $x_0$ using randomness $\sigma$:
+$\exists~ \pi \st V(\sigma, x_0, \pi) = 1$.
+By non-adaptive soundness of $(K, P, V)$, we have
+$\Pr_\sigma[\sigma \text{ bad for } x_0] = \mathsf{negl}(k)$.
+
+Now we construct a new NIZK $(K',P',V')$ by repeating $(K,P,V)$ polynomially-many times
+(using fresh randomness, and $V'$ accepts if and only if $V$ accepts in each iteration).
+We can ensure that $\mathsf{negl}(k) \leq 2^{-2P(k)}$.
+Now by union bound:
+$$
+\Pr[\sigma \gets K'(1^k): \exists~ (x, \pi) \st V'(\sigma, x, \pi) = 1] \leq
+2^{P(k)}\cdot \Pr_\sigma[\sigma \text{ bad for } x_0] \leq 2^{-P(k)}.$$
+So this new NIZK is adaptively-sound. \qed
+
+\section{NIZKs from Bilinear Maps}
+
+
+\input{lec20-F24-bonus}
