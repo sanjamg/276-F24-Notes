@@ -38,6 +38,123 @@ What it means for an  interactive proof $(P,V)$ to be \textbf{first-bit leaky} z
 \end{exercise}
 
 
+\paragraph{Answer}
+Construction:
+\[ K'(1^n): 
+\begin{array}{l l} 
+\sigma \leftarrow K(1^{\kappa}) \\  
+y \leftarrow \{0,1\}^{2\kappa} \\
+\text{Output } \sigma' = (\sigma, y) \\
+\end{array} \]
+
+\[ P'(\sigma'=(\sigma, y), x, w): 
+\begin{array}{l l} 
+\pi \leftarrow P(\sigma, (x,y), w)\text{ if }x \in L \text{ or } \exists s\text{ s.t. } g(s)=y \\
+\text{Output }\pi \\
+\end{array} \]
+
+\[ V'(\sigma', x, \pi): 
+\begin{array}{l l} 
+\text{Output } V(\sigma, x, \pi)
+\end{array} \]
+
+The completeness of this systems follows from the completeness of $(K, P, V)$. The soundness is based on the PRG $g$. Since $y$ is a randomly chosen string, for almost all possible choice of $y$, it is not in the range of $g$, and thus $x \in L$ with overwhelming probability. Therefore, the soundness property also follows from that of $(K,P,V)$
+
+To prove zero-knowledge property, we construct the simulator $\mathcal{S}_1, \mathcal{S}_2$ as follows:
+\[ \mathcal{S}_1(1^\kappa): 
+\begin{array}{l l} 
+\sigma \leftarrow K(1^\kappa) \\
+s \leftarrow {0,1}^{n}, y' = g(s) \\
+\text{Output } ((\sigma, y'), s)
+\end{array}
+\text{, }
+\mathcal{S}_2(\sigma'=(\sigma, y'), x, \tau=s): 
+\begin{array}{l l} 
+\text{Output } P(\sigma, (x,y'), s) \\
+\end{array} \]
+
+We show that the proofs from $S_2$ are indistinguishable from those from $P'$ via hybrid argument. Consider following sequence of the proofs ($\{\pi_i, i \in [q]\}$).
+
+\[ 
+\mathcal{H}_0: 
+\begin{array}{l l} 
+\sigma \leftarrow K(1^n) \\
+y \leftarrow \{0,1\}^{2n} \\
+\{\pi_i \leftarrow P(\sigma, (x_i, y), w_i)\}
+\end{array} 
+\mathcal{H}_1: 
+\begin{array}{l l} 
+\sigma \leftarrow K(1^n) \\
+s \leftarrow \{0,1\}^{n},  y = g(s) \\
+\{\pi_i \leftarrow P(\sigma, (x_i, y), w_i)\}
+\end{array} 
+\mathcal{H}_2: 
+\begin{array}{l l} 
+\sigma \leftarrow K(1^n) \\
+s \leftarrow \{0,1\}^{n},  y = g(s) \\
+\pi_1 \leftarrow P(\sigma, (x_i, y), s) \\
+\{\pi_i \leftarrow P(\sigma, (x_i, y), w_i)\, i \in [1,q]\}
+\end{array} 
+\]
+
+Since $g$ is PRF, it can be shown that $\mathcal{H}_0 \cong \mathcal{H}_1$ using Sunglass Lemma. Next, consider an intermediate hybrid $\mathcal{H}_{1.5}$ where everything is the same as $\mathcal{H}_1$, but the generation of $\pi_1$ is simulated by $\mathcal{S}_1, \mathcal{S}_2$. $\mathcal{H}_1$ and $\mathcal{H}_2$ are independently indistinguishable from $\mathcal{H}_{1.5}$, $\mathcal{H}_1 \cong \mathcal{H}_{1.5} \cong \mathcal{H}_2$. This process can be extended the argument to $\mathcal{H}_3, \mathcal{H}_4,...$ where the next $\pi$s are generated with $s$ in the same way. Therefore, by the hybrid argument, $\mathcal{H}_1$ is indistinguishable from a sequence where all proofs are generated with $s$. Thus, $\mathcal{S}_1, \mathcal{S}_2$ simulates the proofs by $P'$.
 
 
 
+\subsection{Naor-Yung Construction}
+
+The Naor-Yung construction relies on a semantically-secure public-key encryption scheme $(\mathsf{Gen}, \mathsf{Enc}, \mathsf{Dec})$ and an adaptively-secure NIZK proof system $(K, P, V)$ to construct a public-key encryption scheme $(\mathsf{Gen_{cca1}}, \mathsf{Enc_{cca1}}, \mathsf{Dec_{cca1}})$ that is CCA1 secure. The scheme is defined as follows:
+
+\begin{itemize}
+    \item $\mathsf{Gen_{cca1}}(1^n): $
+    \begin{enumerate}
+        \item $(pk_0, sk_0) \gets \mathsf{Gen}(1^n)$
+        \item $(pk_1, sk_1) \gets \mathsf{Gen}(1^n)$
+        \item $\sigma \gets K(1^n)$
+        \item Output $pk = (pk_0, pk_1, \sigma)$, $sk = sk_0$
+    \end{enumerate}
+    \item $\mathsf{Enc_{cca1}}(pk = (pk_0, pk_1, \sigma), m): $
+    \begin{enumerate}
+        \item $\{c_b \gets \mathsf{Enc}(pk_b, m; r_b)\}_{b\in\bit}$
+        \item $\Pi \gets P(\sigma, (c_0, c_1), (m, r_0, r_1))$
+        \item Output $(c_0, c_1, \Pi)$
+    \end{enumerate}
+    \item  $\mathsf{Dec_{cca1}}(sk = sk_0, CT = (c_0, c_1, \Pi)): $
+    \begin{enumerate}
+        \item If $V(\sigma, (c_0, c_1), \Pi) = 1$: output $\mathsf{Dec}(sk_0, c_0)$
+        \item Else: output $\bot$
+    \end{enumerate}
+\end{itemize}
+
+\begin{theorem}\label{thm:naor-yung-cca1}
+    Assuming $(\mathsf{Gen}, \mathsf{Enc}, \mathsf{Dec})$ is a semantically-secure encryption scheme and $(K, P, V)$ is an adaptively-secure NIZK proof system, then $(\mathsf{Gen_{cca1}}, \mathsf{Enc_{cca1}}, \mathsf{Dec_{cca1}})$ is secure against non-adaptive chosen-ciphertext attacks. 
+\end{theorem}
+\proof 
+Recall the definition of CCA1 security game:
+
+\begin{center}\begin{tabular}{ r c l }
+  \textbf{Challenger} & & \textbf{Adversary} \\
+  $(pk, sk) \gets \mathsf{Gen}(1^n)$ & $\xrightarrow{pk = (pk_0, pk_1, \sigma)}$ &  \\
+   & $\xleftarrow{CT_1}$ & \\
+  $m_1 \gets \mathsf{Dec}(sk, CT_1)$ & $\xrightarrow{m_1}$ & \\
+  $\vdots$ & $\vdots$ & $\vdots$ \\
+   & $\xleftarrow{CT_i}$ & \\
+  $m_i \gets \mathsf{Dec}(sk, CT_i)$ & $\xrightarrow{m_i}$ & \\
+   & $\xleftarrow{m_0, m_1}$ & \\
+  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = \mathsf{Enc}(pk, m_b)$ & $\xrightarrow{c^* = (c_0^*, c_1^*, \Pi^*)}$ & \\
+  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
+\end{tabular}
+\end{center}
+
+Starting from this Game 0, we can derive Game 1 to 4, so that it is clear that at Game 4, the adversary does not receive any information about $b$ from $c^*$, and hence it is impossible to correctly guess $b$ with a non-negligible advantage. The intuition here is to replace $c_0^*, c_1^*, \Pi^*$ step by step. An important lemma that we make use of in the construction is:
+\begin{lemma} \label{lemma:naor-yung}
+For $\forall CT = (c_0, c_1, \Pi)$, we have that if $V(\sigma, (c_0, c_1), \Pi) = 1$, $\mathsf{Dec}(sk_0, c_0) = \mathsf{Dec}(sk_1, c_1).$
+\end{lemma}
+
+The lemma is a direct result of the soundness guarantee of the NICK proof system. Now we are ready to construct the games:
+\begin{itemize}
+    \item Game 1: instead of $(P, V)$, its simulator is used to provide the proof $\Pi^*$. Specifically, we  have $(\sigma, \tau) \gets S_1(1^n)$ and $\Pi^* \gets S_2(\tau, (c_0^*, c_1^*))$. Now $\Pi^*$ does not contain information about $b$.
+    \item Game 2: note that only $sk_0$ is used to answer all the decryption queries by the adversary, as a result, we can set $c_1^*\gets \mathsf{Enc}(pk_1, 0^{|m_1|})$. This works because of the indistinguishability of the public-key encryption scheme. Now $c_1^*$ does not contain information about $b$.
+    \item Game 3: using Lemma~\ref{lemma:naor-yung}, we can use $sk_1$ instead of $sk_0$ to answer all the decryption queries by the adversary.
+    \item Game 4: now, since only $sk_1$ is used to answer all the decryption queries by the adversary. we can set $c_0^*\gets \mathsf{Enc}(pk_0, 0^{|m_0|})$. This works because of the indistinguishability of the public-key encryption scheme. Now $c_0^*$ does not contain information about $b$ either.
+\end{itemize}
