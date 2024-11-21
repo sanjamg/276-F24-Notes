@@ -19,4 +19,5 @@
 **/*.lb
 **/*.fdb_latexmk
 **/*.pdf
+!figures/*.pdf
 **/*.synctex.gz
