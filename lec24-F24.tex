@@ -293,3 +293,15 @@ To address these limitations, we've developed a more robust formulation for our 
 This refined definition captures several crucial aspects: the adversary and extractor share access to the bilinear group setup and CRS, the extractor must produce coefficients $c_i$ explaining the adversary's output, the auxiliary information must be ``benign'' (excluding problematic cases like obfuscated programs), and the probability of adversarial success without the extractor finding a valid witness must be negligible.
 
 While this non-falsifiable assumption is stronger than traditional cryptographic assumptions, it appears to be necessary for constructing efficient SNARKs using current techniques.
+
+We now formalize the knowledge assumption d-PKE.
+
+For every non-uniform PPT extractor $E_\mathcal{A}$ such that for every ``benign'' $z$:
+
+$$\Pr [\mathcal{A}, E_\mathcal{A} (bg, g_1^\tau, g_1^{\tau^2}, \dots, g_1^{\tau^d}, g_2^\tau, g_2^{\tau^2}, \dots, g_2^{\tau^d}, z) \rightarrow (v_1, v_2; c_0, \dots, c_d) : e(v_1, g_2) = e(g_1, v_2) \land v_1 \neq g_1^{\sum_{i=0}^d c_i \tau^i}] = negl(\lambda)$$
+
+Assuming a knowledge-sound adversary $\mathcal{A}$, we can build $\mathcal{A}'$, a knowledge-sound adversary that outputs a valid witness. $\mathcal{A}(R, z, crs) \rightarrow (\pi_1, \pi_2, \pi_3, \pi_4)$ where $\pi_1, \pi_2, \pi_3, \pi_4, (a_1, \dots, a_\ell)$ and $v_1 = \pi_1 g_1^{v_0(z) + \sum_{i=1}^\ell a_i v_i(z)}$, $v_2 = \pi_2 g_2^{v_0(z) + \sum_{i=1}^\ell a_i v_i(z)}$.
+
+There is an extractor $E_\mathcal{A}'$ that can output $c_0, \dots, c_d$ such that $v_1 = g_1^{\sum_{i=0}^d c_i \tau^i}$.
+
+So note that if we have the extractor $E_\mathcal{A}$ and $a_{\ell+1}, \dots, a_m$ for the witness, and $v_1 = g_1^{F(z)}$, then we can output $(a_1, \dots, a_\ell, a_{\ell+1}, \dots, a_m)$.
