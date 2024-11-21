@@ -81,9 +81,13 @@ In this section, we will overview the fundamentals of zkSNARKs, or Zero-Knowledg
 
 \subsection{Preliminaries}
 
-$R$ is an efficiently computable binary relation, and $w$ is called the witness. For an NP language $\mathcal{L}$, we have: $x \in \mathcal{L}$ if and only if there exists a witness $w$ such that $R(x, w) = 1$. Conversely, $x \notin \mathcal{L}$ if and only if there does not exist a witness $w$ such that $R(x, w) = 1$.
+Before diving into zkSNARKs, let's understand the basic framework we're working with. In cryptography, we often deal with statements of the form ``I know a secret value that satisfies some property.'' For instance, we might want to prove that we know the private key corresponding to a public key, or that we know a solution to a Sudoku puzzle, or that we know a valid password for an account.
 
-Note that while finding a witness $w$ may be computationally hard, verifying the relation $R(x,w)=1$ is always efficient (particularly, it can be done in polynomial time).
+To formalize these statements, we use what's called a binary relation $R$. This relation takes two inputs: the public statement $x$ (like a Sudoku puzzle) and the secret witness $w$ (like the solution). $R$ is an efficiently computable binary relation that outputs 1 if the witness $w$ is valid for statement $x$, and 0 otherwise.
+
+For an NP language $\mathcal{L}$, we can say that $x \in \mathcal{L}$ if and only if there exists a witness $w$ such that $R(x, w) = 1$. Conversely, $x \notin \mathcal{L}$ if and only if there does not exist any witness $w$ such that $R(x, w) = 1$. A crucial property is that while finding a valid witness $w$ may be computationally hard (like solving a Sudoku puzzle), verifying the relation $R(x,w)=1$ is always efficient (like checking if a Sudoku solution is valid). This verification can be done in polynomial time.
+
+This framework allows us to express a wide variety of practical problems where we want to prove knowledge of a solution without revealing the solution itself, which is exactly what zkSNARKs will help us achieve.
 
 \subsection{Properties of zkSNARKs}
 
@@ -134,7 +138,7 @@ For the circuit to be satisfiable, all gate constraints must be satisfied, the o
 0 & 0 & 4 & -3 & 0 & 0 & 0 & 0 & 0 & 2
 \end{pmatrix} \]
 
-There is also a constant vector $c$ associated with these constraints:
+There is also a constant vector $\vec{\delta}$ associated with these constraints:
 
 \[ \vec{\delta} = [0 \; 0 \; -4 \; 3 \; | \; 0 \; 0 \; 0 \; 0 \; 0 \; 0] \]
 
