@@ -25,15 +25,12 @@
 \newcommand{\SAT}{\ensuremath{\mathsf{3SAT}}}
 \newcommand{\IS}{\mathsf{INDSET}}
 
-
-
 \newcommand{\inp}{\mathsf{in}}
 \newcommand{\outp}{\mathsf{out}}
 
 \newcommand{\Param}{\kappa}
 \newcommand{\Adv}{\mathsf{Adv}}
 \newcommand{\Supp}{\mathsf{Supp}}
-
 
 \newcommand{\PRG}{\mathsf{G}}
 \renewcommand{\Enc}{\mathsf{Enc}}
@@ -51,7 +48,6 @@
 
 \newcommand{\Com}{\mathsf{Com}}
 
-
 % Real vs. Ideal
 \newcommand{\RealAdv}{\mathcal{A}}
 \newcommand{\IdealAdv}{\mathcal{S}}
@@ -63,7 +59,6 @@
 \newcommand{\PartyB}{P_2}
 \newcommand{\InputA}{x_1}
 \newcommand{\InputB}{x_2}
-
 
 % Garbling Schemes
 \newcommand{\Garble}{\mathsf{Garble}}
@@ -80,208 +75,221 @@
 \newcommand{\out}{\mathsf{out}}
 \newcommand{\Assign}{:=}
 
-\chapter{Secure Computation}
+\section{zkSNARKs}
 
-\section{Introduction}
-Secure multiparty computation considers the problem of different parties
-computing a joint function of their separate, private inputs without revealing
-any extra information about these inputs than that is leaked by just the result
-of the computation. This setting is well motivated, and captures many different
-applications. Considering some of these applications will provide intuition
-about how security should be defined for secure computation:
-\begin{description}
-  \item[Voting:] Electronic voting can be thought of as a multi party computation
-	  between $n$ players: the voters. Their input is their choice $b \in \{0,1\}$
-    (we restrict ourselves to the binary choice setting without loss of generality), and the function
-    they wish to compute is the majority function.
+In this section, we will overview the fundamentals of zkSNARKs, or Zero-Knowledge Succinct Non-interactive ARguments of Knowledge.
 
-    Now consider what happens when only one user votes: their input is trivially
-    revealed as the output of the computation. What does privacy of inputs mean
-    in this scenario?
+\subsection{Preliminaries}
 
-  \item[Searchable Encryption:] Searchable encryption schemes allow clients
-    to store their data with a server, and subsequently grant servers tokens
-    to conduct specific searches. However, most schemes do not consider access
-    pattern leakage. This leakage tells the server potentially valuable information
-    about the underlying plaintext. How do we model all the different kinds
-    information that is leaked?
-\end{description}
+Before diving into zkSNARKs, let's understand the basic framework we're working with. In cryptography, we often deal with statements of the form ``I know a secret value that satisfies some property.'' For instance, we might want to prove that we know the private key corresponding to a public key, or that we know a solution to a Sudoku puzzle, or that we know a valid password for an account.
 
-From these examples we see that defining security is tricky, with lots of
-potential edge cases to consider. We want to ensure that no party can learn
-anything more from the secure computation protocol than it can from just its
-input and the result of the computation. To formalize this, we adopt the
-\textbf{real/ideal paradigm}.
+To formalize these statements, we use what's called a binary relation $R$. This relation takes two inputs: the public statement $x$ (like a Sudoku puzzle) and the secret witness $w$ (like the solution). $R$ is an efficiently computable binary relation that outputs 1 if the witness $w$ is valid for statement $x$, and 0 otherwise.
 
+For an NP language $\mathcal{L}$, we can say that $x \in \mathcal{L}$ if and only if there exists a witness $w$ such that $R(x, w) = 1$. Conversely, $x \notin \mathcal{L}$ if and only if there does not exist any witness $w$ such that $R(x, w) = 1$. A crucial property is that while finding a valid witness $w$ may be computationally hard (like solving a Sudoku puzzle), verifying the relation $R(x,w)=1$ is always efficient (like checking if a Sudoku solution is valid). This verification can be done in polynomial time.
 
+This framework allows us to express a wide variety of practical problems where we want to prove knowledge of a solution without revealing the solution itself, which is exactly what zkSNARKs will help us achieve.
 
-\section{Real/Ideal Paradigm}
-\paragraph{Notation.} 
-Suppose there are $n$ parties, and party $P_i$ has access to some data $x_i$. They are trying to compute some function of their inputs $f(x_1, \dotsc, x_n)$. The goal is to do this securely: even if some parties are corrupted, no one should learn more than is strictly necessitated by the computation.
+\subsection{Properties of zkSNARKs}
 
-\paragraph{Real World.} In the real world, the $n$ parties execute a protocol $\Pi$
-to compute the function $f$. This protocol can involve multiple rounds of
-interaction. %Each party can additionally have some randomness.
-The real world adversary $\RealAdv$ can corrupt arbitrarily many (but not all) parties.
+We now introduce the properties of zkSNARKs. We seek to use zkSNARKs to prove that $x \in L \iff R(x, w) = 1$. Informally, if a prover has $(x, w)$, we must send a proof $\pi$ such that the verifier, who has the instance $x$, can efficiently check that $R(x, w) = 1$. For the purposes of this lecture, we are focusing on non-interactive proof systems. This means that there is no back-and-forth communication between the prover and the verifier, and the verifier can verify the prover's statement in one shot.
 
+Two of the properties of zkSNARKs are common to all proof systems: Correctness ensures that if the statement is true, the prover should always be able to convince the verifier. Soundness ensures that no cheating prover can convince the verifier. However, a correct and sound proof system is not enough for a zkSNARK. Indeed, we could simply achieve this by sending the witness $w$ from the prover to the verifier. We now discuss two properties that are unique to zkSNARKs: Succinctness and Zero knowledge. Succinctness requires that the proof $\pi$ sent by the prover is significantly smaller than the witness $w$. Specifically, the proof size $|\pi|$ must be bounded by $poly(\lambda, \log(|w|))$, where $\lambda$ is the security parameter. This means the proof grows only polylogarithmically with the witness size. Zero knowledge ensures that the proof should not reveal any information about the witness $w$ beyond what can be deduced from the statement being proven. This property is what differentiates zkSNARKs from SNARKs.
 
-\paragraph{Ideal World.} In the ideal world, an angel helps in the
-computation of $f$:
-each party sends their input to the angel and receives the output of the computation $f(x_1, \dotsc, x_n)$.
-Here the ideal world adversary $\IdealAdv$ can again corrupt arbitrarily many (but not all) parties.
+The succinctness properties make zkSNARKs incredibly relevant, even for practical applications where we do not care about hiding the witness $w$. This is because the proof size is exponentially more efficient than directly sending the witness $w$ from the prover to the verifier.
 
-To model malicious adversaries, we need to modify the ideal world model as follows. 
-Some parties are honest, and each honest party $P_i$ simply sends $x_i$ to the angel. The other parties are corrupted and are under control of the adversary $\IdealAdv$. The adversary chooses an input $x_i'$ for each corrupted party $P_i$ (where possibly $x_i' \neq x_i$) and that party then sends $x_i'$ to the angel. The angel computes a function $f$ of the values she receives (for example, if only party 1 is honest, then the angel computes $f(x_1, x_2', x_3', \dotsc, x_n')$) in order to obtain a tuple $(y_1, \dotsc, y_n)$. 
-She then sends $y_i$ of corrupted parties to the adversary, who gets to decide whether or not honest parties will receive their response from the angel. The angel obliges. Each honest party $P_i$ then outputs $y_i$ if they receive $y_i$ from the angel and $\perp$ otherwise, and corrupted parties output whatever the adversary tells them to. 
+\paragraph{Succinctness example.} Let's consider a practical example to illustrate the power of SNARKs' succinctness property. Suppose we have a 1 TB hard disk and want to prove to a verifier that $Hash(hard\text{ }disk) = x$ for some known hash value $x$. We have two options: Without SNARKs, we would need to send the entire 1 TB hard disk to the verifier, who then computes the hash themselves. With SNARKs, we can generate a succinct proof $\pi$ (approximately 1 KB) that proves knowledge of the hard disk contents whose hash equals $x$. Even in scenarios where we do not need to hide the hard disk contents (i.e., zero-knowledge is not required), the SNARK approach is dramatically more efficient in terms of communication complexity: sending a 1 KB proof versus transferring 1 TB of data. This lecture will primarily focus on achieving succinctness, as adding zero-knowledge properties is a relatively straightforward extension once the basic SNARK construction is understood.
 
- 
+\paragraph{How to build SNARKs?} To construct SNARKs, we will follow these key steps. First, we need to find a ``SNARK-friendly'' representation model for NP languages. The example we will use is square span programs. Next, we must show that this model can capture all NP relations, using boolean circuits as an example. Then, we construct the SNARK using cryptographic techniques, specifically employing bilinear groups in our example construction. After that, we prove soundness. Finally, we add zero-knowledge properties. The final SNARK that emerged from this approach is known as Groth16. While we will not cover Groth16 directly, we will study the DFGK14 SNARK, which is conceptually simpler but employs the same fundamental cryptographic ideas.
 
+\subsection{Square Span Programs}
 
+We begin by introducing Square Span Programs (SSPs), which provide a ``SNARK-friendly'' representation for NP languages.
 
-\paragraph{Definition of Security.} 
-A protocol $\Pi$ is secure against computationally bounded adversaries if for every PPT adversary $\RealAdv$ in the real world, there exists an PPT adversary $\IdealAdv$ in the ideal world such that for all tuples of bit strings $(x_1, \dotsc, x_n)$, we have
-\[ \mathrm{Real}_{\Pi, \RealAdv}(x_1, \dotsc x_n) \stackrel{c}{\simeq} \mathrm{Ideal}_{F,\IdealAdv}(x_1, \dotsc, x_n) \]
-where the left-hand side denotes the output distribution induced by $\Pi$ running with $\RealAdv$, and the right-hand side denotes the output distribution induced by running the ideal protocol $F$ with $\IdealAdv$. 
-The ideal protocol is either the original one described for semi-honest adversaries, or the modified one described for malicious adversaries. 
+\begin{definition}[Square Span Program]
+A square span program $Q$ over a field $\mathbb{F}$ consists of a size parameter $m \in \mathbb{N}$, a degree parameter $d \in \mathbb{N}$, and a set of polynomials $\{v_0(x), v_1(x), \dots, v_m(x), t(x)\}$. Each $v_i(x)$ is a polynomial over $\mathbb{F}$ of degree at most $d$, and $t(x)$ is a polynomial over $\mathbb{F}$ of degree exactly $d$.
+\end{definition}
 
+\begin{definition}[SSP Acceptance]
+We say that a square span program $Q$ accepts an input $(a_1, \dots, a_\ell) \in \mathbb{F}^\ell$ if and only if there exist values $a_{\ell+1}, \dots, a_m \in \mathbb{F}$ such that $t(x)$ divides $(v_0(x) + \sum_{i=1}^m a_i v_i(x))^2 - 1$. In other words, there exists a polynomial $h(x)$ such that $(v_0(x) + \sum_{i=1}^m a_i v_i(x))^2 - 1 = h(x)t(x)$.
+\end{definition}
 
+The values $a_1, \dots, a_\ell$ represent the input to our computation, while $a_{\ell+1}, \dots, a_m$ serve as auxiliary values (similar to a witness in an NP relation). As we will see, this algebraic structure is particularly well-suited for constructing SNARKs. A key property of SSPs is their expressiveness: we can transform any boolean circuit into an equivalent square span program. This transformation will be our next focus.
 
+\subsection{From Boolean Circuits to SSPs}
 
+Consider the boolean circuit in Figure \ref{fig:ssp}. We will transform this circuit into an SSP.
 
-%We require that the views of the parties
-%in each of the scenarios be identical, i.e.\ that a real-world execution of the
-%protocol $\Pi$ should not leak any information not leaked by the ideal-world
-%execution. Hence, the parties can only learn what they can infer from their
-%inputs and the output $f(\InputA, \InputB)$. More formally, assuming $\RealAdv$
-%corrupts one party (say $\PartyA$, wlog), we define random variables
-%$\RealVar_{\Pi, \RealAdv}(\InputA, \InputB) = \RealAdv(\InputA, r_1, \text{messages
-%sent in } \Pi)$ and $\IdealVar_{F, \IdealAdv}(\InputA, \InputB) = \IdealAdv(\InputA,
-%f(\InputA,\InputB))$.  These random variables represent the views of the
-%adversary in each of the two settings. Our definition of security thus requires
-%that
-%
-%\begin{equation*}
-%\RealVar_{\Pi, \RealAdv}(\InputA, \InputB) \indis \IdealVar_{F, \IdealAdv}(x_1, x_2).
-%\end{equation*}
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/ssp.pdf}
+  \caption{Boolean circuit example for SSP transformation \label{fig:ssp}} 
+\end{figure}
 
-\paragraph{Assumptions.} We have brushed over some details of the above setting.
-Below we state these assumptions explicitly:
-\begin{enumerate}
-  \item \textbf{Communication channel:} We assume that the communication channel
-    between the involved parties is completely insecure, i.e., it does not preserve
-    the privacy of the messages. However, we assume that it is reliable, which means
-    that the adversary can drop messages, but if a message is delivered, then
-    the receiver knows the origin.
+First, we formalize the constraints for each gate type. For an XOR gate, the output $a_4$ of inputs $a_1, a_2$ must satisfy $a_1 + a_2 + a_4 \in \{0, 2\}$. For an OR gate, the output $a_5$ of inputs $a_2, a_3$ must satisfy $(1-a_2) + (1-a_3) - 2(1-a_5) \in \{0, 1\}$. For a NAND gate, the output $a_6$ of inputs $a_4, a_5$ must satisfy $a_4 + a_5 - 2(1-a_6) \in \{0, 1\}$.
 
-  \item \textbf{Corruption model:} We have different models of how and when the
-    adversary can corrupt parties involved in the protocol:
-    \begin{itemize}
-      \item
-        \emph{Static:} The adversary chooses which parties to corrupt before the
-        protocol execution starts, and during the protocol, the malicious parties
-        remain fixed.
-      \item
-        \emph{Adaptive:} The adversary can corrupt parties dynamically during
-        the protocol execution, but the simulator can do the same.
-      \item
-        \emph{Mobile:} Parties corrupted by the adversary can be ``uncorrupted''
-        at any time during the protocol execution at the adversary's discretion.
-    \end{itemize}
+For the circuit to be satisfiable, all gate constraints must be satisfied, the output constraint $3(1 - a_6) \in \{0, 2\}$ must hold, and all boolean value constraints $a_i \in \{0, 1\}$ for all $i \in \{1,\ldots,6\}$ must be met. To standardize these constraints, we multiply all constraints involving $\{0, 1\}$ by 2 to normalize ranges and combine constraints into a matrix form for $a_1,\ldots,a_6$. Finally, we seek to unify the constraints into a larger matrix that encompasses all the constraints in the whole circuit, where each column represents a single boolean algebra constraint. The resulting constraint matrix $M$ is below, with columns representing the XOR, OR, NAND, and output constraints, respectively:
 
-  \item \textbf{Fairness:} The protocols we consider are not ``fair'', i.e.,
-    the adversary can cause corrupted parties to abort arbitrarily. This can
-    mean that one party does not get its share of the output of the computation.
+\[ \begin{pmatrix}
+1 & 0 & 0 & 0 & 2 & 0 & 0 & 0 & 0 & 0 \\
+1 & -2 & 0 & 0 & 0 & 2 & 0 & 0 & 0 & 0 \\
+0 & -2 & 0 & 0 & 0 & 0 & 2 & 0 & 0 & 0 \\
+1 & 0 & 2 & 0 & 0 & 0 & 0 & 2 & 0 & 0 \\
+0 & 4 & 2 & 0 & 0 & 0 & 0 & 0 & 2 & 0 \\
+0 & 0 & 4 & -3 & 0 & 0 & 0 & 0 & 0 & 2
+\end{pmatrix} \]
 
-  \item \textbf{Bounds on corruption:} In some scenarios, we place upper bounds
-    on the number of parties that the adversary can corrupt.
+There is also a constant vector $\vec{\delta}$ associated with these constraints:
 
-  \item \textbf{Power of the adversary:} We consider primarily two types of
-    adversaries:
-    \begin{itemize}
-      \item \emph{Semi-honest adversaries:} Corrupted parties follow the protocol
-        execution $\Pi$ honestly, but attempt to learn as much information as they
-        can from the protocol transcript.
+\[ \vec{\delta} = [0 \; 0 \; -4 \; 3 \; | \; 0 \; 0 \; 0 \; 0 \; 0 \; 0] \]
 
-      \item \emph{Malicious adversaries:} Corrupted parties can deviate arbitrarily
-        from the protocol $\Pi$.
-    \end{itemize}
+All constraints must evaluate to elements in $\{0, 2\}^{10}$. 
 
-  \item \textbf{Standalone vs.\ Multiple execution:} In some settings, protocols
-    can be executed in isolation; only one instance of a particular protocol
-    is ever executed at any given time. In other settings, many different protocols
-    can be executed concurrently. This can compromise security.
-\end{enumerate}
+\paragraph{Generalizing to Arbitrary Circuits.}
 
+Let's now see how we can transform any arbitrary boolean circuit into a Square Span Program. Consider a circuit with $m$ wires and $n$ gates. Our first task is to construct a matrix that captures all the constraints of our circuit. For each gate $k$ in our circuit, we create a column vector $\vec{v_k} = (v_{1k}, v_{2k}, \ldots, v_{mk})^T$ that encodes the gate's constraints. These constraints ensure the gate operates correctly—just as we saw with our XOR, OR, and NAND gates in the previous example.
+
+After encoding all $n$ gates, we add a special column for the output constraint, which takes the form $(0,\ldots,0,-3)^T$. The $-3$ here is somewhat arbitrary; any field element different from 2 would work. We then augment our matrix with a diagonal matrix $D$ where each diagonal entry is 2. This diagonal matrix serves to enforce that all our variables are boolean, a crucial requirement for circuit satisfaction.
+
+To complete our constraint system, we need a constant vector $\vec{\delta} = (\delta_1,\ldots,\delta_n,3,0,\ldots,0)$ where each $\delta_i$ represents the constant term for gate $i$. These constants are chosen from the set $\{0,2\}$, with the exception of the output constraint's constant which is 3.
+
+Let's now see how we can transform any arbitrary boolean circuit into a Square Span Program. Consider a circuit with $m$ wires and $n$ gates. The complete constraint system can be written as:
+
+\[ \begin{pmatrix} a_1 & a_2 & \cdots & a_m \end{pmatrix}
+\begin{pmatrix}
+v_{11} & v_{12} & \cdots & v_{1n} & 0 & 2 & 0 & \cdots & 0 \\
+v_{21} & v_{22} & \cdots & v_{2n} & 0 & 0 & 2 & \cdots & 0 \\
+v_{31} & v_{32} & \cdots & v_{3n} & 0 & 0 & 0 & \ddots & 0 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+v_{m1} & v_{m2} & \cdots & v_{mn} & -3 & 0 & 0 & \cdots & 2
+\end{pmatrix} + \begin{pmatrix} \delta_1 & \delta_2 & \cdots & \delta_n & 3 & 0 & \cdots & 0 \end{pmatrix} \]
+
+where $(a_1,\ldots,a_m)$ are the wire values (variables we solve for), the first $n$ columns $(v_{ij})$ represent the gate constraints, column $n+1$ is the output constraint $(0,\ldots,0,-3)^T$, the next $m$ columns form the diagonal matrix $D$ with $2$'s on the diagonal, and the constant vector $(\delta_1,\ldots,\delta_m)$ contains $\delta_i \in \{0,2\}$ for $i \leq n$ (gate constraints), $\delta_{n+1} = 3$ (output constraint), and $\delta_i = 0$ for $i > n+1$ (boolean constraints).
+
+Next, we convert these discrete constraints into a polynomial system. We choose distinct field elements $x_1,\ldots,x_d$ (where $d$ is our total number of constraints) and use polynomial interpolation to create our SSP. For each row $i$ of our matrix, we construct a polynomial $v_i(x)$ that evaluates to the $(i,j)$ entry when evaluated at point $x_j$. Similarly, we create a polynomial $v_0(x)$ that interpolates our constant vector $\vec{\delta}$.
+
+The target polynomial $t(x)$ is defined as the product of all linear terms:
+
+\[ t(x) = \prod_{j=1}^d (x-x_j) \]
+
+This polynomial is crucial because it ``zeros out'' exactly at our constraint points. The beauty of this construction is that it transforms our circuit satisfaction problem into an elegant polynomial divisibility question: the circuit is satisfiable if and only if there exist values $(a_1,\ldots,a_m)$ such that:
+
+\[ \left(v_0(x) + \sum_{i=1}^m a_i v_i(x)\right)^2 - 1 = h(x)t(x) \]
+
+for some polynomial $h(x)$.
+
+After converting to a polynomial system, our constraint matrix becomes:
+
+\[ \begin{pmatrix} 
+a_1 \\ 
+a_2 \\ 
+\vdots \\ 
+a_m 
+\end{pmatrix}^T
+\begin{pmatrix}
+v_1(x_1) & v_1(x_2) & \cdots & v_1(x_n) & v_1(x_{n+1}) & v_1(x_{n+2}) & 0 & \cdots & 0 \\
+v_2(x_1) & v_2(x_2) & \cdots & v_2(x_n) & v_2(x_{n+1}) & 0 & v_2(x_{n+2}) & \cdots & 0 \\
+v_3(x_1) & v_3(x_2) & \cdots & v_3(x_n) & v_3(x_{n+1}) & 0 & 0 & \ddots & 0 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+v_m(x_1) & v_m(x_2) & \cdots & v_m(x_n) & v_m(x_{n+1}) & 0 & v_m(x_{n+2}) & \cdots & v_m(x_d)
+\end{pmatrix} + 
+\begin{pmatrix} v_0(x_1) \\ v_0(x_2) \\ \vdots \\ v_0(x_n) \\ v_0(x_{n+1}) \\ v_0(x_{n+2}) \\ 0 \\ \vdots \\ 0 \end{pmatrix}^T \]
+
+where:
+\begin{itemize}
+    \item Each $v_i(x_j)$ evaluates to the corresponding matrix entry at point $x_j$
+    \item The diagonal entries evaluate to 2 at their respective points
+    \item The output constraint column evaluates to $(0,\ldots,0,-3)$ at point $x_{n+1}$
+    \item $v_0(x)$ interpolates the constant vector $(\delta_1,\ldots,\delta_n,3,0,\ldots,0)$
+\end{itemize}
+
+For any boolean circuit $C$, we can construct an SSP instance $(v_0(x),\ldots,v_m(x),t(x))$ such that $C(x_1,\ldots,x_\ell) = 1$ if and only if there exist values $(a_{\ell+1},\ldots,a_m)$ making the above polynomial division possible.
+
+The correctness of this transformation follows from our construction: each gate's constraints are captured at distinct evaluation points, the boolean nature of our variables is enforced by the diagonal matrix, and the polynomial division condition.
 
 
 
 
+Now, for notational convenience, we define $v_0'(x) = v_0(x) - 1$. 
 
+At each evaluation point $x_j$, our circuit constraints require:
+\[ \left(\sum_{i=1}^m a_i v_i(x_j) + v_0'(x_j)\right)^2 = 1 \]
 
-\section{Oblivious transfer}
+This set of point-wise constraints can be unified into a single polynomial constraint:
+\[ \left(\sum_{i=1}^m a_i v_i(x) + v_0'(x)\right)^2 - 1 \equiv 0 \pmod{t(x)} \]
 
-\emph{Rabin's oblivious transfer} sets out to accomplish the following special task of two-party secure computation. The sender has a bit $s \in \{0,1\}$. She places the bit in a box. Then the box reveals the bit to the receiver with probability 1/2, and reveals $\perp$ to the receiver with probability 1/2. The sender cannot know whether the receiver received $s$ or $\perp$, and the receiver cannot have any information about $s$ if they receive $\perp$.
+where $t(x) = \prod_{j=1}^d (x - x_j)$ is our target polynomial.
 
-\subsection{1-out-of-2 oblivious transfer}
-\emph{1-out-of-2 oblivious transfer} sets out to accomplish the following related task. The sender has two bits $s_0, s_1 \in \{0,1\}$ and the receiver has a bit $c \in \{0,1\}$. The sender places the pair $(s_0, s_1)$ into a box, and the receiver places $c$ into the same box. The box then reveals $s_c$ to the receiver, and reveals $\perp$ to the sender (in order to inform the sender that the receiver has placed his bit $c$ into the box and has been shown $s_c$). The sender cannot know which of her bits the receiver received, and the receiver cannot know anything about $s_{1-c}$.
+Equivalently, there must exist some polynomial $h(x)$ such that:
+\[ \left(\sum_{i=1}^m a_i v_i(x) + v_0'(x)\right)^2 - 1 = h(x)t(x) \]
 
-\begin{lemma}
-A system implementing 1-out-of-2 oblivious transfer can be used to implement Rabin's oblivious transfer.
-\end{lemma}
+This is precisely the SSP satisfiability condition. Thus, we have shown that circuit satisfiability is equivalent to the existence of coefficients $a_i$ that satisfy this polynomial divisibility condition.
 
-\proof
-The sender has a bit $s$. She randomly samples a bit $b \in \{0,1\}$ and $r \in \{0,1\}$, and the receiver randomly samples a bit $c \in \{0,1\}$. If $b = 0$, the sender defines $s_0 = s$ and $s_1 = r$, and otherwise, if $b = 1$, she defines $s_0 = r$ and $s_1 = s$. She then places the pair $(s_0, s_1)$ into the 1-out-of-2 oblivious transfer box. The receiver places his bit $c$ into the same box, and then the box reveals $s_c$ to him and $\perp$ to the sender. Notice that if $b = c$, then $s_c = s$, and otherwise $s_c = r$. Once $\perp$ is revealed to the sender, she sends $b$ to the receiver. The recieiver checks whether or not $b = c$. If $b = c$, then he knows that the bit revealed to him was $s$. Otherwise, he knows that the bit revealed to him was the nonsense bit $r$ and he regards it as $\perp$. \\
+\subsection{From SSPs to SNARKs}
 
-It is easy to see that this procedure satisfies the security requirements of Rabin's oblivious transfer protocol. Indeed, as we saw above, $s_c = s$ if and only if $b = c$, and since the sender knows $b$, we see that knowledge of whether or not the bit $s_c$ received by the receiver is equal to $s$ is equivalent to knowledge of $c$, and the security requirements of 1-out-of-2 oblivious transfer prevent the sender from knowing $c$. Also, if the receiver receives $r$ (or, equivalently, $\perp$), then knowledge of $s$ is knowledge of the bit that was not revealed to him by the box, which is again prevented by the security requirements of 1-out-of-2 oblivious transfer.  $\qed$
+We'll use bilinear groups to construct our SNARK. Our construction begins with a bilinear group setup:
+\[ (\mathbb{F}_p, G_1, G_2, G_T, e, g_1, g_2) \]
 
-\begin{lemma}
-A system implementing Rabin's oblivious transfer can be used to implement 1-out-of-2 oblivious transfer.
-\end{lemma}
+The common reference string (CRS) forms the foundation of our construction. It consists of powers of a secret value $\tau$:
+\[ \text{CRS} = (bg, g_1^\tau, g_1^{\tau^2}, \dots, g_1^{\tau^d}, g_2^\tau, g_2^{\tau^2}, \dots, g_2^{\tau^d}, g_1^{B v_{\ell + 1}(\tau)}, \dots, g_1^{B v_m(\tau)}, h_2, h_2^B) \]
 
-\proofsketch
-The sender has two bits $s_0, s_1 \in \{0,1\}$ and the receiver has a single bit $c$. The sender randomly samples $3n$ random bits $x_1, \dotsc, x_{3n} \in \{0,1\}$. Each bit is placed into its own a Rabin oblivious transfer box. The $i$th box then reveals either $x_i$ or else $\perp$ to the receiver. Let 
-\[ S := \{i \in \{1, \dotsc, 3n\} : \text{the receiver knows } x_i\}. \]
-The receiver picks two sets $I_0, I_1 \subseteq \{1, \dotsc, 3n\}$ such that $\# I_0 = \# I_1 = n$, $I_c \subseteq S$ and $I_{1-c} \subseteq \{1, \dotsc, 3n\} \setminus S$. This is possible except with probability negligible in $n$. He then sends the pair $(I_0, I_1)$ to the sender. The sender then computes $t_j= \left(\bigoplus_{i \in I_j}x_i \right) \oplus s_j$ for both $j \in \{0,1\}$ and sends $(t_0, t_1)$ to the receiver. \\
+The core idea of our construction leverages the pairing operation $e$ to verify polynomial equations in the exponent:
+\[ e(g_1^{[v_0(x) + \sum_{i=1}^m a_i v_i(x)]}, g_2^{[v_0(x) + \sum_{i=1}^m a_i v_i(x)]}) = e(g_1^{h(x)}, g_2^{t(x)}) \cdot e(g_1, g_2) \]
 
-Notice that the receiver can uncover $s_c$ from $t_c$ since he knows $x_i$ for all $i \in I_c$, but cannot uncover $s_{1-c}$. One can show that the security requirement of Rabin's oblivious transfer implies that this system satisfies the security requirement necessary for 1-out-of-2 oblivious transfer. $\qed$ \\
+In our protocol, we distinguish between two types of values:
+\begin{itemize}
+    \item Statement: $(a_1, \dots, a_\ell)$ - the public inputs
+    \item Witness: $(a_{\ell+1}, \dots, a_m)$ - the private values
+\end{itemize}
 
-We will see below that length-preserving one-way trapdoor permutations can be used to realize 1-out-of-2 oblivious transfer. 
+For proof generation, the prover computes four crucial group elements:
+\begin{align*}
+    \pi_1 &= g_1^{\sum_{i=\ell+1}^m a_i v_i(z)} \\
+    \pi_2 &= g_2^{\sum_{i=\ell+1}^m a_i v_i(z)} \\
+    \pi_3 &= g_1^{h(z)} \\
+    \pi_4 &= g_1^{B\sum_{i=1}^m a_i v_i(z)}
+\end{align*}
 
-\begin{theorem}
-The following protocol realizes 1-out-of-2 oblivious transfer in the presence of computationally bounded and semi-honest adversaries. 
-\begin{enumerate}
-\item The sender, who has two bits $s_0$ and $s_1$, samples a random length-preserving one-way trapdoor permutation $(f, f^{-1})$ and sends $f$ to the receiver.  Let $b(\cdot)$ be a hard-core bit for $f$.
-\item The receiver, who has a bit $c$, randomly samples an $n$-bit string $x_c \in \{0,1\}^n$ and computes $y_c = f(x_c)$. He then samples another random $n$-bit string $y_{1-c} \in \{0,1\}^n$, and then sends $(y_0, y_1)$ to the sender.
-\item The sender computes $x_0 := f^{-1}(y_0)$ and $x_1 := f^{-1}(y_1)$. She computes $b_0 := b(x_0) \oplus s_0$ and $b_1 := b(x_1) \oplus s_1$, and then sends the pair $(b_0, b_1)$ to the receiver.
-\item The receiver knows $c$ and $x_c$, and can therefore compute $s_c = b_c \oplus b(x_c)$. 
-\end{enumerate}
-\end{theorem}
-\proof
-Correctness is clear from the protocol.	
-For security, from the sender side, since $f$ is a length-preserving permutation, $(y_0, y_1)$ is statistically indistinguishable from two random strings, hence she can't learn anything about $c$.
-From the receiver side, guessing $s_{1-c}$ correctly is equivalent to guessing the hard-core bit for $y_{1-c}$.
-\qed
+The verification process consists of two steps. First, the verifier computes intermediate values:
+\begin{align*}
+    \pi_1' &= g_1^{v_0(z) + \sum_{i=1}^\ell a_i v_i(z)} \cdot \pi_1 \\
+    \pi_2' &= g_2^{v_0(z) + \sum_{i=1}^\ell a_i v_i(z)} \cdot \pi_2
+\end{align*}
 
+Then, the verifier performs three critical pairing checks:
+\begin{align*}
+    e(\pi_1', \pi_2') &= e(\pi_3, g_2^{t(z)}) \cdot e(g_1, g_2) \\
+    e(\pi_1, g_2) &= e(g_1, \pi_2) \\
+    e(\pi_1, h_2^B) &= e(\pi_4, h_2)
+\end{align*}
 
-\subsection{1-out-of-4 oblivious transfer}
-  We describe how to implement a 1-out-of-4 OT using 1-out-of-2 OT:\@
-  \begin{enumerate}
-    \item
-      The sender, $\PartyA$ samples 5 random values $S_i \gets \bits, i \in \set{1,\dotsc, 5}$.
-    \item
-      $\PartyA$ computes
-      \begin{align*}
-        \alpha_0 &= S_0 \xor S_2 \xor m_0\\
-        \alpha_1 &= S_0 \xor S_3 \xor m_1\\
-        \alpha_2 &= S_1 \xor S_4 \xor m_2\\
-        \alpha_3 &= S_1 \xor S_5 \xor m_3
-      \end{align*}
-      It sends these values to $\PartyB$.
-    \item
-      The parties engage in 3 1-out-of-2 Oblivious Transfer protocols for the following
-      messages: $(S_0, S_1)$, $(S_2, S_3)$, $(S_4, S_5)$. THe receiver's input for
-      the first OT is the first choice bit, and for the second and third ones is
-      the second choice bit.
-    \item
-      The receiver can only decrypt one ciphertext.
-  \end{enumerate}
+These pairing equations serve distinct purposes in ensuring the proof's validity. The first check confirms that the SSP is satisfied by verifying the polynomial equation in the exponent. The second check ensures consistency between the prover's elements in groups $G_1$ and $G_2$. The final check prevents malformed group elements by verifying they were properly constructed using the CRS values.
+
+Due to the non-interactive nature of our protocol, we cannot rely on black-box extraction for our security proofs. Instead, we require a non-black-box extractor with access to the prover's code, which is acceptable within our security model.
+
+\subsection{Soundness}
+
+The soundness guarantees of SNARKs, including our SSP SNARK construction, differ from traditional cryptographic protocols. They necessarily rely on non-falsifiable assumptions or the random oracle model (ROM).
+
+Non-falsifiable assumptions represent a unique class of cryptographic assumptions. Informally, given $(g, g^\alpha)$, these assumptions state that no adversary can output a pair $(g^x, (g^x)^\alpha)$ without actually ``knowing'' the exponent $x$. The term ``non-falsifiable'' stems from the fact that these assumptions make claims about what an adversary must know, rather than just what it can or cannot compute.
+
+Our first attempt at formalizing soundness states that for every probabilistic polynomial-time (PPT) adversary $\mathcal{A}$, there exists a PPT extractor $E_\mathcal{A}$ such that:
+\[ \Pr[(v_1, v_2) \gets \mathcal{A}(g, g^\alpha, z), x \gets E_\mathcal{A}(g, g^\alpha, z) : v_2 = v_1^\alpha \land v_1 \neq g^x] = negl(\lambda) \]
+
+This probability involves three key components:
+\begin{itemize}
+    \item $z$ represents auxiliary information available to the adversary
+    \item $\lambda$ denotes the security parameter
+    \item $negl(\lambda)$ represents a negligible function
+\end{itemize}
+
+Recent research has revealed limitations in this initial formulation. Specifically, certain obfuscated programs, when provided as auxiliary input $z$, enable adversaries to produce valid pairs $(v_1, v_2)$ while preventing the extractor $E_\mathcal{A}$ from determining $x$ due to the complexity of reverse-engineering the obfuscated program.
+
+To address these limitations, we've developed a more robust formulation for our SNARK construction. For all relations $R \in \mathcal{R}$, benign auxiliary information $z \in \mathcal{Z}$, and non-uniform adversaries $\mathcal{A}$, there exists a non-uniform PPT extractor $E_\mathcal{A}$ such that for all benign $z \in \mathcal{Z}$:
+\[ \begin{aligned}
+&\Pr[((v_1, v_2); c_0, \dots, c_d) \gets (\mathcal{A} \| E_\mathcal{A})(bg, g_1, g_2, \dots, g_2^{\tau^d}, z) : \\
+&\quad e(v_1, g_2) = e(g_1, v_2) \land v_1 \neq g_1^{\sum_{i=0}^d c_i \tau^i}] = negl(\lambda)
+\end{aligned} \]
+
+This refined definition captures several crucial aspects: the adversary and extractor share access to the bilinear group setup and CRS, the extractor must produce coefficients $c_i$ explaining the adversary's output, the auxiliary information must be ``benign'' (excluding problematic cases like obfuscated programs), and the probability of adversarial success without the extractor finding a valid witness must be negligible.
+
+While this non-falsifiable assumption is stronger than traditional cryptographic assumptions, it appears to be necessary for constructing efficient SNARKs using current techniques.
