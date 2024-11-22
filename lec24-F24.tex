@@ -284,7 +284,7 @@ This probability involves three key components:
 
 Recent research has revealed limitations in this initial formulation. Specifically, certain obfuscated programs, when provided as auxiliary input $z$, enable adversaries to produce valid pairs $(v_1, v_2)$ while preventing the extractor $E_\mathcal{A}$ from determining $x$ due to the complexity of reverse-engineering the obfuscated program.
 
-\subsubsection{Knowledge Soundness Definition}
+\paragraph{Knowledge Soundness Definition}
 
 To address these limitations, we've developed a more robust formulation for our SNARK construction. For all relations $R \in \mathcal{R}$, benign auxiliary information $z \in \mathcal{Z}$, and non-uniform adversaries $\mathcal{A}$, there exists a non-uniform PPT extractor $E_\mathcal{A}$ such that for all benign $z \in \mathcal{Z}$:
 \[ \begin{aligned}
@@ -296,7 +296,7 @@ This refined definition captures several crucial aspects: the adversary and extr
 
 While this non-falsifiable assumption is stronger than traditional cryptographic assumptions, it appears to be necessary for constructing efficient SNARKs using current techniques.
 
-\subsubsection{Knowledge Assumption}
+\paragraph{Knowledge Assumption}
 
 We now formalize the knowledge assumption d-PKE (power knowledge of exponent).
 
