@@ -1,0 +1,860 @@
+\let\counterwithout\relax
+\let\counterwithin\relax
+
+\let\proof\relax
+\let\endproof\relax
+\let\example\relax
+\let\endexample\relax
+
+%% Tikz configuration
+\usetikzlibrary{shapes.geometric, arrows}
+
+% Change thanks markers to numbers
+\makeatletter
+\let\@fnsymbol\@arabic
+\makeatother
+
+%% LLNCS hyperref requirement
+\renewcommand\UrlFont{\color{blue}\rmfamily}
+
+%% Eurocrypt requirement
+\pagestyle{plain}
+
+
+%% Allow align environment to span multiple pages
+\allowdisplaybreaks
+
+%% Theorem Environments
+
+% Bold optional theorem titles
+\makeatletter
+\def\th@definition{%
+  \thm@notefont{}% same as heading font
+  \normalfont % body font
+}
+\makeatother
+
+% No italics
+% \theoremstyle{definition}
+
+% Rename environments
+\newtheorem{assumption}{Assumption}
+% \newtheorem{construction}{Construction}
+\newtheorem{attention}{Remark}
+\newtheorem{notation}{Notation}
+
+% Algorithm counter to construction
+\makeatletter 
+\renewcommand\thealgorithm{\theconstruction.\arabic{algorithm}} 
+\@addtoreset{algorithm}{construction}
+\makeatother
+
+%% Annotations
+\newcommand\todo[1]{\textcolor{red}{TODO: #1}}
+\definecolor{comment-color}{RGB}{68, 59, 141}
+\renewcommand{\algorithmiccomment}[1]{\textcolor{comment-color}{// #1}}
+\newcommand\blue[1]{\textcolor{blue}{#1}}
+\newcommand{\mathhl}[1]{\colorbox{yellow}{$\displaystyle #1$}}
+
+
+
+%% Diagram Macros
+
+\newcommand{\rightarr}[1]{\sendmessageright{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
+\newcommand{\leftarr}[1]{\sendmessageleft{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
+
+\newcommand{\cfbox}[2]{
+    \colorlet{currentcolor}{.}
+    {\color{#1}
+    \fbox{\color{currentcolor}#2}}
+}
+
+\newcommand{\En}{\mathcal{K}}
+\newcommand{\Gn}{\mathcal{G}}
+\newcommand{\Po}{\mathcal{P}}
+\newcommand{\V}{\mathcal{V}}
+
+
+\newcommand{\niksdef}[6]{
+For all expected polynomial-time adversaries 
+$\mathcal{P}^*$ 
+there exists an expected polynomial-time extractor
+$\mathcal{E}$ such that
+    \[
+    \Pr_{\mathsf{r}}
+    \left[
+      \begin{array}{l}
+        #6
+      \end{array}
+      \middle\vert
+      \begin{array}{l}
+        % Generator
+        \mathsf{pp} \gets \mathcal{G}(1^{\lambda}, N),\\ 
+        % Adversarial Statement, Proof
+        (#1, #2, #4) \gets \mathcal{P}^*(\mathsf{pp}, \mathsf{r}),\\
+        % Key Generator
+        (\pk, \vk) \gets \En(\pp, #1),\\
+        % Precondition
+        #5,\\
+        % Extractor
+        #3 \gets \mathcal{E}(\pp, \mathsf{r})
+      \end{array}
+    \right]
+    \approx 
+    1
+    \]
+    where $\mathsf{r}$ denotes an arbitrarily long random tape.
+}
+
+
+% \newcommand{\pp}{\mathsf{pp}}
+% \newcommand{\pk}{\mathsf{pk}}
+% \newcommand{\vk}{\mathsf{vk}}
+
+% \newcommand{\R}{\mathcal{R}}
+
+\newcommand{\FP}{F'}
+\newcommand{\io}{\mathsf{x}}
+\newcommand{\fu}{\mathsf{u}}
+\newcommand{\fw}{\mathsf{w}}
+\newcommand{\acc}{\mathsf{U}}
+\newcommand{\aw}{\mathsf{W}}
+\newcommand{\trivi}{\fu_{\bot}}
+\newcommand{\trivw}{\fw_{\bot}}
+\newcommand{\fold}{\mathsf{NIFS}}
+\newcommand{\snark}{\mathsf{SNARK}}
+\newcommand{\RIVC}{\R_{\mathsf{IVC}}}
+\newcommand{\Str}{\mathsf{s}}
+\newcommand{\com}{\mathsf{com}}
+
+% \newcommand{\Gen}{\mathsf{Gen}}
+\newcommand{\Commit}{\mathsf{Commit}}
+
+% \newcommand{\negl}[1]{\mathsf{negl}(#1)}
+
+\section{Recursive Proofs of Knowledge}
+
+In this lecture, 
+we discuss recursive zero-knowledge succinct non-interactive
+arguments of knowledge (zkSNARKs).
+%
+We assume familiarity with zkSNARKs.
+
+\subsection{Introduction}
+
+% Zero-Knowledge Proofs
+Succinct non-interactive arguments of knowledge are short certificates that attest to the correct execution of a computation without revealing any secret inputs. 
+%
+Today, 
+zero-knowledge proofs are being used 
+to secure \emph{billions} of dollars worth of assets~\cite{zerocash, stark}.
+%
+Zero-knowledge proofs 
+enable a new class of secure applications 
+with enhanced integrity and privacy guarantees
+such as verifiable databases~\cite{zkvsql, vsql, accountablestorage, integridb},
+private voting protocols~\cite{privatevoting},
+anonymous credentials~\cite{cinderella, dacreds},
+and
+private cryptocurrencies~\cite{zerocash, pinocchiocoin, stark}.
+
+% Proving a Function
+More technically, 
+SNARKs 
+(for circuit-satisfiability)
+allow a prover to demonstrate that it knows a secret witness $w$
+such that for prescribed circuit $F$ and prescribed input and output pair $(x, y)$ that $F(x, w) = y$.
+%
+% Proving Recursion
+However, today, we will be interested in
+proving \emph{recursive} computation. 
+Without loss of generality, we are interested in proving \emph{tail}
+recursion,
+that is, we want to prove
+(unbounded) recursive applications 
+of a function $F$.
+Unbounded recursion
+in general allows us to implement more complex programming patterns such as 
+$\mathsf{for}$ and $\mathsf{while}$, 
+which are not bounded ahead of time.
+This allows us to prove stateful computations with dynamic control flow.
+%% Use cases
+In practice, 
+proving recursion allows us to recursively prove blockchain updates, verifiable delay functions, and even a universal machine,
+where each recursive step is a single cycle of a CPU.
+
+
+% Naive Solution
+Historically, 
+the best known approach to design a proof system for recursive applications of a function $F$ 
+was to unroll the entire execution $F \circ F \circ \cdots \circ F$ into a monolithic arithmetic circuit,
+and then use a standard proof system with succinct proofs for circuit satisfiability.
+%
+Unfortunately,
+this would necessarily mean that the prover's space complexity would scale with the \emph{entire trace} of the computation.
+%
+Moreover, 
+in the setting of preprocessed arguments of knowledge
+(where the prover and verifier would process the circuit into a succinct key to use for multiple inputs)
+this fixed the recursion-depth ahead of time,
+which often does not reflect practice.
+
+% Recursive Solution Overview
+The first breakthrough was due to Valiant~\cite{valiant} in 2012, 
+who proposed incrementally verifiable computation (IVC),
+which reflected the recursive structure of the computation
+into the proof itself:
+%
+Given a succinct proof $\pi_{i}$ attesting to $i$ steps of computation,
+the prover can write a succinct proof $\pi_{i + 1}$ that attests to $i + 1$ steps
+by proving the correct execution of an arithmetic circuit 
+that runs the latest step of computation,
+and checks $\pi_i$ 
+(using the proof system's verifier).
+This avoids having to fix the recursion depth ahead of time,
+while ensuring that the prover's space complexity only scales with a single step of execution.
+
+Although undoubtedly elegant, 
+Valiant's technique introduces a subtle issue:
+Proofs of knowledge must satisfy a stronger notion of soundness 
+known as \emph{knowledge-soundness}.
+%
+Essentially,
+a proof system is considered knowledge-sound 
+if, 
+for any successful prover with some secret input to the computation, 
+there exists a corresponding \emph{extractor} that,
+with at most polynomial overhead,
+can retrieve this secret input given access to the ``source code'' of the prover.
+%
+This extractor-based definition becomes problematic in the recursive setting:
+Recursive proofs require \emph{recursive extraction} 
+in which the extractor for step $i$ 
+plays the successful prover for the extractor at step $i - 1$. 
+This incurs a polynomial blowup in the extractor for each successive recursive step. 
+In particular, 
+this results in a final extractor that runs in exponential-time with respect to the recursion-depth, 
+which disqualifies it as a valid extractor. 
+%
+To account for this issue, 
+Valiant's original technique 
+(and modern techniques) 
+can only provably guarantee logarithmic-depth recursion in standard models.
+
+\subsection{Preliminaries}
+
+We operate in the \textit{preprocessing model}, which means that a trusted party will be responsible for generating a prover and verifier key.
+
+% Definition
+\begin{definition}
+   [Incrementally Verifiable Computation]\label{def:ivc}
+   An 
+   incrementally verifiable computation (IVC)  
+   scheme is defined by
+   PPT algorithms 
+   $(\mathcal{G}, \mathcal{P}, \mathcal{V})$ 
+   and deterministic $\En$
+   denoting the generator, 
+   the prover, 
+   the verifier,
+   and the encoder respectively,
+   with the following interface
+   \begin{itemize}
+     \item $\mathcal{G}(1^\lambda, N) \to \pp$: 
+     on input security parameter $\lambda$ and size bounds $N$, 
+     samples public parameters $\pp$.
+     \item $\En(\pp, F) \to (\pk, \vk)$: 
+     on input public parameters $\pp$, 
+     and polynomial-time function $F$,
+     deterministically produces
+     a prover key $\pk$ 
+     and a verifier key $\vk$.
+     \item $\mathcal{P}(\pk, (i, z_0, z_{i}), \omega_{i}, \pi_{i}) \to \pi_{i+1}$: 
+     on input a prover key $\pk$, 
+     a counter $i$, 
+     an initial input $z_0$, 
+     a claimed output after $i$ iterations $z_i$,
+     a non-deterministic advice $\omega_i$,
+     and an IVC proof $\pi_i$ attesting to $z_i$,
+     produces a new proof $\pi_{i + 1}$ attesting to $z_{i + 1} = F(z_{i}, \omega_{i})$.
+     \item $\mathcal{V}(\vk, (i, z_0, z_{i}), \pi_{i}) \to \{0, 1\}$: 
+     on input a verifier key $\vk$,
+     a counter $i$,
+     an initial input $z_0$, 
+     a claimed output after $i$ iterations $z_i$,
+     and an IVC proof $\pi_i$ attesting to $z_i$,
+     outputs $1$ if $\pi_i$ is accepting, and 
+     $0$ otherwise.
+   \end{itemize}
+     An IVC scheme 
+     $(\mathcal{G}, \En, \mathcal{P}, \mathcal{V})$
+     satisfies the following requirements.
+     \begin{enumerate}
+     \item Perfect Completeness:    
+     For any
+     PPT adversary $\mathcal{A}$
+     \begin{equation*}
+     \Pr
+     \left[
+       \begin{array}{l}
+         \mathcal{V}(\vk, (i + 1, z_0, z_{i + 1}), \pi_{i + 1}) = 1 
+       \end{array}
+       \middle\vert
+       \begin{array}{l}
+         \mathsf{pp} \gets \mathcal{G}(1^{\lambda}, N),\\
+         (F, (i, z_0, z_i), (\omega_i, \pi_i)) \gets \mathcal{A}(\mathsf{pp}),\\
+         (\pk, \vk) \gets \En(\pp, F),\\
+         z_{i + 1} \gets F(z_{i}, \omega_{i}),\\
+         \mathcal{V}(\vk, i, z_0, z_{i}, \pi_{i}) = 1,\\
+         \pi_{i + 1} \gets \mathcal{P}(\pk, (i, z_0, z_i), (\omega_{i}, \pi_{i}))
+       \end{array}
+     \right] = 1
+     \end{equation*}
+     where $F$ is a polynomial-time computable function represented as an arithmetic circuit.
+   \item Knowledge Soundness:
+   Consider constant $n \in \mathbb{N}$.
+   \niksdef
+   % Structure
+   {F} 
+   % Statement
+   {(z_0, z_i)}
+   % Witness
+   {(\omega_0, \ldots, \omega_{n - 1})}
+   % Proof Format
+   {\Pi}
+   % Precondition
+   {\mathcal{V}(\vk, (n, z_0, z), \Pi) = 1}
+   % Postcondition
+   {z_n = z \text{ where }\\ z_{i + 1} \gets F(z_i, \omega_i)\\
+   \forall i \in \{0, \ldots, n - 1\}
+   }
+   Moreover, 
+     $F$ is a polynomial-time computable function represented as an arithmetic circuit.
+     \item Succinctness: 
+     The size of an IVC proof $\pi$ is independent of the number of iterations $i$.
+   \end{enumerate}
+\end{definition}
+
+\begin{definition}[Non-Interactive Argument of Knowledge]\label{def:nark}
+   Consider a relation $\R$ over 
+   public parameters, structure, instance, and witness tuples.
+   A non-interactive argument of knowledge for $\R$ consists of PPT algorithms
+   $(\Gn, \Po,\V)$ 
+   and deterministic $\En$,
+   denoting the generator, 
+   the prover,    
+   the verifier
+   and the encoder respectively with the following interface.
+   \begin{itemize}
+       \item $\Gn(1^{\lambda}, N) \to \pp$: 
+       On input security parameter $\lambda$,
+       and length parameter $N$
+       samples public parameters $\pp$.
+       \item $\En(\pp, \Str) \to (\pk, \vk)$: 
+       On input structure $\Str$, 
+       representing common structure among instances,
+       outputs the prover key $\pk$ and verifier key $\vk$.
+       \item $\Po(\pk, u, w) \to \pi$: On input instance $u$ and
+         witness $w$, outputs a proof $\pi$ proving that $(\pp, \Str, u, w) \in \R$.
+       \item $\V(\vk, u, \pi) \to \{0, 1\}$: 
+       Checks instance $u$ 
+       given proof $\pi$.
+   \end{itemize}
+   An argument of knowledge satisfies \textit{completeness} if for any PPT adversary $\mathcal{A}$,
+   \begin{align*}
+   \Pr
+   \left[
+       \begin{array}{l}
+       \V(\vk, u, \pi) = 1
+       \end{array}
+       \middle\vert
+       \begin{array}{l}
+       \pp \gets \Gn(1^{\lambda}, N),\\
+       (\Str,(u, w)) \gets \mathcal{A}(\pp),\\
+       (\pp, \Str, u, w) \in \R,\\
+       (\pk, \vk) \gets \En(\pp, \Str),\\
+       \pi \gets \Po(\pk, u, w)
+       \end{array}
+       \right]
+   = 1.
+   \end{align*}
+   An argument of knowledge satisfies \textit{knowledge soundness} if for all PPT adversaries $\Po^*$ there exists a PPT extractor $\mathcal{E}$ such that for all randomness $\mathsf{r}$
+   \[
+   \Pr
+   \left[
+       \begin{array}{l}
+       (\pp, \Str, u, w) \in \R
+       \end{array}
+       \middle\vert
+       \begin{array}{l}
+       \pp \gets \Gn(1^{\lambda}, N),\\
+       (\Str,u,\pi) \gets \Po^*(\pp, \mathsf{r}),\\
+       (\pk, \vk) \gets \En(\pp, \Str),\\
+       \V(\vk, u, \pi) = 1,\\
+       w \gets \mathcal{E}(\pp, \mathsf{r})
+       \end{array}
+       \right]
+   \approx 1.
+   \]
+\end{definition}
+
+\begin{definition}[Succinctness]
+   A non-interactive argument system is succinct if the size of the proof $\pi$
+   is polylogarithmic in the size of the witness $w$.
+\end{definition}
+
+\begin{definition}[Commitment Scheme]\label{def:commitment}
+   A commitment scheme is defined by polynomial-time algorithm
+   $\Gen : \mathbb{N}^2 \to P$
+   that produces public parameters given the security parameter and size parameter, 
+   a deterministic polynomial-time algorithm
+   $\Commit : P \times M \times R \to C$
+   that produces a commitment in $C$ given a public parameters, message, and randomness tuple
+   such that 
+   binding holds.
+   That is, 
+   for any $\mathsf{PPT}$ adversary $\mathcal{A}$,
+   given
+   $\pp \gets \Gen(\lambda, n)$,
+   and given $((m_1, r_1), (m_2, r_2)) \gets \mathcal{A}(\pp)$
+   we have that
+   \[
+       \Pr[(m_1, r_1) \neq (m_2, r_2) \land \Commit(\pp, m_1, r_1) = \Commit(\pp, m_2, r_2)] \approx 0.
+   \]
+   %
+   The commitment scheme is deterministic if $\Commit$ does not use its randomness. 
+ \end{definition}
+
+ \begin{definition}[Circuit Satisfiability]
+   We define the circuit satisfiability relation $\mathsf{CSAT}$
+   over structure, instance, witness tuples
+   as follows.
+   \begin{equation*}
+     \mathsf{CSAT}
+     = 
+     \left\{
+     \begin{array}{l}
+         % Statment, Witness
+         (C, (x, y), w)
+     \end{array}
+     \middle\vert
+     \begin{array}{l}
+         C(x, w) = y
+     \end{array}
+     \right\}.
+   \end{equation*}  
+ \end{definition}
+
+\subsection{Construction}
+
+% Formal Construction
+
+\begin{construction}[Incrementally Verifiable Computation]\label{cons:ivc}
+   Given a 
+   a succinct commitment scheme
+   $(\Gen, \Commit)$
+   and a
+   succinct non-interactive argument of knowledge 
+   $\snark$ for circuit-satisfiability
+   we construct an IVC scheme as follows.
+   
+   %% Function F  
+   Consider an arithmetic circuit $F$ 
+   that takes non-deterministic input
+   We begin by defining an augmented circuit
+   $\FP$
+   as follows,
+   where all input arguments are taken as non-deterministic advice.
+   %
+   \begin{mdframed}[nobreak=true]
+     \noindent \underline{$\FP(\io_i, \omega_i, \pi_i)$}:
+     \begin{enumerate}
+       \item Parse $(\vk_\snark, i, z_0, z_i) \gets \io_i$.
+       \item  If $i = 0$:
+       \begin{enumerate}
+         \item Check that $z_0 = z_i$.
+         \label{ivc:fp:base}
+       \end{enumerate}
+       \item Otherwise:
+       \begin{enumerate} 
+         \item Check that $\snark.\V(\vk_\snark, \io_i, \pi_i) = 1$.
+         \label{ivc:fp:check:general}
+       \end{enumerate}
+       \item Output $\io_{i + 1} \gets (\vk_{\snark}, i + 1, z_0, F(z_i, \omega_i))$.
+       \label{ivc:fp:output}
+     \end{enumerate}  
+   \end{mdframed} 
+   %
+   %
+   Given the augmented circuit $\FP$,
+   we define $(\Gn, \En, \Po, \V)$ as follows.
+   \begin{mdframed}[nobreak=true]
+     \underline{$\Gn(\lambda, N)$}:
+     \begin{enumerate}
+       \item Output $\pp \gets \snark.\mathcal{G}({\lambda}, N)$.
+     \end{enumerate}
+   \end{mdframed}
+   %
+   \begin{mdframed}[nobreak=true]
+     \underline{$\En(\pp, F)$}:
+     \begin{enumerate}
+       
+       \item Compute 
+       $(\pk_\snark, \vk_\snark) \gets \snark.\En(\pp, \FP)$.
+       \item Output $\pk \gets (\FP, \pk_\snark, \vk_\snark)$ and $\vk \gets \vk_\snark$.
+     \end{enumerate}
+   \end{mdframed}
+   \begin{mdframed}[nobreak=true]
+     \underline{$\Po(\pk, (i, z_0, z_i), (\omega_i, \pi_i))$}:
+     \begin{enumerate} 
+       \item Parse $(\FP, \pk_\snark, \vk_\snark) \gets \pk$.
+       \item Compute
+       $\io_{i + 1} \gets \FP(\vk_{\snark},
+       (i, z_0, z_i), \omega_i, \pi_i)$.
+       \item Let $\io_i \gets (\vk_{\snark}, i, z_0, z_i)$
+       \label{ivc:prover:io}
+       \item Output
+       $
+       \pi_{i + 1} \gets \snark.\Po(\pk_\snark, (\bot, \io_{i + 1}), (\io_i
+       , \omega_i, \pi_i))
+       $.
+       \label{ivc:prover:proof}
+     \end{enumerate} 
+   \end{mdframed}
+   %
+   \begin{mdframed}[nobreak=true]
+     \underline{$\V(\vk, (i, z_0, z_i), \pi_i)$}:
+     \begin{enumerate}
+       \item If $i = 0$: Check that $z_i = z_0$.
+       \label{ivc:verifier:base}
+       \item Otherwise:
+       \begin{enumerate}
+         \item Parse $\vk_{\snark} \gets \vk$.
+         \item Let $\io_i \gets (\vk_\snark, i, z_0, z_i)$.
+         \label{ivc:v:check:first}
+         \item Check that
+         $\snark.\V(\vk_\snark, (\bot, \io_i), \pi_i) = 1$.
+         \label{ivc:v:check:second}
+       \end{enumerate}
+       
+     \end{enumerate}
+   \end{mdframed}
+ \end{construction}
+
+\begin{lemma}[Completeness]
+ Construction~\ref{cons:ivc}
+ is complete.
+\end{lemma}
+\newcommand{\proof}{\noindent{\bf Proof. }} %% To begin a proof write \proof
+
+\begin{proof}
+   % Adversary
+ Consider arbitrary PPT adversary $\mathcal{A}$.
+ % public parameters
+ Suppose $\pp \gets \Gen(1^{\lambda}, N)$.
+ % Structure, Instance, Witness
+ Suppose that
+ \[
+ (F, (z_0, z_i, i), \pi_i) \gets \mathcal{A}(\pp).
+ \]
+ % Prover Key, Verifier Key
+ Suppose that for
+   $(\pk, \vk) \gets \En(\pp, F)$
+ % Precondition
+ we have that
+ \begin{align}\label{ivc:completeness:precondition:verifier}
+   \V(\vk, (z_0, z_{i}, i), \pi_{i}) = 1.
+ \end{align}
+ % Postcondition
+ Then,
+ given
+ \begin{align*}
+   z_{i + 1} \gets F(z_{i}, \omega_{i})
+ \end{align*}
+ and 
+ \begin{align*}
+   \pi_{i + 1} \gets \Po(\pk, (z_0, z_i, i), (\omega_i, \pi_i))
+ \end{align*}
+ we must show that
+ \begin{align}\label{ivc:completeness:postcondition}
+   \V(\vk, (z_0, z_{i+1}, N), \pi_{i + 1}) = 1
+ \end{align}
+ with probability $1$.
+ %
+ 
+ % Case i = 0
+ Indeed, 
+ consider the base case where $i = 0$.
+ %
+ Then, 
+ by Precondition~\ref{ivc:completeness:precondition:verifier},
+ by the verifier's check in the base case 
+ (Step~\ref{ivc:verifier:base})
+ we have that $z_0 = z_i$.
+ %
+ Therefore,
+ $\Po$ can successfully compute $\io_{i + 1}$ 
+ (Step~\ref{ivc:prover:io}),
+ because the base case check of $\FP$ 
+ (Step~\ref{ivc:fp:base}) passes.
+ %
+ Then,
+ by construction of $\FP$
+ (Step~\ref{ivc:fp:output})
+ we have that 
+ \[
+   \io_{i + 1} = (\vk_{\snark}, i + 1, z_0, F(z_i, \omega_i))
+ \]
+ Moreover,
+ by the completeness
+ of $\snark$,
+ we have that $\pi_{i + 1}$ generated by $\Po$ 
+ (Step~\ref{ivc:prover:proof})
+ is indeed satisfying.
+ %
+ Therefore, 
+ both the checks of $\V$ in Steps~\ref{ivc:v:check:first} and~\ref{ivc:v:check:second}
+ are passing.
+ %
+ As such,
+ we have that postcondition~\ref{ivc:completeness:postcondition}
+ holds.
+ 
+ 
+ % Case i \geq 1
+ Suppose instead that $i \geq 1$.
+ %
+ by Precondition~\ref{ivc:completeness:precondition:verifier},
+ by the verifier's check in the general case 
+ we have that
+ \begin{align*}
+   \snark.\V(\vk_\snark, (\bot, \io_i), \pi_i) = 1
+ \end{align*}
+ for $\io_i = (\vk_\snark, i, z_0, z_i)$.
+ %
+ Then,
+ $\Po$ can successfully compute $\io_{i + 1}$ 
+ (Step~\ref{ivc:prover:io}),
+ as the SNARK verifier check in $\FP$
+ (Step~\ref{ivc:fp:check:general})
+ holds.
+ %
+ %
+ Once again,
+ by construction of $\FP$
+ (Step~\ref{ivc:fp:output})
+ we have that 
+ \[
+   \io_{i + 1} = (\vk_{\snark}, i + 1, z_0, F(z_i, \omega_i))
+ \]
+ Moreover,
+ by the completeness
+ of $\snark$,
+ we have that $\pi_{i + 1}$ generated by $\Po$ 
+ (Step~\ref{ivc:prover:proof})
+ is indeed satisfying.
+ %
+ Therefore, 
+ both the checks of $\V$ in Steps~\ref{ivc:v:check:first} and~\ref{ivc:v:check:second}
+ are passing.
+ %
+ As such,
+ we have that postcondition~\ref{ivc:completeness:postcondition}
+ holds.
+\end{proof}
+
+\begin{lemma}[Knowledge-Soundness]
+ Construction~\ref{cons:ivc}
+ is knowledge-sound.
+\end{lemma}
+
+% Proof for ivc knowledge soundness
+
+\begin{proof}
+   % Premise
+   Let $n$ be a global constant.
+   %
+   Consider a deterministic expected polynomial-time adversary $\Po^*$.
+   %
+   Let $\pp \gets \Gen(1^{\lambda}, N)$.
+   %
+   Suppose 
+   on input $\pp$ and randomness $\mathsf{r}$,
+   $\Po^*$
+   outputs 
+   polynomial-time function $F$,
+   instance $(z_0, z)$,
+   and IVC proof $\pi$. 
+   %
+   Let $(\pk, \vk) \gets \En(\pp, F)$.
+   Suppose that
+   % Precondition
+   \begin{align*}
+     \V(\vk, (z_0, z, n), \pi) = 1.
+   \end{align*}
+   % Postcondition
+   We must construct an expected polynomial-time extractor $\mathcal{E}$
+   that, 
+   with input $(\pp, \mathsf{r})$,
+   outputs $(\omega_0, \ldots, \omega_{n - 1})$ 
+   such that by computing
+   \begin{align*}
+     z_{i + 1} \gets F(z_{i}, \omega_{i})
+   \end{align*}
+   we have that $z_n = z$ with probability 
+   $1 - \negl{\lambda}$.
+   
+   % Overview
+   We show inductively that we can construct an expected polynomial-time extractor $\mathcal{E}_i$ that outputs 
+   $((z_i, \ldots, z_{n - 1}), (\omega_i, \ldots, \omega_{n - 1}), \pi_i)$ such that for all $j \in  \{i + 1, \ldots, n\}$,
+   \begin{align*}
+     z_j = F(z_{j - 1}, \omega_{j - 1})
+   \end{align*}
+   and 
+   \begin{align}\label{eq:ih:2}
+     \V(\vk, z_0, z_i, \pi_i) = 1
+   \end{align}
+   for $z_n = z$ with probability $1 - \negl{\lambda}$.
+   %
+   Then, 
+   because when $i = 0$,
+   $\V$ checks that $z_0 = z_i$ 
+   the values $(\omega_0, \ldots, \omega_{n - 1})$ 
+   retrieved by $\mathcal{E} = \mathcal{E}_0$
+   are such that computing  
+   $z_{i + 1} = F(z_i, \omega_i)$ for all $i \geq 1$ gives $z_n = z$.
+   
+   At a high level,
+   to construct an extractor $\mathcal{E}_{i - 1}$,
+   we first assume the existence of $\mathcal{E}_i$ that satisfies the inductive hypothesis. 
+   We then use $\mathcal{E}_i$ to construct an adversary 
+   for the underlying succinct non-interactive argument, which we denote as $\widetilde{\Po}_{i - 1}$.
+   This in turn guarantees an extractor for the underlying non-interactive argument,
+   which we denote as $\widetilde{\mathcal{E}}_{i - 1}$. 
+   We then use $\widetilde{\mathcal{E}}_{i - 1}$ to construct $\mathcal{E}_{i - 1}$ that satisfies the inductive hypothesis.
+   
+   
+   % Base case
+   In the base case,
+   let $\mathcal{E}_n(\pp, \mathsf{r})$ 
+   output 
+   $(\bot, \bot, \pi_n)$ 
+   where $\pi_n$ is the output of 
+   $\Po^*(\pp, \mathsf{r})$.
+   By the premise,
+   we have that $\pi_n$ is satisfying.
+   As such,
+   $\mathcal{E}_n$ succeeds with probability $1 - \negl{\lambda}$ in expected polynomial-time.
+   
+   % Inductive Step
+   For $i \geq 1$, 
+   suppose we can construct an expected polynomial-time extractor 
+   $\mathcal{E}_i$ 
+   that outputs
+   $((z_i, \ldots, z_{n - 1}), (\omega_i, \ldots, \omega_{n - 1}))$, 
+   and $\pi_i$ 
+   that satisfies the inductive hypothesis.
+   % Construct SNARK prover
+   To construct an extractor $\mathcal{E}_{i - 1}$, 
+   we first construct an adversary $\widetilde{\Po}_{i - 1}$
+   for the underlying SNARK as follows.
+   %
+   %
+   %
+   \begin{mdframed}[nobreak=true]
+     \noindent \underline{$\widetilde{\Po}_{i - 1}(\pp, \mathsf{r})$}: 
+     \begin{enumerate}
+       \item Let $(F, z_0) \gets \Po^*(\pp, \mathsf{r})$
+       \item Let $((z_i, \ldots, z_{n - 1}), (\omega_i, \ldots, \omega_{n -
+       1}), \pi_i) \gets \mathcal{E}_i(\pp, \mathsf{r})$.
+       \item Let $\vk_{\snark} \gets \snark.\En(\pp, F)$.
+       \item Let $\io_i \gets (\vk_\snark, (i, z_0, z_i))$.
+       \item Output $(\FP, (\bot, \io_i), \pi_i)$.
+     \end{enumerate}
+   \end{mdframed}
+   
+   % SNARK prover success probability
+   We now analyze the success probability of $\widetilde{\Po}_{i - 1}$. 
+   By the inductive hypothesis,
+   we have that 
+   \[
+   \V(\vk, z_0, z_i, \pi_i) = 1,
+   \]
+   where 
+   $\pi_i \gets \mathcal{E}_i(\pp, \mathsf{r})$ 
+   with probability 
+   $1 - \negl{\lambda}$.
+   Therefore, 
+   by the the verifier's checks 
+   we have that
+   \[
+   \snark.\V(\vk_\snark, (\bot, \io_i), \pi_i) = 1
+   \]
+   for $\io_i = (\vk_\snark, (i, z_0, z_i))$
+   and $\vk_\snark \gets \snark.\En(\pp, \FP)$.
+   Therefore,
+   $\widetilde{\Po}_{i - 1}$
+   succeeds in producing a satisfying proof $\pi_i$
+   for structure $\FP$ and instance $\io_i$
+   with probability $1 - \negl{\lambda}$.
+ 
+   
+   % Corresponding SNARK extractor
+   Then,
+   by the knowledge soundness of $\snark$
+   there exists an 
+   expected-polynomial-time
+   extractor $\widetilde{\mathcal{E}}_{i - 1}$ that
+   outputs 
+   $(\io_{i - 1}, \omega_{i - 1}, \pi_{i - 1})$
+   such that
+   $\io_i = \FP(\io_{i - 1}, \omega_{i - 1}, \pi_{i - 1})$
+   with probability $1 - \negl{\lambda}$.
+   
+   % Constructing E_{i - 1}
+   Given $\widetilde{\mathcal{E}}_{i - 1}$, 
+   we construct an expected polynomial time $\mathcal{E}_{i - 1}$ as follows.
+ 
+ 
+   \begin{mdframed}[nobreak=true]
+   \noindent \underline{$\mathcal{E}_{i - 1}(\pp, \mathsf{r})$}: 
+   \begin{enumerate}
+     \item Run $\widetilde{\Po}_{i - 1}(\pp, \mathsf{r})$
+     to parse
+     \[
+     ((z_i, \ldots, z_{n - 1}), (\omega_i, \ldots, \omega_{n -
+     1}), \pi_i)
+     \]
+     from its internal state.
+     \item Compute $(\io_{i - 1}, \omega_{i - 1}, \pi_{i - 1}) \gets \widetilde{\mathcal{E}}_{i - 1}(\pp, \mathsf{r})$.
+     \item Parse $(\vk_\snark, (i - 1, z_0, z_{i - 1})) \gets \io_{i - 1}$
+     \item Output $((z_{i - 1}, \ldots, z_{n - 1}), (\omega_{i - 1}, \ldots, \omega_{n - 1}), \pi_{i - 1})$. 
+   \end{enumerate}
+ \end{mdframed}
+ 
+  We now reason about the success probability of $\mathcal{E}_{i - 1}$.
+   We first reason that the output $(z_{i - 1}, \ldots, z_{n - 1})$, and
+   $(\omega_{i - 1}, \ldots, \omega_{n - 1})$ are valid.
+   By the inductive hypothesis, 
+   we already have that for all $j \in \{i + 1, \ldots, n\}$,
+   \begin{align*}
+     z_j = F(z_{j - 1}, \omega_{j - 1})
+   \end{align*}
+   with probability $1 - \negl{\lambda}$.
+   Moreover,
+   by the success probability of $\mathcal{E}_{i - 1}$,
+   we have that
+   \begin{align*}
+     z_{i} = F(z_{i - 1}, \omega_{i - 1})
+   \end{align*}
+   and that
+   \[
+   \snark.\V(\vk_\snark, \io_{i - 1}, \pi_{i - 1}) = 1
+   \]
+   where $\io_{i - 1} = (\vk_\snark, (i - 1, z_0, z_i))$
+   with probability $1 - \negl{\lambda}$.
+   %
+   Therefore we have that $\mathcal{E}_{i - 1}$
+   succeeds with probability $1 - \negl{\lambda}$
+   satisfying the inductive hypothesis.
+ \end{proof} 
