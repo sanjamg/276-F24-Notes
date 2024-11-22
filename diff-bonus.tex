@@ -1,134 +1,4 @@
-
-%\newcommand{\st}{~\text{s.t.}~}
-\newcommand{\rgets}{\overset{\$}{\gets}}
-%\newcommand{\ind}{\overset{c}{\approx}}
-\section{NIZK Proof Systems}
-We now consider a different class of Zero-Knowledge proof systems, where no
-interaction is required: The Prover simply sends one message to the Verifier,
-and the Verifier either accepts or rejects. Clearly for this class to be
-interesting, we must have some additional structure:
-both the Prover and Verifier additionally have access to a common random public string
-$\sigma$ (trusted to be random by both). For example, they could derive $\sigma$
-by looking at sunspot patterns. 
-
-\section{Definitions}
-
-\begin{definition}[NIZK Proof System]
-    A \emph{NIZK proof system} for input $x$ in language $L$, with witness $\omega$, is a set of
-efficient (PPT) algorithms $(K, P, V)$ such that:
-\begin{enumerate}
-    \item Key Generation: $\sigma \gets K(1^k)$ generates the random public string.
-    \item Prover: $\pi \gets P(\sigma, x, \omega)$ produces the proof.
-    \item Verifier: $V(\sigma, x, \pi)$ outputs $\{0, 1\}$ to accept/reject the proof.
-\end{enumerate}
-Which satisfies the completeness, soundness, and zero-knowledge properties below.
-\end{definition}
-Note: We will assume throughout that $x$ is of polynomially-bounded length, i.e., we are
-considering the language $L \cap \{0, 1\}^{P(k)}$.
-
-
-\medskip
-\noindent\textbf{Completeness.} $\forall x \in L, \forall \omega \in R_L(x)$:
-    $$\Pr[\sigma \gets K(1^k), \pi \gets P(\sigma, x, \omega) : V(\sigma, x,
-    \pi) = 1] = 1.$$
-There is an alternate definition of Statistical Correctness, where the probability above is $1 - \mathsf{negl}(n)$ instead of $1$. For this explanation, though, Completeness will be used.
-
-\medskip
-\noindent\textbf{Non-Adaptive Soundness.} $\forall x \not\in L$:
-    $$\Pr[\sigma \gets K(1^k): \exists~\pi \st V(\sigma, x, \pi)
-    = 1] = \mathsf{negl}(k).$$
-If the value of $\sigma$ that is picked is a ``bad" value, then there does not exist a proof $\pi$ for $x$ and $\sigma$. The above definition is ``non-adaptive", because it does not allow a cheating
-prover to decide which statement to prove after seeing the randomness $\sigma$.
-We may also consider the stronger notion of ``adaptive soundness", where the
-prover is allowed to decide $x$ after seeing $\sigma$:
-
-\medskip
-\noindent\textbf{Adaptive Soundness.}
-    $$\Pr[\sigma \gets K(1^k): \exists~ (x, \pi) \st  x \not\in L, V(\sigma, x, \pi)
-    = 1] = \mathsf{negl}(k).$$
-    
-\medskip
-\noindent\textbf{(Non-Adaptive) Zero-Knowledge.}
-    There exists a PPT simulator $S$ such that $\forall x \in L, \omega \in
-    R_L(x)$, the two distributions are computationally indistinguishable:
-
-\begin{minipage}{0.5\textwidth}
-    \begin{enumerate}[itemsep=-3pt]
-        \item $\sigma \gets K(1^k)$
-        \item $\pi \gets P(\sigma, x, \omega)$
-        \item Output $(\sigma, \pi)$
-    \end{enumerate}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \begin{enumerate}
-        \item $(\sigma, \pi) \gets S(1^k, x)$
-        \item Output $(\sigma, \pi)$
-    \end{enumerate}
-\end{minipage}
-
-\medskip
-That is, the simulator is allowed to generate the distribution of randomness
-$\sigma$ together with $\pi$. Note that if we did not allow $S$ to produce
-$\sigma$, this definition would be trivial (a verifier could convince himself by
-running the simulator, instead of interacting with $P$). Allowing $S$ to
-generate $\sigma$ still keeps the definition zero-knowledge (since a verifier sees both $(\sigma,
-\pi)$ together), but puts $P$ and $S$ on unequal footing.
-
-We could also consider the adaptive counterpart, where a cheating verifier can
-choose $x$ after seeing $\sigma$:
-
-\medskip
-\noindent\textbf{(Adaptive) Zero-Knowledge.}
-    There exists a PPT simulator split into two stages $S_1, S_2$ such that
-    for all PPT attackers $\ma$,
-    the two distributions are computationally indistinguishable:
-
-\medskip
-\begin{minipage}{0.5\textwidth}
-    \begin{enumerate}[itemsep=0pt]
-        \item $\sigma \gets K(1^k)$
-        \item $(x, \omega) \gets \ma(\sigma)$, s.t. $(x, \omega) \in R_L$
-        \item $\pi \gets P(\sigma, x, \omega)$
-        \item Output $(\sigma, x, \pi)$
-    \end{enumerate}
-\end{minipage}
-\begin{minipage}{0.5\textwidth}
-    \begin{enumerate}[itemsep=0pt]
-        \item $(\sigma, \tau) \gets S_1(1^k)$
-        \item $(x, \omega) \gets \ma(\sigma)$
-        \item $\pi \gets S_2(\sigma, x, \tau)$
-        \item Output $(\sigma, x, \pi)$
-    \end{enumerate}
-\end{minipage}
-
-\medskip
-\noindent where $\tau$ should be thought of as local state stored by the simulator (passed
-    between stages).
-
-\bigskip
-Now we show that adaptive soundness is not harder to achieve than non-adaptive soundness.
-\begin{theorem}\label{thm:amplify-soundness}
-    Given a NIZK $(K, P, V)$ that is \emph{non-adaptively sound}, we can
-    construct a NIZK $(K', P', V')$ that is \emph{adaptively sound}.
-\end{theorem}
-\proof
-For $x_0 \not\in L$, let us call a particular $\sigma$ ``bad for $x_0$" if 
-there exists a false proof for $x_0$ using randomness $\sigma$:
-$\exists~ \pi \st V(\sigma, x_0, \pi) = 1$.
-By non-adaptive soundness of $(K, P, V)$, we have
-$\Pr_\sigma[\sigma \text{ bad for } x_0] = \mathsf{negl}(k)$.
-
-Now we construct a new NIZK $(K',P',V')$ by repeating $(K,P,V)$ polynomially-many times
-(using fresh randomness, and $V'$ accepts if and only if $V$ accepts in each iteration).
-We can ensure that $\mathsf{negl}(k) \leq 2^{-2P(k)}$.
-Now by union bound:
-$$
-\Pr[\sigma \gets K'(1^k): \exists~ (x, \pi) \st V'(\sigma, x, \pi) = 1] \leq
-2^{P(k)}\cdot \Pr_\sigma[\sigma \text{ bad for } x_0] \leq 2^{-P(k)}.$$
-So this new NIZK is adaptively-sound. \qed
-
-
-\section{NIZKs from Trapdoor Permutations}
+\section{NIZKs from Trapdoor Permutations*}
 
 \begin{definition}[Trapdoor One-Way Permutation]
 A trapdoor one-way permutation is a collection of one-way permutations $\{f_i : D_i \rightarrow D_i\}_{i \in I}$ where $D_i \subset \{0,1\}^{|i|}$ with
@@ -207,8 +77,8 @@ verifier, and the prover can choose which clouds to clear.)
 Which satisfies the completeness, soundness, and zero-knowledge properties as
 previously defined.
 \end{definition}
-
-The above definition is not necessarily very useful in its own right, but it is helpful as a stepping stone toward a more useful construction.
+\DIFaddbegin \DIFadd{The above definition is not necessarily very useful in its own right, but it is helpful as a stepping stone toward a more useful construction.
+}\DIFaddend 
 
 \begin{theorem}\label{thm:NIZK-amplify}
     Given a NIZK $(P_H, V_H)$ in the hidden-bit model, we can construct a NIZK
@@ -258,16 +128,14 @@ However, a cheating $P^*$ may be able to cleverly pick $f$ to influence $r_i$,
 allowing him to cheat. Since we know there are only $2^k$ possible choices of
 $f$ (the verifier confirms $f$ is properly sampled), we can use the union bound
 to prove soundness:
-
-$$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2^{k} \cdot 2^{-2k} = 2^{-k}.$$
+$$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2\DIFaddbegin \DIFadd{^{k} \cdot 2^{-2k} = 2}\DIFaddend ^{-k}.$$
 
 Note that more serious problems can occur if $V$ does not confirm $f\in \mathcal{F}$. For example, if $f$ is not a permutation, then
 $f^{-1}(\sigma_i)$ can be multi-valued, and the prover can choose to ``explain"
 $\sigma_i$ using either $\alpha_i$ or $\alpha_i'$ -- which is a problem if
 $B(\alpha_i) \neq B(\alpha_i')$.
 
-
-To prove zero-knowledge, we construct a sequence of prover-hybrids. The hybrid $H_0$ is the ``honest" scenario. Differences from the previous hybrid are in red:
+To prove zero-knowledge, we construct a sequence of prover-hybrids. \DIFaddbegin \DIFadd{The hybrid $H_0$ is the ``honest" scenario. }\DIFaddend Differences from the previous hybrid are in red:
 
 %\newcommand{\htitle}[1]{#1\\
 %\rule{0.2\textwidth}{0.4pt}}
@@ -287,11 +155,16 @@ To prove zero-knowledge, we construct a sequence of prover-hybrids. The hybrid $
 
 \htitle{H_1}
 \begin{enumerate}
-    \item \diff{$r_i \gets \bit ~\forall i \in [\ell]$}
-    \item $(f, f^{-1}) \gets \mathcal{F}$
-    \item \diff{$\alpha_i \rgets \{0, 1\}^k\ \text{such that}\ r_i = B(f^{-1}(\sigma_i)) ~\forall i \in [\ell]$}
-    \item \diff{$\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$}
-    \item $(I, \phi) \gets P_H(r, x, \omega)$
+    \item \DIFaddbegin \diff{$r_i \gets \bit ~\forall i \in [\ell]$}
+    \item \DIFaddend $(f, f^{-1}) \gets \mathcal{F}$
+    \item \DIFdelbegin %DIFDELCMD < \diff{$\alpha_i \rgets \{0, 1\}^k ~\forall i \in [\ell]$}
+%DIFDELCMD <     %%%
+\DIFdelend \DIFaddbegin \diff{$\alpha_i \rgets \{0, 1\}^k\ \text{such that}\ r_i = B(f^{-1}(\sigma_i)) ~\forall i \in [\ell]$}
+    \DIFaddend \item \diff{$\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$}
+    \item \DIFdelbegin \DIFdel{$r_i = B(\alpha_i) ~\forall i \in [\ell]$
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdelend $(I, \phi) \gets P_H(r, x, \omega)$
     \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
 \end{enumerate}
 In $H_1$, we sample $\alpha_i$ uniformly at random and then generate $\sigma_i$ (instead of
@@ -300,12 +173,17 @@ is a permutation.
 
 \htitle{H_2}
 \begin{enumerate}
-    \item $r_i \rgets \{0, 1\} ~\forall i \in [\ell]$
-    \item $(f, f^{-1}) \gets \mathcal{F}$
-    \item \diff{$(I, \phi) \gets P_H(r, x, \omega)$}
-    \item \diff{$\alpha_i \rgets B^{-1}(r_i) ~\forall i \in [\ell]$}
+    \item \DIFaddbegin \DIFadd{$r_i \rgets \{0, 1\} ~\forall i \in [\ell]$
+    }\item \DIFaddend $(f, f^{-1}) \gets \mathcal{F}$
+    \item \DIFdelbegin %DIFDELCMD < \diff{$r_i \rgets \{0, 1\} ~\forall i \in [\ell]$}
+%DIFDELCMD <     %%%
+\DIFdelend \DIFaddbegin \diff{$(I, \phi) \gets P_H(r, x, \omega)$}
+    \DIFaddend \item \diff{$\alpha_i \rgets B^{-1}(r_i) ~\forall i \in [\ell]$}
     \item $\sigma_i = f(\alpha_i) ~\forall i \in [\ell]$
-    \item Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
+    \item \DIFdelbegin \DIFdel{$(I, \phi) \gets P_H(r, x, \omega)$
+    }%DIFDELCMD < \item %%%
+\item%DIFAUXCMD
+\DIFdelend Output $(\sigma, f, I, \setI{\alpha_i}, \phi)$
 \end{enumerate}
 In $H_2$, we again switch the sampling order: first sample the (unbiased) bit
 $r_i$, then sample $\alpha_i$ from the pre-image of $r_i$ (which can be done efficiently
@@ -443,8 +321,8 @@ the set $I$ will be revealed to the verifier.
 \end{table}
 
 
-Let the graph be $G=(V,E)$ with $|V|=n$. Note that the content of $G$ is public.
-The objective is to convince the verifier that the assertion is correct (the graph $G$
+Let the graph be $G=(V,E)$ with $|V|=n$. \DIFaddbegin \DIFadd{Note that the content of $G$ is public.
+}\DIFaddend The objective is to convince the verifier that the assertion is correct (the graph $G$
 is Hamiltonian).
 
 Suppose that the random string $r$ comes from a distribution
@@ -459,7 +337,7 @@ $M_c[\phi(x_i),\phi(x_{i+1})]=1$ for each edge $(x_i,x_{i+1})$ in the Hamiltonia
 This means that all the edges of $M_c$ will be covered by edges of $G$. Conversely, all the
 non-edges of $G$ must be taken to non-edges of $M_c$.
 
-So the strategy for the prover is to reveal the mapping $\phi$ and also reveal entries of $M_c$ corresponding to $\phi(e)$ where $e \notin E$, so $e \in V \times V \setminus E$. More precisely, for the set
+So the strategy for the prover is to reveal the mapping $\phi$ and also reveal entries of $M_c$ corresponding to $\phi(e)$ where $e \notin E$\DIFaddbegin \DIFadd{, so $e \in V \times V \setminus E$}\DIFaddend . More precisely, for the set
 $I=\{(\phi(u),\phi(v)) \mid (u,v)\notin E\}$, $P$ reveals
 $M_c[\phi(u),\phi(v)]=0$,
 which proves that $(\phi(u),\phi(v))$ is a non-edge of $M_c$.
