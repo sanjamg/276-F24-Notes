@@ -1,0 +1,119 @@
+% Add Eval + and x, noting the noise growth of each 
+\begin{itemize}
+    \item $\mathsf{Dec}(s, C)$: Compute $v = Cs$. If $||v||_\infty < q/4$, i.e. each entry of $v$ is less than $q/4$, output $0$, else output $1$. (Note the exact choice of threshold is somewhat arbitrary.)
+    
+    \item $\mathsf{Eval}(+, C_1, C_2)$: Output $C = C_1 + C_2$. 
+
+    \begin{itemize}
+        \item Notice that $Cs = C_1s + C_2s = (m_1 Gs + e_1) + (m_2 G + e_2) = (m_1 + m_2) Gs + (e_1 + e_2)$. 
+
+        \item Thus if the original ciphertexts errors $||e_1||_{\infty}, ||e_2||_{\infty} \leq B$, then the new cipertext error is bounded by $2B$. 
+    \end{itemize} 
+
+    \item $\mathsf{Eval}(+, C_1, C_2)$: Output $C = \mathsf{Flatten}(C_1) \times C_2$. 
+
+    \begin{itemize}
+        \item We utilize the $\mathsf{Flatten}$ operation so that the dimensions match for matrix multiplication. 
+
+        \item Notice that 
+        \begin{align*}
+            Cs & = \mathsf{Flatten}(C_1) \times C_2 s \\
+            & = \mathsf{Flatten}(C_1) \times (m_2 G s + e_2) \\ 
+            & = m_2 (\mathsf{Flatten}(C_1) G) s + \mathsf{Flatten}(C_1) e_2 \\ 
+            & = m_2 (C_1 s) + \mathsf{Flatten}(C_1) e_2 \\
+            & = m_2 (m_1 Gs + e_1) + \mathsf{Flatten}(C_1) e_2 \\ 
+            & = (m_1 m_2) G s + (m_2 e_1 + \mathsf{Flatten}(C_1) e_2). 
+        \end{align*} 
+
+        \item Since each entry of $\mathsf{Flatten}(C_1)$ is in $\{0,1\}$, each entry of $\mathsf{Flatten}(C_1) e_2$ is a subset sum of $e_2 \in \mathbb{Z}_q^{\ell}$. Thus if the original ciphertexts errors $||e_1||_{\infty}, ||e_2||_{\infty} \leq B$, then the new ciphertext error is bounded by $(1+\ell)B$. 
+    \end{itemize}
+\end{itemize}
+
+% Analyze overall noise growth 
+
+Notice that as $\mathsf{Eval}$ is applied iteratively to ciphertexts in order to implement an arithmetic circuit of depth $d$, the noise will stay bounded by $(\ell+1)^d B$. 
+As long as the error stays below the threshold used by $\mathsf{Dec}$, i.e. $(\ell+1)^d B << q/4$, then correctness will hold. 
+Recall that $\ell = (n+1) \log(q)$ where $q$ is typically exponential in $n$. 
+Then the error will be manageable as long as $d$ is sublinear in $n$, e.g. $d = n^{0.99}$. 
+
+Further, notice that since swapping ordering of $C_1$ vs $C_2$ changes the noise growth of multiplication from $m_2 e_1 + \mathsf{Flatten}(C_1) e_2$ to $m_1 e_2 + \mathsf{Flatten}(C_2) e_1$, we can optimize based on which ciphertext started with more noise than the other. 
+This can be leveraged to get polynomial noise growth instead of exponential. 
+
+% Add Eval for NAND 
+
+Now, we have cheated slightly in the above---notice that our construction for $\mathsf{Eval}(+, C_1, C_2)$ implements addition mod $q$, but we actually wanted addition mod 2. 
+One way to address this is to simply implement NAND, which on its own is a complete gate set that can implement any circuit: 
+\begin{itemize}
+    \item $\mathsf{Eval}(\text{NAND}, C_1, C_2)$: Output $C = I - \mathsf{Flatten}(C_1) \times C_2$. 
+\end{itemize}
+
+Altogether, we have achieved \emph{leveled} FHE. 
+
+% Present bootstrapping and how it ensures noise doesn't grow too large 
+
+\subsection{Bootstrapping} 
+
+The goal of bootstrapping is to reset the ciphertext's noise back to a lower level after it has built up too much. 
+This is done by letting the server re-encrypt the ciphertext \emph{without} using the secret key $s$. 
+How is this possible? 
+Simply evaluate $\mathsf{Dec}$ homomorphically! 
+In particular, let $P_{\mathsf{Dec}, C}$ be a circuit which on input $s$ outputs $m = \mathsf{Dec}(s, C)$. 
+Let $s_1, s_2, \ldots, s_{\ell} \in {0,1}$ be $s$ written in binary. 
+We will set the evaluation key $ek = (ek_1, \ldots, ek_{\ell})$ for $ek_i = \mathsf{Enc}(s, s_i)$, i.e. it gives us an encrypted copy of the secret key. 
+Then whenever we need to reduce the noise of a ciphertext $C$, we can compute $P_{\mathsf{Dec}, C}$ and run $\mathsf{Eval}(P_{\mathsf{Dec}, C}, ek_1 \ldots ek_\ell)$ to get a fresh ciphertext $\hat{C}$. 
+Notice that the noise of $\hat{C}$ only depends on the noise of the input ciphertexts $ek_i$, which are fresh, and the depth $d_P$ of the circuit $P_{\mathsf{Dec}, C}$, which is independent of the noise of $C$. 
+Thus $\hat{C}$ will have noise bounded by $(\ell + 1)^{d_P} B$. 
+As long as our leveled scheme supports circuits of depth $d_p+1$, we can achieve arbitrary depth by bootstrapping after each operation. 
+Of course, we'd like to avoid this as much as possible since doing the decryption operation homomorphically is expensive. 
+
+% Circular security issue 
+
+In order for this approach to work, security needs to be maintained even though we're releasing encryptions of the secret key. 
+This is known as \emph{circular security}. 
+There are no known attacks on circular security for GSW and other commonly used leveled FHE constructions. 
+However, they have not been proven to be circularly secure, and there are encryption schemes for which circular security is known to not hold for certain cycle lengths. 
+An alternative is using a new secret key to encrypt the old secret key. 
+
+% Construction of CCA-2 secure IBE 
+
+\section{CCA-2 Secure Encryption from IBE} 
+
+Finally, we will see how to utilize CPA secure IBE to construct not only CCA-1 but CCA-2 secure encryption. 
+Let $(G, K, E, D)$ be a CPA secure IBE scheme and $(\mathsf{Gen}_{sig}, \mathsf{Sign}, \mathsf{Verify})$ be a digital signature scheme. 
+Then construct a CCA-2 secure encryption scheme as follows: 
+\begin{itemize}
+    \item $\mathsf{KeyGen}(1^n)$: 
+    \begin{enumerate}
+        \item Compute $(pk, sk) \leftarrow G(1^n)$. 
+        
+        \item Output $pp = pk$ and $msk = sk$. 
+    \end{enumerate}
+
+    \item $\mathsf{Enc}(pk, m)$: 
+    \begin{enumerate}
+        \item \textbf{Compute $(vk_s, sk_s) \leftarrow Gen_{sig}(1^n)$.}
+        
+        \item \textbf{Let $id = vk_s$.}
+
+        \item Let $c = E(pp, id, m)$. 
+
+        \item \textbf{Compute $\sigma = \mathsf{Sign}(sk_s, c)$.} 
+
+        \item \textbf{Output $(id, c, \sigma)$.} 
+    \end{enumerate}
+
+    \item $\mathsf{Dec}(sk, (id,c,\sigma))$: 
+    \begin{enumerate}
+        \item \textbf{If $\mathsf{Verify}(id, c, \sigma) = 0$ then abort.} 
+
+        \item Compute $sk_{id} \leftarrow K(sk, id)$. 
+
+        \item Output $D(sk_{id}, c)$. 
+    \end{enumerate}
+\end{itemize}
+The bolded lines are the ones that have been changed compared to the CCA-1 construction. 
+The changes restrict you to only generating ciphertexts for $id$'s you sampled yourself. 
+Note that for this construction we need slightly stronger forgery protection for the digital signature scheme than we've considered previously. 
+Namely, in the forgery security game the attacker is now allowed to output $(m^*, \sigma^*)$ as long as the tuple is fresh, even if $m^*$ on its own is not. 
+Notice that this stronger notion holds for any deterministic signature scheme, including the BLS scheme we saw. 
+It is also sufficient for our purposes here to utilize a one-time signature scheme. 

@@ -127,7 +127,8 @@ $$
 2^{P(k)}\cdot \Pr_\sigma[\sigma \text{ bad for } x_0] \leq 2^{-P(k)}.$$
 So this new NIZK is adaptively-sound. \qed
 
-\section{NIZKs from Trapdoor Permutations*}
+
+\section{NIZKs from Trapdoor Permutations}
 
 \begin{definition}[Trapdoor One-Way Permutation]
 A trapdoor one-way permutation is a collection of one-way permutations $\{f_i : D_i \rightarrow D_i\}_{i \in I}$ where $D_i \subset \{0,1\}^{|i|}$ with
@@ -206,6 +207,7 @@ verifier, and the prover can choose which clouds to clear.)
 Which satisfies the completeness, soundness, and zero-knowledge properties as
 previously defined.
 \end{definition}
+
 The above definition is not necessarily very useful in its own right, but it is helpful as a stepping stone toward a more useful construction.
 
 \begin{theorem}\label{thm:NIZK-amplify}
@@ -256,12 +258,14 @@ However, a cheating $P^*$ may be able to cleverly pick $f$ to influence $r_i$,
 allowing him to cheat. Since we know there are only $2^k$ possible choices of
 $f$ (the verifier confirms $f$ is properly sampled), we can use the union bound
 to prove soundness:
+
 $$\Pr_\sigma[~\exists \text{ some $f \in \mathcal{F}$ s.t. $P^*$ can cheat}] \leq 2^{k} \cdot 2^{-2k} = 2^{-k}.$$
 
 Note that more serious problems can occur if $V$ does not confirm $f\in \mathcal{F}$. For example, if $f$ is not a permutation, then
 $f^{-1}(\sigma_i)$ can be multi-valued, and the prover can choose to ``explain"
 $\sigma_i$ using either $\alpha_i$ or $\alpha_i'$ -- which is a problem if
 $B(\alpha_i) \neq B(\alpha_i')$.
+
 
 To prove zero-knowledge, we construct a sequence of prover-hybrids. The hybrid $H_0$ is the ``honest" scenario. Differences from the previous hybrid are in red:
 

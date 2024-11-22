@@ -71,7 +71,7 @@ The construction of the leveled FHE scheme is as follows. We use the LWE problem
     \item $\mathsf{Enc}(\sk \in \mathbb{Z}_q^{n+1}, m \in \mathbb{Z}_2) \rightarrow C \in \mathbb{Z}_q^{l \times (n+1)}$: Sample $A \gets \mathbb{Z}_q^{l \times n}$ and $e \gets \chi^{l}$. Define $B = A \| As' + e$ and $C = B + m \cdot G$ for a fixed gadget~\cite{EC:MicPei12} matrix $G \in \mathbb{Z}_q^{l \times (n+1)}$.
     
     \begin{itemize}
-        \item Note that by choice of $B$, we have that $Bs = A(-s') + A(s') + e = e$ is an encryption of zero (with noise). Similarly, $Cs = Bs + msG = e + msG$. 
+        \item Note that by choice of $B$, we have that $Bs = A(-s') + A(s') + e = e$ is an encryption of zero (with noise). Similarly, $Cs = Bs + mGs = e + mGs$. 
         \item $G$ is a block matrix containing $(n+1)$ block column vectors of size $\log q$ each. Each vector is $g = (1, 2, 4, \ldots, 2^{\log q - 1})$. Concisely, we can define $G = I_{n+1} \otimes g$ where $\otimes$ is the Kronecker product.
         \item We also define a $\mathsf{Flatten}$ operation on the ciphertext that converts $C \in \mathbb{Z}_q^{l \times (n+1)}$ to $\tilde{C} \in \mathbb{Z}_q^{l \times l}$ by bit decomposing each element of $C$ and replacing the element with its bit vector. \\
         This ensures that each element of this matrix is a bit. Looking ahead, this allows us to multiply ciphertexts without too much noise growth.
