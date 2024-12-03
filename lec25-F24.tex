@@ -1,73 +1,73 @@
-\let\counterwithout\relax
-\let\counterwithin\relax
+% \let\counterwithout\relax
+% \let\counterwithin\relax
 
-\let\proof\relax
-\let\endproof\relax
-\let\example\relax
-\let\endexample\relax
+% \let\proof\relax
+% \let\endproof\relax
+% \let\example\relax
+% \let\endexample\relax
 
-%% Tikz configuration
-\usetikzlibrary{shapes.geometric, arrows}
+% %% Tikz configuration
+% \usetikzlibrary{shapes.geometric, arrows}
 
-% Change thanks markers to numbers
-\makeatletter
-\let\@fnsymbol\@arabic
-\makeatother
+% % Change thanks markers to numbers
+% \makeatletter
+% \let\@fnsymbol\@arabic
+% \makeatother
 
-%% LLNCS hyperref requirement
-\renewcommand\UrlFont{\color{blue}\rmfamily}
+% %% LLNCS hyperref requirement
+% \renewcommand\UrlFont{\color{blue}\rmfamily}
 
-%% Eurocrypt requirement
-\pagestyle{plain}
-
-
-%% Allow align environment to span multiple pages
-\allowdisplaybreaks
-
-%% Theorem Environments
-
-% Bold optional theorem titles
-\makeatletter
-\def\th@definition{%
-  \thm@notefont{}% same as heading font
-  \normalfont % body font
-}
-\makeatother
-
-% No italics
-% \theoremstyle{definition}
-
-% Rename environments
-\newtheorem{assumption}{Assumption}
-% \newtheorem{construction}{Construction}
-\newtheorem{attention}{Remark}
-\newtheorem{notation}{Notation}
-
-% Algorithm counter to construction
-\makeatletter 
-\renewcommand\thealgorithm{\theconstruction.\arabic{algorithm}} 
-\@addtoreset{algorithm}{construction}
-\makeatother
-
-%% Annotations
-\newcommand\todo[1]{\textcolor{red}{TODO: #1}}
-\definecolor{comment-color}{RGB}{68, 59, 141}
-\renewcommand{\algorithmiccomment}[1]{\textcolor{comment-color}{// #1}}
-\newcommand\blue[1]{\textcolor{blue}{#1}}
-\newcommand{\mathhl}[1]{\colorbox{yellow}{$\displaystyle #1$}}
+% %% Eurocrypt requirement
+% \pagestyle{plain}
 
 
+% %% Allow align environment to span multiple pages
+% \allowdisplaybreaks
 
-%% Diagram Macros
+% %% Theorem Environments
 
-\newcommand{\rightarr}[1]{\sendmessageright{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
-\newcommand{\leftarr}[1]{\sendmessageleft{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
+% % Bold optional theorem titles
+% \makeatletter
+% \def\th@definition{%
+%   \thm@notefont{}% same as heading font
+%   \normalfont % body font
+% }
+% \makeatother
 
-\newcommand{\cfbox}[2]{
-    \colorlet{currentcolor}{.}
-    {\color{#1}
-    \fbox{\color{currentcolor}#2}}
-}
+% % No italics
+% % \theoremstyle{definition}
+
+% % Rename environments
+% \newtheorem{assumption}{Assumption}
+% % \newtheorem{construction}{Construction}
+% \newtheorem{attention}{Remark}
+% \newtheorem{notation}{Notation}
+
+% % Algorithm counter to construction
+% \makeatletter 
+% \renewcommand\thealgorithm{\theconstruction.\arabic{algorithm}} 
+% \@addtoreset{algorithm}{construction}
+% \makeatother
+
+% %% Annotations
+% \newcommand\todo[1]{\textcolor{red}{TODO: #1}}
+% \definecolor{comment-color}{RGB}{68, 59, 141}
+% \renewcommand{\algorithmiccomment}[1]{\textcolor{comment-color}{// #1}}
+% \newcommand\blue[1]{\textcolor{blue}{#1}}
+% \newcommand{\mathhl}[1]{\colorbox{yellow}{$\displaystyle #1$}}
+
+
+
+% %% Diagram Macros
+
+% \newcommand{\rightarr}[1]{\sendmessageright{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
+% \newcommand{\leftarr}[1]{\sendmessageleft{length=2.5cm, top=\colorbox{white}{$#1$}, topstyle={yshift=-9}}}
+
+% \newcommand{\cfbox}[2]{
+%     \colorlet{currentcolor}{.}
+%     {\color{#1}
+%     \fbox{\color{currentcolor}#2}}
+% }
 
 \newcommand{\En}{\mathcal{K}}
 \newcommand{\Gn}{\mathcal{G}}
@@ -111,7 +111,7 @@ $\mathcal{E}$ such that
 % \newcommand{\pk}{\mathsf{pk}}
 % \newcommand{\vk}{\mathsf{vk}}
 
-% \newcommand{\R}{\mathcal{R}}
+\newcommand{\R}{\mathcal{R}}
 
 \newcommand{\FP}{F'}
 \newcommand{\io}{\mathsf{x}}
@@ -315,19 +315,18 @@ We operate in the \textit{preprocessing model}, which means that a trusted party
    Consider constant $n \in \mathbb{N}$.
    \niksdef
    % Structure
-   {F} 
+   {$F$}
    % Statement
-   {(z_0, z_i)}
+   {$(z_0, z_i)$}
    % Witness
-   {(\omega_0, \ldots, \omega_{n - 1})}
+   {$(\omega_0, \ldots, \omega_{n - 1})$}
    % Proof Format
-   {\Pi}
+   {$\Pi$}
    % Precondition
-   {\mathcal{V}(\vk, (n, z_0, z), \Pi) = 1}
+   {$\mathcal{V}(\vk, (n, z_0, z), \Pi) = 1$}
    % Postcondition
-   {z_n = z \text{ where }\\ z_{i + 1} \gets F(z_i, \omega_i)\\
-   \forall i \in \{0, \ldots, n - 1\}
-   }
+   {$z_n = z \text{ where }\\ z_{i + 1} \gets F(z_i, \omega_i)\\ \forall i \in \{0, \ldots, n - 1\}$}
+   
    Moreover, 
      $F$ is a polynomial-time computable function represented as an arithmetic circuit.
      \item Succinctness: 
@@ -545,7 +544,7 @@ We operate in the \textit{preprocessing model}, which means that a trusted party
  Construction~\ref{cons:ivc}
  is complete.
 \end{lemma}
-\newcommand{\proof}{\noindent{\bf Proof. }} %% To begin a proof write \proof
+% \newcommand{\proof}{\noindent{\bf Proof. }} %% To begin a proof write \proof
 
 \begin{proof}
    % Adversary
