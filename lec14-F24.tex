@@ -1,1 +1,286 @@
 \section{Cramer-Shoup Construction}
+
+The Cramer-Shoup cryptosystem is a public-key encryption scheme that achieves security against adaptive chosen ciphertext attacks (CCA2). To understand its significance, let's first examine the ElGamal encryption scheme and its limitations.
+
+\subsection{Background: ElGamal Encryption}
+
+ElGamal encryption is a simple and elegant public-key system based on the Diffie-Hellman key exchange. The scheme operates as follows:
+
+\begin{itemize}
+    \item $\textsc{Gen}(1^n)$:
+        \begin{algorithmic}
+            \State Select prime $q$ where $|q|=n$
+            \State Choose generator $g$ of group $G$ of order $q$
+            \State Sample $x \gets \mathbb{Z}_q$ randomly
+            \State Compute $h = g^x$
+            \State Output $(\mathrm{pk}=(g,h), \mathrm{sk}=x)$
+        \end{algorithmic}
+    
+    \item $\textsc{Enc}(\mathrm{pk}, m \in G)$:
+        \begin{algorithmic}
+            \State Sample $r \gets \mathbb{Z}_q$ randomly
+            \State Compute $c_1 = g^r$
+            \State Compute $c_2 = m \cdot h^r$
+            \State Output $(c_1, c_2)$
+        \end{algorithmic}
+
+    \item $\textsc{Dec}(\mathrm{sk}, (c_1, c_2))$:
+        \begin{algorithmic}
+            \State Compute $m = c_2/c_1^x$
+            \State Output $m$
+        \end{algorithmic}
+\end{itemize}
+
+\textbf{Proof of Correctness:}
+\begin{align*}
+    c_2/c_1^x &= (m \cdot h^r)/(g^r)^x \\
+    &= (m \cdot (g^x)^r)/(g^r)^x \\
+    &= m \cdot g^{xr}/g^{rx} \\
+    &= m
+\end{align*}
+
+However, ElGamal is malleable, meaning an adversary can modify a ciphertext to create a related ciphertext. Given a ciphertext $(c_1, c_2)$ encrypting message $m$, an adversary can create $(c_1, k \cdot c_2)$ which will decrypt to $k \cdot m$ for any $k$. This malleability makes ElGamal insecure against chosen-ciphertext attacks.
+
+\subsection{Hash Proof Systems}
+
+To address these limitations, we introduce Hash Proof Systems (HPS), a powerful tool for constructing CCA-secure encryption schemes.
+
+\subsection{Formal Definition}
+
+Let $\mathbb{X}$ be a set and $\mathbb{L} \subset \mathbb{X}$ be a language defined by:
+\[ \mathbb{L} = \{x \in \mathbb{X} \mid \exists w \text{ s.t. } (x,w) \in \mathbb{R}\} \]
+where $\mathbb{R}$ is a binary relation and $w$ is called a witness.
+
+A Hash Proof System consists of three algorithms:
+\begin{itemize}
+    \item $\mathcal{K}\mathcal{G}\text{en}(1^n)$: Generates key pair $(pk, sk)$
+    \item $\mathcal{H}_{sk}: \mathbb{X} \rightarrow \Pi$ (private evaluation)
+    \item $\mathcal{H}_{pk}: \mathbb{L} \times \mathbb{W} \rightarrow \Pi$ (public evaluation)
+\end{itemize}
+
+\subsection{Key Properties}
+
+\begin{enumerate}
+    \item \textbf{Correctness:} For all $(x,w) \in \mathbb{R}$:
+    \[ \mathcal{H}_{sk}(x) = \mathcal{H}_{pk}(x,w) \]
+    
+    \textbf{Proof:}
+    This follows from the construction where both evaluations compute the same mathematical operation, but $\mathcal{H}_{pk}$ requires a witness while $\mathcal{H}_{sk}$ uses the secret key.
+
+    \item \textbf{Smoothness:} For all $x \not\in \mathbb{L}$:
+    \[ \{pk, \mathcal{H}_{sk}(x)\} \stackrel{s}{\approx} \{pk, U_\Pi\} \]
+    where $U_\Pi$ is uniform over $\Pi$.
+    
+    \textbf{Proof Sketch:}
+    This property follows from the DDH assumption in our concrete construction. When $x \not\in \mathbb{L}$, the hash value appears random to any computationally bounded adversary.
+
+    \item \textbf{Universal Property:} For all $x \in \mathbb{L}$ and $y_1, \ldots y_t \in \mathbb{L}$:
+    \[ \{pk, \mathcal{H}_{sk}(x), \{\mathcal{H}_{pk}(y_i)\}_i\} \stackrel{s}{\approx} \{pk, U_\Pi, \{\mathcal{H}_{sk}(y_i)\}_i\} \]
+\end{enumerate}
+
+\subsection{Concrete DDH-based Construction}
+
+Let's construct a specific HPS based on the Decision Diffie-Hellman (DDH) assumption:
+
+\begin{itemize}
+    \item Let $G$ be a cyclic group of prime order $q$
+    \item Fix generators $g_1, g_2 \in G$
+    \item Define $\mathbb{X} = G^2$
+    \item Define $\mathbb{L} = \{(h_1,h_2) \in \mathbb{X} \mid \exists r \in \mathbb{Z}_q: h_1=g_1^r \text{ and } h_2=g_2^r\}$
+\end{itemize}
+
+The construction:
+\begin{align*}
+    \mathcal{K}\mathcal{G}\text{en}(1^n): &\text{ Sample } d_1,d_2 \gets \mathbb{Z}_q \\
+    &\text{ Output } (pk=(g_1^{d_1}g_2^{d_2}), sk=(d_1,d_2)) \\
+    \mathcal{H}_{sk}(x=(h_1,h_2)) &= h_1^{d_1}h_2^{d_2} \\
+    \mathcal{H}_{pk}(x=(h_1,h_2),w=r) &= pk^r
+\end{align*}
+
+\textbf{Proof of Correctness:}
+For $(x,w) \in \mathbb{R}$ where $x=(g_1^r, g_2^r)$:
+\begin{align*}
+    \mathcal{H}_{sk}(x) &= (g_1^r)^{d_1}(g_2^r)^{d_2} \\
+    &= g_1^{rd_1}g_2^{rd_2} \\
+    &= (g_1^{d_1}g_2^{d_2})^r \\
+    &= pk^r \\
+    &= \mathcal{H}_{pk}(x,w)
+\end{align*}
+
+\subsection{Basic Scheme and Its Limitations}
+
+Let's analyze our first attempt at constructing a secure encryption scheme using HPS:
+
+$\mathcal{G}\text{en}(1^n)$:
+\begin{itemize}
+    \item $(pk,sk) \leftarrow \mathcal{K}\mathcal{G}\text{en}(1^n)$
+\end{itemize}
+
+$\text{Enc}(pk,m \in G)$:
+\begin{enumerate}
+    \item Sample $x \leftarrow \mathbb{L}$ along with witness $w$
+    \item Compute $e = \mathcal{H}_{pk}(x,w) \cdot m$
+    \item Output $(x,e)$
+\end{enumerate}
+
+$\text{Dec}(sk,(x,e))$:
+\begin{itemize}
+    \item Output $e/\mathcal{H}_{sk}(x)$
+\end{itemize}
+
+\subsection{Security Analysis of Basic Scheme}
+
+While this construction achieves CPA security through the following hybrid argument:
+
+\begin{enumerate}
+    \item $\mathcal{H}_0$: Real encryption game
+    \item $\mathcal{H}_1$: Replace $e = \mathcal{H}_{sk}(x) \cdot m$ (using $sk$ instead of $pk$)
+        \begin{itemize}
+            \item This is identical to $\mathcal{H}_0$ because $x \in \mathbb{L}$ and by HPS correctness
+            \item Formally: For any $(x,w) \in \mathbb{R}$, $\mathcal{H}_{pk}(x,w) = \mathcal{H}_{sk}(x)$
+        \end{itemize}
+    \item $\mathcal{H}_2$: Replace $x \leftarrow \mathbb{X} \setminus \mathbb{L}$ 
+        \begin{itemize}
+            \item Indistinguishable by property 2 of HPS
+            \item Adversary cannot tell if $x$ is sampled from $\mathbb{L}$ or $\mathbb{X} \setminus \mathbb{L}$
+        \end{itemize}
+    \item $\mathcal{H}_3$: Replace $e$ with uniform random element
+        \begin{itemize}
+            \item Indistinguishable by smoothness property of HPS
+            \item When $x \not\in \mathbb{L}$, $\mathcal{H}_{sk}(x)$ is statistically close to uniform
+        \end{itemize}
+\end{enumerate}
+
+However, this scheme fails to achieve CCA-2 security. Here's a concrete attack:
+
+\begin{theorem}[CCA-2 Attack on Basic Scheme]
+The basic HPS construction is not CCA-2 secure.
+\end{theorem}
+
+\begin{proof}
+Consider the following attack in the CCA-2 game:
+\begin{enumerate}
+    \item Adversary receives challenge ciphertext $(x^*, e^*)$ for message $m_b$
+    \item Adversary creates modified ciphertext $(x^*, k \cdot e^*)$ for some $k \in G$
+    \item Adversary submits modified ciphertext to decryption oracle
+    \item Let $m'$ be the decrypted result. Then:
+    \begin{align*}
+        m' &= (k \cdot e^*)/\mathcal{H}_{sk}(x^*) \\
+        &= k \cdot (e^*/\mathcal{H}_{sk}(x^*)) \\
+        &= k \cdot m_b
+    \end{align*}
+    \item Since $k$ is known, adversary can recover $m_b$ and win the CCA-2 game
+\end{enumerate}
+\end{proof}
+
+\subsection{The Need for Ciphertext Integrity}
+
+The key insight is that we need to prevent ciphertext manipulation. The full Cramer-Shoup construction addresses this by:
+
+\begin{enumerate}
+    \item Adding a second HPS instance ($\mathcal{H}'$) that acts as a "proof of well-formedness"
+    \item Using a collision-resistant hash function to bind all components together
+    \item Verifying the proof $\pi$ before decryption
+\end{enumerate}
+
+The second HPS instance must satisfy a stronger security property called "2-smoothness":
+
+\begin{definition}[2-Smoothness]
+For all $x_1,x_2 \in \mathbb{L}$ and $t_1,t_2 \in T$ with $t_1 \neq t_2$:
+\[ \{pk, \mathcal{H}_{sk}(x_1,t_1), \mathcal{H}_{sk}(x_2,t_2)\} \stackrel{s}{\approx} \{pk, U_\Pi, U_\Pi\} \]
+\end{definition}
+
+\subsection{CCA-2 Secure Construction}
+
+The final Cramer-Shoup construction achieves CCA-2 security by combining two HPS instances with a collision-resistant hash function:
+
+\subsection{The Scheme}
+
+$\mathcal{G}\text{en}(1^n)$:
+\begin{algorithmic}
+    \State $(pk,sk) \leftarrow \mathcal{K}\mathcal{G}\text{en}(1^n)$
+    \State $(pk',sk') \leftarrow \mathcal{K}\mathcal{G}\text{en}(1^n)$
+    \State Output $((pk,pk'),(sk,sk'))$
+\end{algorithmic}
+
+$\text{Enc}(pk,m)$:
+\begin{algorithmic}
+    \State Sample $x \leftarrow \mathbb{L}$ with witness $w$
+    \State $e = \mathcal{H}_{pk}(x,w) \cdot m$
+    \State $t = \text{CRHF}(x,e)$
+    \State $\pi = \mathcal{H}'_{pk}(x,w,t)$
+    \State Output $(x,e,\pi)$
+\end{algorithmic}
+
+$\text{Dec}(sk,(x,e,\pi))$:
+\begin{algorithmic}
+    \If{$\pi \neq \mathcal{H}'_{sk}(x)$}
+        \State Output $\perp$
+    \EndIf
+    \State Output $e/\mathcal{H}_{sk}(x)$
+\end{algorithmic}
+\subsection{Final Security Theorem}
+
+\begin{theorem}
+If $\mathcal{H}$ is a 1-smooth HPS, $\mathcal{H}'$ is a 2-smooth HPS, and CRHF is a collision-resistant hash function, then the scheme is CCA-2 secure.
+\end{theorem}
+
+\begin{proof}
+We prove security through a sequence of hybrid games, showing each transition is indistinguishable to a PPT adversary. Let $A$ be any PPT adversary in the CCA2 game.
+
+First, we establish a crucial lemma:
+
+\begin{lemma}[Key Soundness Lemma]
+For any ciphertext decryption query $(x,e,\pi)$ that $A$ makes, if $\text{Dec}((sk,sk'),(x,e,\pi)) \neq \perp$ then $x \in \mathbb{L}$ except with negligible probability.
+\end{lemma}
+
+\begin{proof}[Proof of Lemma]
+Suppose for contradiction that $x \notin \mathbb{L}$ but the decryption doesn't return $\perp$. This means:
+\[ \pi = \mathcal{H}'_{sk'}(x, \text{CRHF}(x,e)) \]
+
+By the 2-smoothness property of $\mathcal{H}'$, when $x \notin \mathbb{L}$, the value $\mathcal{H}'_{sk'}(x,t)$ is statistically indistinguishable from random, even given $pk'$. Therefore, the probability that $A$ can generate such a $\pi$ is at most $1/|\Pi|$, which is negligible.
+\end{proof}
+
+Now we proceed with the hybrid games:
+
+\begin{itemize}
+    \item $\mathcal{G}_0$: The real CCA2 game.
+    
+    \item $\mathcal{G}_1$: Same as $\mathcal{G}_0$, but the challenger computes the challenge ciphertext's $e^*$ component using $sk$ instead of $pk$:
+    \[ e^* = \mathcal{H}_{sk}(x^*) \cdot m_b \]
+    instead of
+    \[ e^* = \mathcal{H}_{pk}(x^*,w) \cdot m_b \]
+    
+    By the correctness property of HPS, these are identical when $x^* \in \mathbb{L}$, so:
+    \[ \Pr[\mathcal{G}_0 = 1] = \Pr[\mathcal{G}_1 = 1] \]
+
+    \item $\mathcal{G}_2$: Same as $\mathcal{G}_1$, but now the challenger samples $x^* \gets \mathbb{X} \setminus \mathbb{L}$ instead of from $\mathbb{L}$.
+    
+    By the hardness of distinguishing elements in $\mathbb{L}$ from elements in $\mathbb{X} \setminus \mathbb{L}$ (which follows from the DDH assumption in our concrete construction):
+    \[ |\Pr[\mathcal{G}_1 = 1] - \Pr[\mathcal{G}_2 = 1]| \leq \epsilon_{\text{DDH}} \]
+
+    \item $\mathcal{G}_3$: Same as $\mathcal{G}_2$, but replace $\mathcal{H}_{sk}(x^*)$ with a uniform random value $u \gets \Pi$ in computing $e^*$:
+    \[ e^* = u \cdot m_b \]
+    
+    By the smoothness property of $\mathcal{H}$, since $x^* \notin \mathbb{L}$:
+    \[ |\Pr[\mathcal{G}_2 = 1] - \Pr[\mathcal{G}_3 = 1]| \leq \epsilon_{\text{smooth}} \]
+
+    \item $\mathcal{G}_4$: Same as $\mathcal{G}_3$, but replace $e^*$ with a uniform random value in $G$. 
+    
+    Since $u$ is uniform in $\Pi$ and independent of $m_b$, $e^*$ is uniform in $G$ and independent of $m_b$, so:
+    \[ \Pr[\mathcal{G}_3 = 1] = \Pr[\mathcal{G}_4 = 1] \]
+\end{itemize}
+
+In $\mathcal{G}_4$, the challenge ciphertext is independent of $m_b$, so $A$ has no advantage. Therefore:
+\[ \text{Adv}^{\text{CCA2}}_A \leq \epsilon_{\text{DDH}} + \epsilon_{\text{smooth}} \]
+
+To complete the proof, we need to show that the decryption oracle queries in all games can be answered properly. For any decryption query $(x,e,\pi)$:
+
+\begin{enumerate}
+    \item If $(x,e) = (x^*,e^*)$ but $\pi \neq \pi^*$: By 2-smoothness of $\mathcal{H}'$, generating a valid $\pi$ is infeasible.
+    \item If $(x,e) \neq (x^*,e^*)$ but $\text{CRHF}(x,e) = \text{CRHF}(x^*,e^*)$: This breaks collision resistance of CRHF.
+    \item If $\text{CRHF}(x,e) \neq \text{CRHF}(x^*,e^*)$: By 2-smoothness of $\mathcal{H}'$, any $\pi$ that verifies must correspond to a witness $w$ such that $(x,w) \in \mathbb{R}$, meaning $x \in \mathbb{L}$. Therefore, the decryption oracle can be simulated properly.
+\end{enumerate}
+
+Thus, all hybrid games are indistinguishable to $A$, and the scheme is CCA2-secure.
+\end{proof}
