@@ -313,19 +313,20 @@ We operate in the \textit{preprocessing model}, which means that a trusted party
      where $F$ is a polynomial-time computable function represented as an arithmetic circuit.
    \item Knowledge Soundness:
    Consider constant $n \in \mathbb{N}$.
+
    \niksdef
    % Structure
-   {$F$}
+   {F}
    % Statement
-   {$(z_0, z_i)$}
+   {(z_0, z_i)}
    % Witness
-   {$(\omega_0, \ldots, \omega_{n - 1})$}
+   {(\omega_0, \ldots, \omega_{n - 1})}
    % Proof Format
-   {$\Pi$}
+   {\Pi}
    % Precondition
-   {$\mathcal{V}(\vk, (n, z_0, z), \Pi) = 1$}
+   {\mathcal{V}(\vk, (n, z_0, z), \Pi) = 1}
    % Postcondition
-   {$z_n = z \text{ where }\\ z_{i + 1} \gets F(z_i, \omega_i)\\ \forall i \in \{0, \ldots, n - 1\}$}
+   {z_n = z \text{ where }\\ z_{i + 1} \gets F(z_i, \omega_i)\\ \forall i \in \{0, \ldots, n - 1\}}
    
    Moreover, 
      $F$ is a polynomial-time computable function represented as an arithmetic circuit.
