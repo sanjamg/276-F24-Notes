@@ -58,6 +58,9 @@
 \newcommand{\RealVar}{\mathsf{Real}}
 \newcommand{\IdealVar}{\mathsf{Ideal}}
 
+\newcommand{\RealView}[2]{\mathsf{Real}^{#1}_{#2}}
+\newcommand{\IdealView}[2]{\mathsf{Ideal}^{#1}_{#2}}
+
 % Participating parties
 \newcommand{\PartyA}{P_1}
 \newcommand{\PartyB}{P_2}
@@ -83,66 +86,99 @@
 \chapter{Secure Computation}
 
 \section{Introduction}
-Secure multiparty computation considers the problem of different parties
-computing a joint function of their separate, private inputs without revealing
-any extra information about these inputs than that is leaked by just the result
-of the computation. This setting is well motivated, and captures many different
-applications. Considering some of these applications will provide intuition
-about how security should be defined for secure computation:
+Secure multiparty computation (or MPC) considers the problem of enabling mutually distrusting parties
+to compute a joint public function on their private inputs without revealing
+any extra information about these inputs beyond what is leaked by the output
+of the computation.
+For instance, there could be three parties $P_1, P_2, P_3$ with private inputs $x_1, x_2, x_3$ respectively, and they want to compute a public function $f$ without revealing anything beyond $f(x_1, x_2, x_3)$.
+Note that this notion generalizes zero knowledge proofs, where the prover's input is the statement-witness pair $(x, w)$, the verifier's input is the statement $x$, and the public function $f$ is the verification algorithm for the corresponding relation which outputs $1$ if $w$ is a valid witness w.r.t. $x$.
+
+This setting is well motivated, and captures many different applications.
+Now, we look at some applications of MPC which will help build intuition and also highlight the challenge in defining security for MPC.
+% Considering some of these applications will provide intuition about how security should be defined for secure computation:
 \begin{description}
-  \item[Voting:] Electronic voting can be thought of as a multi party computation
+  \item[Voting:] Electronic voting can be thought of as a multi-party computation
 	  between $n$ players: the voters. Their input is their choice $b \in \{0,1\}$
     (we restrict ourselves to the binary choice setting without loss of generality), and the function
     they wish to compute is the majority function.
+    % Now consider what happens when only one user votes: their input is trivially revealed as the output of the computation. What does privacy of inputs mean in this scenario?
 
-    Now consider what happens when only one user votes: their input is trivially
-    revealed as the output of the computation. What does privacy of inputs mean
-    in this scenario?
+  \item[Yao's Millionaires' Problem:] Two millionaires want to know who is richer
+    without revealing their actual wealth. The function they want to compute is
+    $f(x_1, x_2) = x_1 > x_2$.
+    % Let's say $x_2 = 1$M $+ 1$ and $f(x_1, x_2) = 0$. Then 
+  
+  \item[Private Contact Discovery:] Signal employs MPC to identify contacts from your phone who are also on Signal, all without exposing your contact list to Signal.
+  Here the function $f$ is an intersection function over the user's contact list and Signal's member list. This specific application of MPC is commonly known as private set intersection (PSI) and has been the subject of extensive research.
+
+  \item[Password Breaches:] Suppose your browser needs to verify whether your password has been compromised, but without disclosing it to a service that maintains a database of leaked passwords. This is also an instance of PSI.
+
+  \item[Cryptographic Wallets:] Cryptographic wallets typically split their keys into multiple shards that are then given to multiple parties (e.g., the user's device and the wallet provider) so that compromising any one party does not reveal the keys. In principle, whenever these keys are needed, the client can get the shards from each party and perform the operation. However, the client becomes the single point of compromise for that period and that defeats the point of sharding. MPC enables the parties holding the shards to perform any operations on the keys without reconstructing it on a single device.
 
   \item[Searchable Encryption:] Searchable encryption schemes allow clients
     to store their data with a server, and subsequently grant servers tokens
-    to conduct specific searches. However, most schemes do not consider access
-    pattern leakage. This leakage tells the server potentially valuable information
-    about the underlying plaintext. How do we model all the different kinds
-    information that is leaked?
+    to conduct specific searches.
+    % However, most schemes do not consider access pattern leakage. This leakage tells the server potentially valuable information about the underlying plaintext. How do we model all the different kinds information that is leaked?
 \end{description}
 
-From these examples we see that defining security is tricky, with lots of
-potential edge cases to consider. We want to ensure that no party can learn
-anything more from the secure computation protocol than it can from just its
-input and the result of the computation. To formalize this, we adopt the
-\textbf{real/ideal paradigm}.
+Note that in all these applications, the output revealed to the parties itself can reveal a lot of information about the private inputs of the parties.
+For instance, in the voting example, if only one user votes, their input is trivially revealed.
+Or, in the case of the millionaires, if $x_1 = 10^6 + 1$ and $f(x_1, x_2) = 1$, then the first millionaire knows that $x_2 = 10^6$.
+Similarly, most searchable encryption schemes do not consider access pattern leakage. This leakage tells the server potentially valuable information about the underlying plaintext.
+How do we model all the different kinds information that is leaked?
+
+From these examples we see that defining security of MPC is tricky because it is imperfect in that some leakage in inherent in the computation.
+What we want to capture is that no party should learn anything about the private inputs of other parties beyond what is revealed by the output of the computation.
+% We want to ensure that no party can learn anything more from the secure computation protocol than it can from just its input and the result of the computation.
+To formalize this notion, we adopt the \textbf{real/ideal world paradigm}.
 
 
 
-\section{Real/Ideal Paradigm}
-\paragraph{Notation.} 
-Suppose there are $n$ parties, and party $P_i$ has access to some data $x_i$. They are trying to compute some function of their inputs $f(x_1, \dotsc, x_n)$. The goal is to do this securely: even if some parties are corrupted, no one should learn more than is strictly necessitated by the computation.
+\section{Real/Ideal World Paradigm}
+Suppose there are $n$ parties and each party $P_i$ has a private input $x_i$.
+They want to compute a public function (represented by circuit $C$) on their inputs.
+The goal is to do this securely: even if some parties are corrupted, no party $P_i$ should learn anything beyond $y_i$ where $(y_1, \ldots, y_n) = C(x_1, \ldots, x_n)$.
 
-\paragraph{Real World.} In the real world, the $n$ parties execute a protocol $\Pi$
-to compute the function $f$. This protocol can involve multiple rounds of
-interaction. %Each party can additionally have some randomness.
-The real world adversary $\RealAdv$ can corrupt arbitrarily many (but not all) parties.
+\paragraph{Real World.} In the real world, the $n$ parties interact with each other and participate in a protocol $\Pi$
+to compute $C$.
+This protocol can involve multiple rounds of interaction.
+The real world adversary $\RealAdv$ can corrupt a subset of the parties.
+The interaction is summarized in Figure~\ref{fig:real-world}.
 
+\begin{marginfigure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/real-world.pdf}
+  \caption{Real world interaction.} \label{fig:real-world} 
+\end{marginfigure}
 
-\paragraph{Ideal World.} In the ideal world, an angel helps in the
-computation of $f$:
-each party sends their input to the angel and receives the output of the computation $f(x_1, \dotsc, x_n)$.
-Here the ideal world adversary $\IdealAdv$ can again corrupt arbitrarily many (but not all) parties.
+\paragraph{Ideal World.} In the ideal world, an angel or trusted third party $\cF_{C}$ (parameterized by $C$) helps in the computation of $C$.
+The computation in this world is secure by design:
+each party $P_i$ sends its input $x_i$ to $\cF_C$ and receives the output $y_i$ of the computation $(y_1, \ldots, y_n) = C(x_1, \dotsc, x_n)$.
+In this world, an ideal world adversary $\IdealAdv$ controls the parties corrupted by $\RealAdv$ in the real world, and as such, is responsible for sending their inputs to $\cF_C$.
+The interaction is summarized in Figure~\ref{fig:ideal-world}.
+% $\IdealAdv$ has access to the inputs of the corrupted parties and can arbitrarily choose the inputs sent to $\cF_C$.
+\begin{marginfigure}
+  \centering
+  \includegraphics[width=\textwidth]{figures/ideal-world.pdf}
+  \caption{Ideal world interaction.} \label{fig:ideal-world} 
+\end{marginfigure}
 
-To model malicious adversaries, we need to modify the ideal world model as follows. 
-Some parties are honest, and each honest party $P_i$ simply sends $x_i$ to the angel. The other parties are corrupted and are under control of the adversary $\IdealAdv$. The adversary chooses an input $x_i'$ for each corrupted party $P_i$ (where possibly $x_i' \neq x_i$) and that party then sends $x_i'$ to the angel. The angel computes a function $f$ of the values she receives (for example, if only party 1 is honest, then the angel computes $f(x_1, x_2', x_3', \dotsc, x_n')$) in order to obtain a tuple $(y_1, \dotsc, y_n)$. 
-She then sends $y_i$ of corrupted parties to the adversary, who gets to decide whether or not honest parties will receive their response from the angel. The angel obliges. Each honest party $P_i$ then outputs $y_i$ if they receive $y_i$ from the angel and $\perp$ otherwise, and corrupted parties output whatever the adversary tells them to. 
+% To model malicious adversaries, we need to modify the ideal world model as follows. 
+% Some parties are honest, and each honest party $P_i$ simply sends $x_i$ to the angel. The other parties are corrupted and are under control of the adversary $\IdealAdv$. The adversary chooses an input $x_i'$ for each corrupted party $P_i$ (where possibly $x_i' \neq x_i$) and that party then sends $x_i'$ to the angel. The angel computes a function $f$ of the values she receives (for example, if only party 1 is honest, then the angel computes $f(x_1, x_2', x_3', \dotsc, x_n')$) in order to obtain a tuple $(y_1, \dotsc, y_n)$. 
+% She then sends $y_i$ of corrupted parties to the adversary, who gets to decide whether or not honest parties will receive their response from the angel. The angel obliges. Each honest party $P_i$ then outputs $y_i$ if they receive $y_i$ from the angel and $\perp$ otherwise, and corrupted parties output whatever the adversary tells them to. 
 
- 
+\paragraph{Notation.}
+Let $\lambda$ denote the security parameter. Let $\RealView{\RealAdv}{\Pi}(1^\lambda, x_1, \ldots, x_n, z)$ denote the joint distribution of the honest party outputs as well as the view of the corrupted parties (randomness, inputs, outputs, all messages seen during the protocol) in the real world, where $z$ is an auxiliary inputs available to $\RealAdv$.
+Let $\IdealView{\IdealAdv}{\cF_C}(1^\lambda, x_1, \ldots, x_n, z)$ denote the joint distribution of the honest party outputs in the ideal world and the protocol transcript (or view) output by ideal adversary $\IdealAdv$ given inputs and outputs of corrupted parties.
 
+\paragraph{Security Definition.} 
+A protocol $\Pi$ securely realizes $C$ if there exists a PPT ideal adversary $\IdealAdv^{\RealAdv(\cdot)}$ (with oracle access to the real world adversary) such that $\forall$ non-uniform PPT adversaries $\RealAdv$ in the real world, $\forall$ private inputs $x_1, \ldots, x_n$, and $\forall$ auxiliary inputs $z \in \bit^{\ast}$, we have:
+\[ \RealView{\RealAdv}{\Pi}(1^\lambda, x_1, \ldots, x_n, z) \approx_{c} \IdealView{\IdealAdv}{\cF_C}(1^\lambda, x_1, \ldots, x_n, z) \]
 
-
-\paragraph{Definition of Security.} 
-A protocol $\Pi$ is secure against computationally bounded adversaries if for every PPT adversary $\RealAdv$ in the real world, there exists an PPT adversary $\IdealAdv$ in the ideal world such that for all tuples of bit strings $(x_1, \dotsc, x_n)$, we have
-\[ \mathrm{Real}_{\Pi, \RealAdv}(x_1, \dotsc x_n) \stackrel{c}{\simeq} \mathrm{Ideal}_{F,\IdealAdv}(x_1, \dotsc, x_n) \]
-where the left-hand side denotes the output distribution induced by $\Pi$ running with $\RealAdv$, and the right-hand side denotes the output distribution induced by running the ideal protocol $F$ with $\IdealAdv$. 
-The ideal protocol is either the original one described for semi-honest adversaries, or the modified one described for malicious adversaries. 
+% there exists an PPT adversary $\IdealAdv$ in the ideal world such that for all tuples of bit strings $(x_1, \dotsc, x_n)$, we have
+% \[ \mathrm{Real}_{\Pi, \RealAdv}(x_1, \dotsc x_n) \stackrel{c}{\simeq} \mathrm{Ideal}_{F,\IdealAdv}(x_1, \dotsc, x_n) \]
+% where the left-hand side denotes the output distribution induced by $\Pi$ running with $\RealAdv$, and the right-hand side denotes the output distribution induced by running the ideal protocol $F$ with $\IdealAdv$. 
+% The ideal protocol is either the original one described for semi-honest adversaries, or the modified one described for malicious adversaries. 
 
 
 
@@ -164,59 +200,91 @@ The ideal protocol is either the original one described for semi-honest adversar
 %\RealVar_{\Pi, \RealAdv}(\InputA, \InputB) \indis \IdealVar_{F, \IdealAdv}(x_1, x_2).
 %\end{equation*}
 
-\paragraph{Assumptions.} We have brushed over some details of the above setting.
-Below we state these assumptions explicitly:
+\paragraph{Setting.} So far, we have brushed over some important details of the setting.
+Below we state these details explicitly:
 \begin{enumerate}
-  \item \textbf{Communication channel:} We assume that the communication channel
-    between the involved parties is completely insecure, i.e., it does not preserve
-    the privacy of the messages. However, we assume that it is reliable, which means
-    that the adversary can drop messages, but if a message is delivered, then
-    the receiver knows the origin.
-
-  \item \textbf{Corruption model:} We have different models of how and when the
-    adversary can corrupt parties involved in the protocol:
-    \begin{itemize}
-      \item
-        \emph{Static:} The adversary chooses which parties to corrupt before the
-        protocol execution starts, and during the protocol, the malicious parties
-        remain fixed.
-      \item
-        \emph{Adaptive:} The adversary can corrupt parties dynamically during
-        the protocol execution, but the simulator can do the same.
-      \item
-        \emph{Mobile:} Parties corrupted by the adversary can be ``uncorrupted''
-        at any time during the protocol execution at the adversary's discretion.
-    \end{itemize}
-
-  \item \textbf{Fairness:} The protocols we consider are not ``fair'', i.e.,
-    the adversary can cause corrupted parties to abort arbitrarily. This can
-    mean that one party does not get its share of the output of the computation.
-
-  \item \textbf{Bounds on corruption:} In some scenarios, we place upper bounds
-    on the number of parties that the adversary can corrupt.
-
-  \item \textbf{Power of the adversary:} We consider primarily two types of
-    adversaries:
+  \item \textbf{Assumption:} The protocol could rely on cryptographic assumptions and be secure against computationally bounded adversaries, or it could be statistically secure and protect against unbounded adversaries.
+  \item \textbf{Setup:} The parties in the protocol could have access to a common reference string (CRS) that is generated by the trusted party in the ideal world.
+  \item \textbf{Communication Channel:} 
+  The setting could assume private peer-to-peer (P2P) channels among the parties, a broadcast channel, a combination of both, or insecure channels which don't have privacy or integrity. In the statistical setting, we assume secure P2P channels because they require computational assumptions to set up.
+  \item \textbf{Corruption Type:} We consider primarily two types of adversaries:
     \begin{itemize}
       \item \emph{Semi-honest adversaries:} Corrupted parties follow the protocol
         execution $\Pi$ honestly, but attempt to learn as much information as they
         can from the protocol transcript.
-
       \item \emph{Malicious adversaries:} Corrupted parties can deviate arbitrarily
         from the protocol $\Pi$.
     \end{itemize}
+  % We assume that the communication channel between the involved parties is completely insecure, i.e., it does not preserve the privacy of the messages. However, we assume that it is reliable, which means that the adversary can drop messages, but if a message is delivered, then the receiver knows the origin.
+  \item \textbf{Corruption Model:} We have different models of how and when the
+    adversary can corrupt parties involved in the protocol:
+    \begin{itemize}
+      \item \emph{Static:} The adversary chooses which parties to corrupt before the protocol execution starts, and during the protocol, the malicious parties remain fixed.
+      \item \emph{Adaptive:} The adversary can corrupt parties dynamically during the protocol execution and the state of that honest party corrupted is given to the adversary. 
+      % \item \emph{Mobile:} Parties corrupted by the adversary can be ``uncorrupted'' at any time during the protocol execution at the adversary's discretion.
+    \end{itemize}
+  \item \textbf{Fairness:}
+  The protocol we consider could be ``fair'', i.e., if one party gets their output, then all parties get their output, or they could be unfair where a corrupted party can abort the computation after learning the output before the honest parties can learn it.
+  It is important to model this weakness of the protocol in the ideal functionality $\cF_C$.
+  This is done by having the ideal functionality ask the ideal adversary if the honest parties should receive an output. If adversary disapproves, the ideal functionality sends the special abort output $\bot$ to the honest parties.
+  % The protocols we consider are not ``fair'', i.e., the adversary can cause corrupted parties to abort arbitrarily. This can mean that one party does not get its share of the output of the computation.
 
-  \item \textbf{Standalone vs.\ Multiple execution:} In some settings, protocols
-    can be executed in isolation; only one instance of a particular protocol
-    is ever executed at any given time. In other settings, many different protocols
-    can be executed concurrently. This can compromise security.
+  \item \textbf{Corruption Bound:} 
+  The setting places some upper bound $t$ on the total parties $n$ that can be corrupted by the adversary (there is nothing to protect when all parties are corrupted). 
+  Some well-known corruption settings are $t<n$, $t<n/2$, $t<n/3$, and $t \leq \log n$.
+  % In some scenarios, we place upper bounds on the number of parties that the adversary can corrupt.
+
+  \item \textbf{Standalone vs Concurrent Execution:}
+  In some settings, protocols can be executed in isolation; only one instance of a particular protocol is ever executed at any given time. In other settings, many different protocols can be executed concurrently. This can compromise security.
 \end{enumerate}
 
+\section{A Simple and Efficient MPC Protocol}
+This protocol is highly efficient and considers a very simple setting: $n=3$ parties, corruption bound $t=1$, unbounded and semi-honest adversary, statistical security, unfairness, and secure P2P channels.
 
+\noindent\textbf{(2,3)-secret sharing scheme:}
+A $(n,t)$-sharing splits a secret such that any $t$ shares are enough to reconstruct the secret, and any set of less than $t$ shares do not reveal anything about the secret.
+Let $k \in \mathbb{Z}_p$ be a secret. A $(3,3)$-sharing is easy to construct: sample $k_1, k_2$ uniformly at random from $\mathbb{Z}_p$ and set $k_3 = k - k_1 - k_2 \mod p$.
+Given $(3,3)$-shares, we can construct a $(2,3)$-sharing by considering a replicated secret sharing scheme: each party $P_i$ gets shares $k_i, k_{i+1 \mod 3}$. It is easy to see that the shares held by any two parties are sufficient to reconstruct the secret.
 
+\noindent\textbf{Protocol:}
+The protocol proceeds in the following phases:
+\begin{description}
+  \item[Input Sharing Phase:] 
+  Each party $P_i$ shares their input $x_i$ using the $(2,3)$-sharing scheme, and sends the corresponding shares to the other parties.
+  For instance, $P_1$ shares $x_1$ as $(x_{1,1}, x_{1,2}, x_{1,3})$, keeps $(x_{1,1}, x_{1,2})$, and sends $(x_{1,2}, x_{1,3})$ to $P_2$ and $(x_{1,3}, x_{1,1})$ to $P_3$.
+  \item[Computation Phase:] 
+  The computation phase maintains the invariant that given $(2,3)$-shares of the input to a gate (addition or multiplication), the computation produces $(2,3)$-shares of the output of the gate. That way, the parties can keep compute the gates all the way to the output of the circuit $C$.
 
+  \textbf{Addition Gate}:
+  Addition gates are simple: given $(2,3)$-shares of $\alpha$ and $\beta$, the parties can compute $(2,3)$-shares of $\alpha + \beta$ by simply summing up their shares locally.
+  For instance, party $P_1$ can compute its shares of $\alpha+\beta$ by computing $(\alpha_1 + \beta_1, \alpha_2 + \beta_2)$. 
 
+  \textbf{Multiplication Gate}:
+  Multiplication gates are more involved. The product $\gamma = \alpha \cdot \beta$ can be represented in the form of shares as follows: $\gamma = \alpha \cdot \beta = (\alpha_1 + \alpha_2 + \alpha_3) \cdot (\beta_1 + \beta_2 + \beta_3)$.
+  There are nine terms in this product, and note that all parties together can compute every term given their shares of $\alpha$ and $\beta$. 
+  Thus, assuming each party computes the sum of three mutually exclusive terms (let's call it $\gamma_i$ for party $P_i$), they can locally compute $(3,3)$-shares of $\gamma$.
+  To go from $(3,3)$-shares to $(2,3)$-shares, each party $P_i$ can send $\gamma_i$ to party $P_{i-1 \mod 3}$.
 
+  We are not done yet. These shares represent partial sums and can reveal information about the secret. To prevent this, each party needs to additionally mask $\gamma_i$ before sending it.
+  In particular, $P_i$ does the following: (i) mask $\gamma_i$ by adding a random value $r_i$ to it before sending it to $P_{i-1 \mod 3}$, (ii) subtract $r_i$ from $\gamma_{i+1 \mod 3}$ received from $P_{i+1 \mod 3}$, and (iii) additionally send $r_i$ to $P_{i+1 \mod 3}$, who also subtracts $r_i$ from $\gamma_{i+1 \mod 3}$.
+
+  \item[Output Reconstruction Phase:] 
+  Each party simply publishes its shares of the output of the circuit $C$.
+\end{description}
+
+\begin{theorem}
+  The protocol described above securely realizes the circuit $C$ in the presence of a static semi-honest adversary that corrupts at most one party.
+\end{theorem}
+\begin{proof}
+ Let $P_i$ be the corrupted party without loss of generality. Consider the following ideal world adversary $\IdealAdv$ that simulates the real world adversary $\RealAdv$:
+  \begin{itemize}
+    \item \emph{Input Sharing Phase:} $\IdealAdv$ knows the input $x_i$ of corrupted party $P_i$. It sends it to $\cF_C$ and receives the output $y_i = C(x_1, x_2, x_3)$. To simulate adversary's view perfectly during the input sharing phase, $\IdealAdv$ simply sends uniformly random strings on behalf of the honest parties.
+    \item \emph{Computation Phase:} The view of corrupted party only consists of the messages transferred during the evaluation of multiplication gates. Note that the message received by a party is uniformly random due to the random masking, and thus, $\IdealAdv$ can again simulate the view perfectly by simply including uniformly random messages.
+    \item \emph{Output Reconstruction Phase:} 
+    The view of corrupted party during output reconstruction phase is the shares output by the honest parties. Note that $\IdealAdv$ knows the randomness of corrupted party $P_i$, its inputs as well as all the messages it saw during the protocol. Thus, it knows the exact shares held by $P_i$. Given the output $y_i$ for the corrupted party received from $\cF_C$ and the shares held by $P_i$, $\IdealAdv$ can infer what the shares output by honest parties should be. This completes the simulation.
+  \end{itemize}
+  It is easy to see that this transcript is identical to the real world transcript, and thus the protocol is secure.
+\end{proof}
 
 \section{Oblivious transfer}
 
