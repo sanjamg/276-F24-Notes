@@ -223,8 +223,7 @@ Below we state these assumptions explicitly:
 \emph{Rabin's oblivious transfer} sets out to accomplish the following special task of two-party secure computation. The sender has a bit $s \in \{0,1\}$. She places the bit in a box. Then the box reveals the bit to the receiver with probability 1/2, and reveals $\perp$ to the receiver with probability 1/2. The sender cannot know whether the receiver received $s$ or $\perp$, and the receiver cannot have any information about $s$ if they receive $\perp$.
 
 \subsection{1-out-of-2 oblivious transfer}
-\emph{1-out-of-2 oblivious transfer} sets out to accomplish the following related task. The sender has two bits $s_0, s_1 \in \{0,1\}$ and the receiver has a bit $c \in \{0,1\}$. The sender places the pair $(s_0, s_1)$ into a box, and the receiver places $c$ into the same box. The box then reveals $s_c$ to the receiver, and reveals $\perp$ to the sender (in order to inform the sender that the receiver has placed his bit $c$ into the box and has been shown $s_c$). The sender cannot \DIFdelbegin \DIFdel{know }\DIFdelend \DIFaddbegin \DIFadd{learn any information about $c$, so she cannot know anything about }\DIFaddend which of her bits the receiver received\DIFdelbegin \DIFdel{, and }\DIFdelend \DIFaddbegin \DIFadd{. Also, }\DIFaddend the receiver cannot know \DIFdelbegin \DIFdel{anything }\DIFdelend \DIFaddbegin \DIFadd{any information }\DIFaddend about $s_{1-c}$. \DIFaddbegin \DIFadd{This exchange can be modeled by a function $f$, such that $f((s_0, s_1), c) = (\perp, s_c)$. The sender sends the input $(s_0, s_1)$ and receives the output $\perp$. The receiver sends the input $c$ and receives the output $s_c$. We will assume that the two parties follow this protocol, and we will later change to a malicious setting.
-}\DIFaddend 
+\emph{1-out-of-2 oblivious transfer} sets out to accomplish the following related task. The sender has two bits $s_0, s_1 \in \{0,1\}$ and the receiver has a bit $c \in \{0,1\}$. The sender places the pair $(s_0, s_1)$ into a box, and the receiver places $c$ into the same box. The box then reveals $s_c$ to the receiver, and reveals $\perp$ to the sender (in order to inform the sender that the receiver has placed his bit $c$ into the box and has been shown $s_c$). The sender cannot learn any information about $c$, so she cannot know anything about which of her bits the receiver received. Also, the receiver cannot know any information about $s_{1-c}$. This exchange can be modeled by a function $f$, such that $f((s_0, s_1), c) = (\perp, s_c)$. The sender sends the input $(s_0, s_1)$ and receives the output $\perp$. The receiver sends the input $c$ and receives the output $s_c$. We will assume that the two parties follow this protocol, and we will later change to a malicious setting.
 
 \begin{lemma}
 A system implementing 1-out-of-2 oblivious transfer can be used to implement Rabin's oblivious transfer.
@@ -265,45 +264,39 @@ From the receiver side, guessing $s_{1-c}$ correctly is equivalent to guessing t
 
 
 \subsection{1-out-of-4 oblivious transfer}
-  \DIFdelbegin \DIFdel{We }\DIFdelend \DIFaddbegin \DIFadd{With messages $m_{00},\ m_{01},\ m_{10},$ and $m_{11}$, we }\DIFaddend describe how to implement a 1-out-of-4 \DIFdelbegin \DIFdel{OT }\DIFdelend \DIFaddbegin \DIFadd{oblivious transfer (OT) }\DIFaddend using 1-out-of-2 OT:\@
+  With messages $m_{00},\ m_{01},\ m_{10},$ and $m_{11}$, we describe how to implement a 1-out-of-4 oblivious transfer (OT) using 1-out-of-2 OT:\@
   \begin{enumerate}
     \item
-      The sender \DIFdelbegin \DIFdel{, }\DIFdelend $\PartyA$ samples \DIFdelbegin \DIFdel{5 random values $S_i \gets \bits, i \in \set{1,\dotsc, 5}$. }\DIFdelend \DIFaddbegin \DIFadd{6 random values $(S_0, S_1, S_{00}, S_{01}, S_{10}, S_{11}) \gets \bits^6$. Note that each of these values are sampled uniformly at random so as to not leak any information about the messages.
-    }\DIFaddend \item
+      The sender $\PartyA$ samples 6 random values $(S_0, S_1, S_{00}, S_{01}, S_{10}, S_{11}) \gets \bits^6$. Note that each of these values are sampled uniformly at random so as to not leak any information about the messages.
+    \item
       $\PartyA$ computes
       \begin{align*}
-        \alpha\DIFdelbegin \DIFdel{_0 }\DIFdelend \DIFaddbegin \DIFadd{_{00} }\DIFaddend &= S_0 \xor S\DIFdelbegin \DIFdel{_2 }\DIFdelend \DIFaddbegin \DIFadd{_{00} }\DIFaddend \xor m\DIFdelbegin \DIFdel{_0}\DIFdelend \DIFaddbegin \DIFadd{_{00}}\DIFaddend \\
-        \alpha\DIFdelbegin \DIFdel{_1 }\DIFdelend \DIFaddbegin \DIFadd{_{01} }\DIFaddend &= S_0 \xor S\DIFdelbegin \DIFdel{_3 }\DIFdelend \DIFaddbegin \DIFadd{_{01} }\DIFaddend \xor m\DIFdelbegin \DIFdel{_1}\DIFdelend \DIFaddbegin \DIFadd{_{01}}\DIFaddend \\
-        \alpha\DIFdelbegin \DIFdel{_2 }\DIFdelend \DIFaddbegin \DIFadd{_{10} }\DIFaddend &= S_1 \xor S\DIFdelbegin \DIFdel{_4 }\DIFdelend \DIFaddbegin \DIFadd{_{10} }\DIFaddend \xor m\DIFdelbegin \DIFdel{_2}\DIFdelend \DIFaddbegin \DIFadd{_{10}}\DIFaddend \\
-        \alpha\DIFdelbegin \DIFdel{_3 }\DIFdelend \DIFaddbegin \DIFadd{_{11} }\DIFaddend &= S_1 \xor S\DIFdelbegin \DIFdel{_5 }\DIFdelend \DIFaddbegin \DIFadd{_{11} }\DIFaddend \xor m\DIFdelbegin \DIFdel{_3
-      }\DIFdelend \DIFaddbegin \DIFadd{_{11}
-      }\DIFaddend \end{align*}
+        \alpha_{00} &= S_0 \xor S_{00} \xor m_{00}\\
+        \alpha_{01} &= S_0 \xor S_{01} \xor m_{01}\\
+        \alpha_{10} &= S_1 \xor S_{10} \xor m_{10}\\
+        \alpha_{11} &= S_1 \xor S_{11} \xor m_{11}
+      \end{align*}
       It sends these values to $\PartyB$.
     \item
-      The parties engage in 3 1-out-of-2 \DIFdelbegin \DIFdel{Oblivious Transfer }\DIFdelend \DIFaddbegin \DIFadd{oblivious transfer }\DIFaddend protocols for the following
-      messages: $(S_0, S_1)$, \DIFdelbegin \DIFdel{$(S_2, S_3)$, $(S_4, S_5)$. THe }\DIFdelend \DIFaddbegin \DIFadd{$(S_{00}, S_{01})$, $(S_{10}, S_{11})$. The }\DIFaddend receiver's input for the first OT is the first choice bit, and for the second and third ones is
+      The parties engage in 3 1-out-of-2 oblivious transfer protocols for the following
+      messages: $(S_0, S_1)$, $(S_{00}, S_{01})$, $(S_{10}, S_{11})$. The receiver's input for the first OT is the first choice bit, and for the second and third ones is
       the second choice bit.
     \item
       The receiver can only decrypt one ciphertext.
   \end{enumerate}
 
-\DIFaddbegin \subsection{\DIFadd{Computation for Input Sharing}}
-\DIFadd{Consider $n$ provers $P_i$ for all $i \{1, \dots, n\}$ that are trying to compute shares of $\gamma$. Consider inputs $\alpha = \alpha_1 \xor \dots \xor \alpha_n$ and $\beta = \beta_1 \xor \dots \xor \beta_n$ such that for all $i \in \{1, \dots, n\}$, each prover $P_i$ only has access to $\alpha_i$ and $\beta_i$.
-}
+\subsection{Computation for Input Sharing}
+Consider $n$ provers $P_i$ for all $i \{1, \dots, n\}$ that are trying to compute shares of $\gamma$. Consider inputs $\alpha = \alpha_1 \xor \dots \xor \alpha_n$ and $\beta = \beta_1 \xor \dots \xor \beta_n$ such that for all $i \in \{1, \dots, n\}$, each prover $P_i$ only has access to $\alpha_i$ and $\beta_i$.
 
-\DIFadd{The XOR operation can be accomplished with secret sharing, since $\gamma = \alpha \xor \beta = (\alpha_1 \xor \dots \alpha_n) \xor (\beta_1 \xor \dots \beta_n) = (\alpha_1 \xor \beta_1) \xor (\alpha_2 \xor \beta_2) \xor \dots \xor (\alpha_n \xor \beta_n)$.
-}
+The XOR operation can be accomplished with secret sharing, since $\gamma = \alpha \xor \beta = (\alpha_1 \xor \dots \alpha_n) \xor (\beta_1 \xor \dots \beta_n) = (\alpha_1 \xor \beta_1) \xor (\alpha_2 \xor \beta_2) \xor \dots \xor (\alpha_n \xor \beta_n)$.
 
-\DIFadd{The NOT operation can be accomplished with secret sharing, where $\alpha$ is the input and $1 - \alpha$ is the output, since the first party can simply flip a bit by calculating $1 - \alpha_1$.
-}
+The NOT operation can be accomplished with secret sharing, where $\alpha$ is the input and $1 - \alpha$ is the output, since the first party can simply flip a bit by calculating $1 - \alpha_1$.
 
-\DIFadd{The AND operation can be accomplished with secret sharing, since $\gamma = \alpha \cdot \beta = (\alpha_1 \xor \dots \xor \alpha_n) \cdot (\beta_1 \xor \dots \xor \beta_n) = \Sigma_i \alpha_i \beta_i + \Sigma_{i,j\ |\ i \ne j} \alpha_i \beta_j$. The first summation because for each $i \in \{1, \dots, n\}$, $P_i$ can calculate $\alpha_i \beta_i$. The second summation with the ``cross terms" is equal to $\Sigma_{1 \leq i < j \leq n}(\alpha_i \beta_j + \alpha_j + \beta_i) = \Sigma_{1 \leq i < j \leq n}$. Note that $z_{ji} = \alpha_i\beta_j + \alpha_j\beta_i + z_{ij}$. To compute $\alpha_i \beta_j + \alpha_j \beta_i$, $P_i$ and $P_j$ need to work together. If $\alpha_j = \beta_i = 0$, then $z_{ji} = z_{ij}$. If $\alpha_j = 0$ an d $\beta_i = 1$, then $z_{ji} = \alpha_i + z_{ij}$. If $\alpha_j = 1$ an d $\beta_i = 0$, then $z_{ji} = \beta_i + z_{ij}$. If $\alpha_j = \beta_i = 1$, then $z_{ji} = \alpha_i + \beta_i + z_{ij}$.
-}
+The AND operation can be accomplished with secret sharing, since $\gamma = \alpha \cdot \beta = (\alpha_1 \xor \dots \xor \alpha_n) \cdot (\beta_1 \xor \dots \xor \beta_n) = \Sigma_i \alpha_i \beta_i + \Sigma_{i,j\ |\ i \ne j} \alpha_i \beta_j$. The first summation because for each $i \in \{1, \dots, n\}$, $P_i$ can calculate $\alpha_i \beta_i$. The second summation with the ``cross terms" is equal to $\Sigma_{1 \leq i < j \leq n}(\alpha_i \beta_j + \alpha_j + \beta_i) = \Sigma_{1 \leq i < j \leq n}$. Note that $z_{ji} = \alpha_i\beta_j + \alpha_j\beta_i + z_{ij}$. To compute $\alpha_i \beta_j + \alpha_j \beta_i$, $P_i$ and $P_j$ need to work together. If $\alpha_j = \beta_i = 0$, then $z_{ji} = z_{ij}$. If $\alpha_j = 0$ an d $\beta_i = 1$, then $z_{ji} = \alpha_i + z_{ij}$. If $\alpha_j = 1$ an d $\beta_i = 0$, then $z_{ji} = \beta_i + z_{ij}$. If $\alpha_j = \beta_i = 1$, then $z_{ji} = \alpha_i + \beta_i + z_{ij}$.
 
-\DIFadd{Note that the goal here is not the solve the problem of whether someone does not reveal their results, such as if their computer dies. In fact, it may be unclear what ``solving" would even mean in such a context. For example, in the context of voting, it is unclear whether a ``solve" would mean a tie between candidates or something else.
-}
+Note that the goal here is not the solve the problem of whether someone does not reveal their results, such as if their computer dies. In fact, it may be unclear what ``solving" would even mean in such a context. For example, in the context of voting, it is unclear whether a ``solve" would mean a tie between candidates or something else.
 
-\DIFaddend \section{Yao's Garbled Circuit}
+\section{Yao's Garbled Circuit}
 
 
 %\input{HWsolution.tex}
@@ -360,9 +353,8 @@ C(x) \leftarrow \Eval(\tilde{C}, \{\ell_{i, x_i}\}_{i \in [n]})
 Correctness is as usual, if you garble honestly, evaluation should produce the correct result. 
 \[
 \forall C, x 
-Pr[ C(x) \DIFdelbegin \DIFdel{= }\DIFdelend \DIFaddbegin \ne \DIFaddend \Eval(\tilde{C}, \{l_{i, x_i}\})\DIFdelbegin \DIFdel{,  }\DIFdelend \DIFaddbegin \DIFadd{\ |\ }\DIFaddend (\tilde{C}, \{\ell_{i,b}\}) = \Garble(1^k, C)] = \DIFdelbegin \DIFdel{1 - neg(k)
-}\DIFdelend \DIFaddbegin \DIFadd{0
-}\DIFaddend \]
+Pr[ C(x) \ne \Eval(\tilde{C}, \{l_{i, x_i}\})\ |\ (\tilde{C}, \{\ell_{i,b}\}) = \Garble(1^k, C)] = 0
+\]
 
 
 \paragraph{Security}
@@ -375,14 +367,14 @@ The simulator does not have access to the actual inputs.
 If this holds, the party receiving the garbled circuit and n labels can not determine the inputs.
 
 \begin{align*}
-&\exists\DIFaddbegin \DIFadd{\ \text{PPT}\ }\DIFaddend \Sim : \forall C, x\\
+&\exists\ \text{PPT}\ \Sim : \forall C, x\\
 &(\tilde{C}, \{\ell_{i,x_i}\}_{i \in [n]}) \simeq \Sim(1^k, C, C(x)) \text{ where} \\
 &(\tilde{C}, \{\ell_{i,b}\}_{i \in [n], b \in \{0,1\}}) \leftarrow \Garble(1^k, C) 
 \end{align*}
 
 For simplicity we pass the circuit to the simulator.
 You could also use universal circuits and pass 
-in with the inputs the specific circuit that the universal circuit should realize\DIFaddbegin \DIFadd{. Letting $U$ be the universal circuit such that $U(C, x) = C(x)$, the structure of $U$ does not need to be hidden, just its input $(C, x)$}\DIFaddend .
+in with the inputs the specific circuit that the universal circuit should realize. Letting $U$ be the universal circuit such that $U(C, x) = C(x)$, the structure of $U$ does not need to be hidden, just its input $(C, x)$.
 
 
 
@@ -425,7 +417,7 @@ Alice does not learn anything as she uses oblivious transfer to give Bob his inp
 
   \put(.5,-2.5){\line(1,0){.5}}
      \put(1.2,-2.5){\makebox{$\{\ell_{i, x^2_i}\}_{i \in [n] / [n_1]}$}}
-
+     
   \put(-1,-4.5){\makebox(2,2){$\underrightarrow{ \forall i \in  [n]/[n_1] }$}}
 
 
