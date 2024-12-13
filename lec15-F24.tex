@@ -87,9 +87,21 @@ $$K=e(g,g)^{abc}$$
 
 
 \section{IBE: Identity-Based Encryption}
+When two parties communicate secure messages through a public key infrastructure, they need to go through a time-consuming and error-prone process to get each other's key and verify each other's identity through a Certificate Authority. 
+Identity-based cryptography (IBC) seeks to reduce these barriers by requiring no preparation on the part of the message recipient, therefore saving the initial round trip. 
+Identity based encryption can also be used to construct CCA-secure public key encryption and digital signatures. 
+
 IBE contains four steps: \emph{Setup}, \emph{KeyGen}, \emph{Enc}, and \emph{Dec}. We illustrate it in Figure \ref{fig:ibe}.
-In first step, Key authority get a Master Public Key (MPK) and Master Signing Key (MSK) from $Setup(1^k)$. Then a user with an ID
- (in this example, ``Mike''), sends his ID to the key authority. The key authority generates the Signing Key of Mike with $KeyGen(MSK, ID)$ ans sends it back. Another use, Alice, wants to send an encrypted message to Mike. She only has MPK and Mike's ID. So she encrypts the message with $c=Enc(MPK, ID=Mike, m)$, and sends the encrypted message $c$ to Mike. Mike decodes $c$ with $m=Dec(c, SK_{Mike})$. Notice that Alice never need to know Mike's public key. She only needs to remember MPK and other people's IDs.
+IBE relies on a trusted third party called Private Key Generator(PKG). 
+In first step, PKG gets a Master Public Key ($mpk$) and Master Signing Key ($msk$) from $Gen(1^n)$. 
+Then a user with an ID (in this example, ``Mike''), sends his ID to the PKG. 
+The PKG generates the Signing Key of Mike with $KeyGen(msk, id)$ ans sends it back. 
+Another user, Alice, wants to send an encrypted message to Mike. 
+She only has $mpk$ and Mike's ID. 
+So she encrypts the message with $c=Enc(mpk, id=Mike, m)$, and sends the encrypted message $c$ to Mike. 
+Mike decodes $c$ with $m=Dec(c, sk_{Mike})$. 
+Notice that Alice never need to know Mike's public key. 
+She only needs to remember MPK and other people's IDs.
 
 \begin{figure}
 \label{fig:ibe}
@@ -98,141 +110,154 @@ In first step, Key authority get a Master Public Key (MPK) and Master Signing Ke
 \caption{Identity-Based Encryption}
 \end{figure}
 
-Formally, we have
+Then we define IBE formally, 
 
-$$Pr\begin{bmatrix}
-       (MPK, MSK) \gets Setup(1^k), \\[0.3em]
-       SK_{ID} \gets KeyGen(MSK, ID), \\[0.3em]
-       c \gets Enc(MPK, ID, m), \\[0.3em]
-       m \gets Dec(SK_{ID}, c)
-     \end{bmatrix}
-      =1$$
+\begin{definition}[Identity-Based Encryption]
+    An \textbf{identity based encryption scheme} $\mathcal{E}_{id} = (G,K,E,D)$ is a tuple of four efficient algorithms: a \textbf{setup algorithm} $G$, a \textbf{key generation algorithm} $K$, an \textbf{encryption algorithm} $E$, and a \textbf{decryption algorithm} $D$.
+    \begin{itemize}
+        \item $G$ is a probabilistic algorithm invoked as $(mpk, msk)\stackrel{\$}{\gets} G(1^n)$, where $mpk$ is called the \textbf{master public key} and $msk$ is called the \textbf{master secret key} for the IBE scheme.
+        \item $K$ is a probabilistic algorithm invoked as $sk_{id}\stackrel{\$}{\gets}K(msk,id )$, where $msk$ is the master secret key (as output by $S$), $id \in \mathcal{ID}$ is an identity, and $sk_{id}$ is a secret key for id.
+        \item $E$ is a probabilistic algorithm invoked as $c\stackrel{\$}{\gets}E(mpk,id, m)$.
+        \item $D$ is a deterministic algorithm invoked as $m\gets D(sk_{id}, c)$. Here $m$ is either a message or a special reject value $\bot$ (distinct from all messages).
+    \end{itemize}
+\end{definition}
 
-\subsection{Security Descriptions}
+As usual, we define the correctness of IBE to be the decryption undoes encryption, formally we have 
+\begin{definition}[Correctness of IBE]
+$\forall n, id, m$, we have
+\[
+Pr\begin{bmatrix}
+   (mpk,msk) \gets G(1^n), \\[0.3em]
+   sk_{id} \gets K(msk, ID), \\[0.3em]
+   c \gets E(mpk, id, m), \\[0.3em]
+   m \gets D(sk_{id}, c)
+\end{bmatrix}
+  =1 - \text{negl}(n)
+\]
+\end{definition}
 
-We have different security descriptions for IBE, as discussed in this section.
+Next we define the security of IBE scheme. 
+The basic security definition considers an adversary who obtains the secret keys for a number of identities of its choice. 
+The adversary should not be able to break semantic security for some other identity of its choice for which it does not have the secret key.
 
-\subsection{CCA1}
-\begin{tabular}{ r c l }
-  \textbf{Challenger} & & \textbf{Adversary} \\
-  $(MPK, MSK) \gets Setup(1^k)$ & $\xrightarrow{MPK}$ &  \\
-   & $\xleftarrow{ID_1}$ & \\
-  $SK_{ID_1} \gets KeyGen(MSK, ID_1)$ & $\xrightarrow{SK_{ID_1}}$ & \\
-  $\vdots$ & $\vdots$ & $\vdots$ \\
-   & $\xleftarrow{ID_i}$ & \\
-  $SK_{ID_i} \gets KeyGen(MSK, ID_i)$ & $\xrightarrow{SK_{ID_i}}$ & \\
-   & $\xleftarrow{ID^*, m_0, m_1}$ & $\forall i \in [q], ID^* \neq ID_i$\\
-  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = Enc(MPK, ID^*, m_b)$ & $\xrightarrow{c^*}$ & \\
-  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
-\end{tabular}
+\begin{definition}[Security of IBE]
+    For an IBE scheme $\mathcal{E}_{id}=(G,K,E,D)$ is secure if $\forall$ nuPPT $\mathcal{A}$,
+    \[
+    \Pr[\text{Exp}_{\pi,\mathcal{A}}^{IBE,CPA}(n)=1]=\text{negl}(n)
+    \]
+\end{definition}
 
-\subsection{CCA2}
-In CCA2, we allow adversary to send further queries after getting $c^*$.
-
-\begin{tabular}{ r c l }
-  \textbf{Challenger} & & \textbf{Adversary} \\
-  $(MPK, MSK) \gets Setup(1^k)$ & $\xrightarrow{MPK}$ &  \\
-   & $\xleftarrow{ID_1}$ & \\
-  $SK_{ID_1} \gets KeyGen(MSK, ID_1)$ & $\xrightarrow{SK_{ID_1}}$ & \\
-   & $\vdots$ & \\
-   & $\xleftarrow{ID_i}$ & \\
-  $SK_{ID_q} \gets KeyGen(MSK, ID_q)$ & $\xrightarrow{SK_{ID_q}}$ & \\
-   & $\xleftarrow{ID^*, m_0, m_1}$ & $\forall i \in [q'], ID^* \neq ID_i$\\
-  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = Enc(MPK, ID^*, m_b)$ & $\xrightarrow{c^*}$ & \\
-   & $\xleftarrow{ID_{q+1}}$ & \\
-  $SK_{ID_{q+1}} \gets KeyGen(MSK, ID_{q+1})$ & $\xrightarrow{SK_{ID_{q+1}}}$ & \\
-  $\vdots$ & $\vdots$ & $\vdots$ \\
-   & $\xleftarrow{ID_{q'}}$ & \\
-  $SK_{ID_{q'}} \gets KeyGen(MSK, ID_{q'})$ & $\xrightarrow{SK_{ID_{q'}}}$ & \\
-  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
-\end{tabular}
-
-\subsection{Selective Security}
-In selective security, the adversary sends $ID^*$ before everything.
-
-\begin{tabular}{ r c l }
-  \textbf{Challenger} & & \textbf{Adversary} \\
-   & $\xleftarrow{ID^*}$ & $\forall i \in [q], ID^* \neq ID_i$\\
-  $(MPK, MSK) \gets Setup(1^k)$ & $\xrightarrow{MPK}$ &  \\
-   & $\xleftarrow{ID_1}$ & \\
-  $SK_{ID_1} \gets KeyGen(MSK, ID_1)$ & $\xrightarrow{SK_{ID_1}}$ & \\
-  $\vdots$ & $\vdots$ & $\vdots$ \\
-   & $\xleftarrow{ID_q}$ & \\
-  $SK_{ID_q} \gets KeyGen(MSK, ID_q)$ & $\xrightarrow{SK_{ID_q}}$ & \\
-   & $\xleftarrow{m_0, m_1}$ & \\
-  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = Enc(MPK, ID^*, m_b)$ & $\xrightarrow{c^*}$ & \\
-  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
-\end{tabular}
-
-
-\subsection{Discussion 1}
-How does Bilinear Maps apply to IBE?
-
-Given Bilinear Maps: $(G, P, G_T, g, e)$, we have
-
+We then define the experiment $\text{Exp}_{\pi,\mathcal{A}}^{IBE,CPA}$.
+\begin{definition}[IBE-CPA Experiment]
+We denote the experiment in the following order: 
 \begin{enumerate}
-\item $(G, P, G_T, g, e) \gets Setup(1^k)$
-\item $s \gets Z^*_p$, and $H_1: \{0, 1\}^* \to G $, $H_2: G_T \to \{0, 1\}^n$
-\item $MPK = (G, g^s, H_1, H_2)$, and $MSK = (s)$
+    \item The challenger invokes $(mpk, msk)\stackrel{\$}{\gets} G(1^n)$ and send $mpk$ to adversary $\mathcal{A}$.
+    \item $\mathcal{A}$ can make multiple key queries and generate desired ID $id^{*}$ and two message $(m_0, m_1)$. 
+    \item Challenger random selects $b\stackrel{\$}{\gets}\{0,1\}$ and encrypt $c^{*}=E(mpk, id^{*},m_b)$ and send $c^{*}$ to $\mathcal{A}$.
+    \item $\mathcal{A}$ can make more encryption queries based on $c^{*}$ and other id and message $(m_0,m_1)$. Note that throughout the process $\mathcal{A}$ can \textbf{never} make any query on $id^{*}$. 
+    \item At the end, $\mathcal{A}$ generate $b'$ and send to challenger. 
+    \item Challenger output $1$ if $b=b'$, $0$ otherwise. 
 \end{enumerate}
+\end{definition}
 
-Let's look at how we construct each function in IBE.
+\subsection{IBE Construction from Pairing}
+We then present a concrete IBE construction from pairing.
+First, we will give the hardness assumption in this scheme called \textbf{bilinear Diffe-Hellman} assumption, or BDH. 
+This assumption says that given random element $g_0^{\alpha},g_0^{\beta},g_0^{\gamma}\in\mathbb{G_0}$ and a few additional terms, the quantity $e(g0,g1)^{\alpha\beta\gamma}\in\mathbb{G}_T$ is computationally indistinguishable from a random element in GT.
 
-\paragraph{$KeyGen(s, ID)$:}~\\
-\begin{enumerate}
-\item Output $SK_{ID} = (H_1(ID))^s$
-\end{enumerate}
+\begin{definition}[Decisional bilinear Diffe-Hellman]
+    Let $e: \mathbb{G}_0\times\mathbb{G}_1\rightarrow\mathbb{G}_T$ be a pairing where $\mathbb{G}_0,\mathbb{G}_1,\mathbb{G}_T$ are cyclic groups of prime order $q$ with generators $g_0 \in \mathbb{G}_0$ and $g_1 \in \mathbb{G}_1$. For a given adversary $\mathcal{A}$, the following distribution is distinguishable: 
+    \[
+    \{g_0^{\alpha},g_1^{\alpha},g_0^{\beta},g_1^{\gamma},e(g_0,g_1)^{\alpha\beta\gamma},  \alpha,\beta,\gamma\stackrel{\$}{\gets}\mathbb{Z}_q\} \approx^{c}
+    \{g_0^{\alpha},g_1^{\alpha},g_0^{\beta},g_1^{\gamma},e(g_0,g_1)^{\delta},  \alpha,\beta,\gamma,\delta\stackrel{\$}{\gets}\mathbb{Z}_q\}
+    \]
+\end{definition}
 
-\paragraph{$Enc(MPK, ID, m)$:}~\\
-\begin{enumerate}
-\item $r \gets Z^*_p$
-\item $c_1 = g^r$
-\item $c_2 = m \oplus H_2(e(A, H_1(ID)^r))$, where $A = g^s$
-\item Output $(c_1, c_2)$
-\end{enumerate}
+Note that this assumption work even with $g_0=g_1$.
 
-\paragraph{$Dec(SK_{ID}, (c_1, c_2))$:}~\\
-\begin{enumerate}
-\item Get $e(A, H_1(ID)^r) = e(H_1(ID)^s, c_1) = e(SK_{ID}, c_1)$
-\item Get $m = c_2 \oplus H_2(e(A, H_1(ID))^r)$
-\end{enumerate}
+We then present our IBE construction. 
+\begin{itemize}
+    \item $G(1^n)$: 
+    \[
+    \alpha\stackrel{\$}{\gets}\mathbb{Z}_q, mpk\gets g^\alpha, msk\gets\alpha
+    \]
+    and output ($mpk,msk$)
+    \item $K(msk=\alpha,id)$:
+    \[
+    sk_{id}\gets H(id)^\alpha
+    \]
+    where $H$ is a hash function $H:\{0,1\}^{*}\rightarrow\mathbb{G}$
+    \item $E(mpk, id, m)$: 
+    \[
+    \beta\stackrel{\$}{\gets}\mathbb{Z}_q, c_1\gets g^{\beta}, c_2\gets e(mpk,H(id)^{\beta})\cdot m
+    \]
+    and output $(c_1,c_2)$.
+    \item $D(sk_{id}, c=(c_1, c_2))$:
+    \[
+    m=\frac{c_2}{e(c_1,sk_{id})}
+    \]
+\end{itemize}
+By the property of bilinear map, we can verify the correctness of this scheme, 
+\begin{align*}
+    m &= \frac{c_2}{e(c_1,sk_{id})} \\
+      &= \frac{e(mpk,H(id)^{\beta})\cdot m}{e(c_1,sk_{id})} \\
+      &= \frac{e(g^\alpha,H(id)^{\beta})\cdot m}{e(g^{\beta}, H(id)^{\alpha})} \\
+      &= \frac{e(g,H(id))^{\alpha\beta}}{e(g, H(id))^{\alpha\beta}}\cdot m \\
+      &= m
+\end{align*}
 
-\proof
-To prove this, we use a hybrid argument. Assume we have two oracles with exact random functions, denoted as $O_{H_1}$ and $O_{H_2}$.
-One can request a random string from them with a query ID. The random strings are denoted as $H_1(ID)$ and $H_2(ID)$, respectively. These two oracles keep track of query IDs and corresponding responses. If a query ID was seen before, they return the exact same response corresponding to it. If not, they generate a random string, correspond the string to the ID, and return the string.
+We then prove the security property under random oracle model.
+\begin{theorem}
+    If decision BDH holds for e, H is modelled as a random oracle, then the above construction is a secure IBE scheme. 
+\end{theorem}
+\begin{proof}
+    Let $\mathcal{A}$ be an adversary that breaks the IBE scheme, we can construct another adversary $\mathcal{B}$ such that it breaks the DBDH assumption.
 
-We first define $\mathcal{H}_0$, in which $H_1(ID)$ and $H_2(ID)$ are generated by the oracles. We use the construction described above.
+    The adversary $\mathcal{B}$ works as follows:
+    \begin{enumerate}
+        \item $\mathcal{B}$ receives 5 elements as input $\{g^{\alpha},g^{\beta},g^{\gamma},z,  \alpha,\beta,\gamma\stackrel{\$}{\gets}\mathbb{Z}_q,z\in\mathbb{G}\}$, and $\mathcal{B}$ need to determine whether $z=e(g,g)^{\alpha\beta\gamma}$ or not. 
+        \item $\mathcal{B}$ send IBE public parameter $mpk=g^{\alpha}$ to IBE adversary $\mathcal{A}$.
+        \item Then $\mathcal{A}$ will make multiple $sk_{id}$ queries to $\mathcal{B}$. $\mathcal{B}$ responds them by (1) Choose $\rho\stackrel{\$}{\gets}\mathbb{Z}_q$ (2) Setting $H(id)=g^{\rho}$ (3) set the secret key be $sk_{id}=H(id)^{\alpha}=g^{\rho\cdot\alpha}$. One \textbf{exception} is that $\mathcal{B}$ will set a random $id'$ whose $H(id')=g^\beta$.
+        \item After receiving the key query, $\mathcal{A}$ outputs $(id^{*}, m_0,m_1)$.  
+        \item When $\mathcal{B}$ receives encryption query $(id^{*}, m_0, m_1)$, it first check if $\mathcal{A}$ have previously query $sk_{id^*}$ before, if yes, then abort. Otherwise, $\mathcal{B}$ choose $b\stackrel{\$}{\gets}\{0,1\}$ and encrypt $m_b$ using $(c_1=g^\gamma, c_2=e(msk,H(id')^\gamma)\cdot m_b)$ and send back to $\mathcal{A}$.
+        \item $\mathcal{A}$ eventually output $b'$ to $\mathcal{B}$. And $\mathcal{B}$ output $1$ if $b'=b$ and $0$ otherwise. 
+    \end{enumerate}
+    Since $e(msk,H(id')^{\gamma})=e(g^\alpha,g^{\beta\gamma})=e(g,g)^{\alpha\beta\gamma}$, $\mathcal{B}$ can embedded the challenge to $\mathcal{A}$ and break DBDH. \qed
+\end{proof}
 
+\subsection{Digital Signature from IBE}
+We can directly derive a secure signature scheme from IBE. 
+Given a secure IBE $\mathcal{E}_{id}=(G,K,E,D)$ with id space $\mathcal{ID}$ and message space $\mathcal{M}_{IBE}$, we construct a secure digital signature scheme $\mathcal{S} = (G',S',V')$ as follows: 
+\begin{itemize}
+    \item $G'(1^n)$: run $(mpk, msk)\stackrel{\$}{\gets} G(1^n)$ and output $(mpk, msk)$ as the sign key pair, with $mpk$ as verification key and $msk$ as sign key.
+    \item $S'(msk,m)$: Given message $m\in\mathcal{ID}$, compute $\sigma\stackrel{\$}{\gets}K(msk,m)$, output $\sigma$ as signature. 
+    \item $V'(mpk,m,\sigma)$: Choose $r\stackrel{\$}{\gets}\mathcal{M}_{IBE}$, compute $c\stackrel{\$}{\gets}E(mpk,m,r)$, and accept if $D(\sigma,c) = r$. 
+\end{itemize}
 
-\begin{tabular}{ r c l }
-  \textbf{Challenger} & & \textbf{Adversary} \\
-   & $\xleftarrow{\mathcal{G}, ID^*}$ & $\forall i \in [q], ID^* \neq ID_i$\\
-   & $\xleftarrow{g^s}$ & \\
-   & $\xleftarrow{O_{H_1}}$ & \\
-   & $\xleftarrow{O_{H_2}}$ & \\
-   & $\xleftarrow{ID_1}$ & \\
-  $SK_{ID_1} \gets KeyGen(s, ID_1)$ & $\xrightarrow{SK_{ID_1}}$ & \\
-  $\vdots$ & $\vdots$ & $\vdots$ \\
-   & $\xleftarrow{ID_q}$ & \\
-  $SK_{ID_q} \gets KeyGen(s, ID_q)$ & $\xrightarrow{SK_{ID_q}}$ & \\
-   & $\xleftarrow{m_0, m_1}$ & \\
-  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = Enc(MPK, ID^*, m_b)$ & $\xrightarrow{c^*}$ & \\
-  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
-\end{tabular}
+We have the following theorem,
+\begin{theorem}
+    Let $\mathcal{E}_{id}$ be a secure IBE with message space is super-poly. Then the derive signature scheme $\mathcal{S}$ is a secure digital signature scheme. 
+\end{theorem}
+\begin{proof}
+    Let $\mathcal{A}$ be an adversary that breaks the digital signature scheme, we can construct another adversary $\mathcal{B}$ such that breaks the IBE security.
 
+    The BIE adversary $\mathcal{B}$ is modelled as follows:
+    \begin{enumerate}
+        \item $\mathcal{B}$ receives $mpk$ from the challenger, and forward $mpk$ as a signature public key to $\mathcal{A}$. 
+        \item $\mathcal{A}$ makes a series of signing queries $m_0,\dots,m_n$ to $\mathcal{B}$. $\mathcal{B}$ responds by issuing the corresponding key query to the challenger and forwarding the answer back the response to $\mathcal{A}$. 
+        \item $\mathcal{A}$ will output a signature forgery $(m,\sigma)$ which it didn't issue the sign query $m$. 
+        \item $\mathcal{B}$ then choose two random message $t_0,t_1\stackrel{\$}{\gets}\mathcal{M}_{IBE}$ and issue encryption query with the identity $m$.
+        \item $\mathcal{B} $gets back the ciphertext $c\stackrel{\$}{\gets}E(mpk,m,t_b)$ for $b\in{0,1}$. Then it runs $t'\gets D(\sigma,c)$ and output $b'=t'$. 
+    \end{enumerate}
+    We observe that 
+    \begin{itemize}
+        \item when $b = 1$, then $c\stackrel{\$}{\gets}E(mpk, m,t_1)$, and $\mathcal{B}$ outputs 1 with probability the same as the probability of $\mathcal{A}$ breaks digital signature, we note as $SIGadv[\mathcal{A,S}]$
+        \item when $b = 0$, then $c\stackrel{\$}{\gets}E(mpk, m,t_0)$, and $\mathcal{B}$ outputs 1 with probability $1/|\mathcal{M}_{IBE}|$ since $\mathcal{B}$ can only make random guess in the message space. 
+    \end{itemize}
+    We then have the probability of $\mathcal{B}$ break IBE scheme
+    \[
+        \frac{1}{2}(SIGadv[\mathcal{A,S}] + 1/|\mathcal{M}_{IBE}|)
+    \]
+    which is not negligible if $SIGadv[\mathcal{A,S}]$ is not negligible. \qed
 
-Then we discard oracle's $H_1$, and use $H_1(ID) = g^{\alpha_{ID}}$, where $\alpha_{ID} \gets Z^*_p$. We denote this as $\mathcal{H}_1$.
-
-
-Then we change $SK_{ID}$ to $SK_{ID} = (H_1(ID))^s = (g^{\alpha_{ID}})^s$. We denote this as $\mathcal{H}_2$.
-
-
-We have Bilinear Decision Diffie-Hellman (DDH). If $\mathcal{H}_2$ breaks DDH, then $\mathcal{H}_0$ can as well.
-
-In DDH, we have $(g^a, g^b, g^c, e(g, g)^{abc}) \stackrel{c}{\simeq} (g^a, g^b, g^c, e(g, g)^r)$.
-We denote $A = g^a$, $B = g^b$, $C = g^c$. And in $\mathcal{H}_2$, we have $A = g^s$, $B = H_1(ID^*)$, $C = c_1 = g^r$.
-And in $c_2 = m \oplus H_2(e(g^s, H_1(ID^*))^r)$, we have $T = H_2(e(g^s, H_1(ID^*))^r) = e(g, g)^{abc}$.
-
-$\qed$
-
-
+\end{proof}
