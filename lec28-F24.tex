@@ -4,6 +4,132 @@
 
 
 \chapter{Obfuscation}
+\section{VBB Obfuscation}
+\begin{definition}[Obfuscator of circuits under VBB]
+	$O$ is an \emph{obfuscator} of circuits if %for every circuit $c$ we have,
+	\begin{enumerate}
+		\item
+			Correctness:
+	$\forall c, x, O(c)(x) = c(x)$.
+	\item
+		Efficiency:
+		$\forall c, |O(c)| \le poly(|c|)$.
+	\item
+		VBB:
+		$\forall A, A$ is PPT bounded, $\exists$ S (also PPT) s.t. $\forall c$,
+		\[
+			|\Pr\left[ A\left( O(c) \right) = 1\right] - \Pr\left[ S^c(1^{|c|}) = 1 \right]| \le \mathrm{negl}(|c|).
+		\]
+	\end{enumerate}
+\end{definition}
+
+One can easily construct a PKE scheme based on any SKE scheme ($\gen'$, $\enc'$, $\dec'$) using the VBB obfuscation:
+\begin{itemize}
+    \item $\gen(1^\secpar)$: $\sk \gets \gen'(1^\secpar)$, output $\pk = O(P_\sk)$, where $P_\sk(m; r) = \enc'_{\sk}(m; r)$.
+    \item $\enc(\pk, m)$: Output $O(P_\sk)(m; r)$.
+    \item $\dec(\sk, c)$: Output $\dec'_\sk(c)$.
+\end{itemize}
+
+\newcommand{\SETUP}{\ensuremath{\mathsf{Setup}}}
+\newcommand{\KEYGEN}{\ensuremath{\mathsf{KeyGen}}}
+\newcommand{\mpk}{\ensuremath{\mathsf{mpk}}}
+\newcommand{\msk}{\ensuremath{\mathsf{msk}}}
+\newcommand{\id}{\ensuremath{\mathsf{id}}}
+
+One could also construct an IBE scheme with a digital
+signature scheme $(G, S, V)$ using the VBB obfuscation:
+\begin{itemize}
+\item $\SETUP(1^n)$: $(\pk_s,\sk_s)\gets G(1^n)$, output $\mpk = \pk_s$, $\msk = \sk_s$.
+\item $\KEYGEN(\msk,\id)$: Output $\sk_{\id} = S(\msk, \id)$.
+\item $\enc(\mpk, \id, m)$: Output $O(P_{\mpk,\id,m})$, where $P_{\mpk,\id,m}(\sigma) = \begin{cases}
+	m, \hbox{if } V(\mpk, id, \sigma) = 1, \\
+	\bot, \hbox{o/w}
+    \end{cases}$.
+\item $\dec(\sk_{\id}, c)$: Output $c(\sk_{\id})$.
+\end{itemize}
+
+\section{Indistinguishability Obfuscation}
+
+%\begin{definition}[Indistinguishability Obfuscation]
+%	$\IO{\cdot}$ is an \emph{indistinguishability obfuscation} if $\forall c_1, c_2$ such that $\ABS{c_1}= \ABS{c_2}$ and $c_1\equiv c_2$, we have
+%	\[
+%		\IO{c_1} \overset{c}{\approx} \IO{c_2}.
+%	\]
+%\end{definition}
+
+
+% \newcommand{\iO}{\ensuremath{i\mathcal{O}}}
+% \newcommand{\Ck}{\ensuremath{\mathcal{C}_\kappa}}
+
+\begin{definition}[Indistinguishability Obfuscator]
+A uniform PPT machine $\iO$ is an \emph{indistinguishability obfuscator}
+for a collection of circuits $\Ck$ if the following conditions hold:
+\begin{itemize}
+
+\item \emph{Correctness.}
+For every circuit $C \in \Ck$ and for all inputs $x$,
+$C(x) = \iO(C(x))$.
+
+\item \emph{Polynomial slowdown.}
+For every circuit $C \in \Ck$, $|\iO(C)| \leq p(|C|)$ for some
+polynomial $p$.
+
+\item \emph{Indistinguishability.}
+For all pairs of circuits $C_1, C_2 \in \Ck$, if $|C_1| = |C_2|$ and
+$C_1(x) = C_2(x)$ for all inputs $x$, then
+$\iO(C_1) \overset{c}{\simeq} \iO(C_2)$.
+More precisely, there is a negligible function $\nu(k)$ such that for
+any (possibly non-uniform) PPT $A$,
+\begin{equation*}
+\big| \Pr[A(\iO(C_1)) = 1] - \Pr[A(\iO(C_2)) = 1] \big| \leq \nu(k).
+\end{equation*}
+
+\end{itemize}
+\end{definition}
+Note that the circuit size requirement for the indistinguishability property is not really restrictive, as one can always pad circuits to have the same size. Moreover, consider circuit $c$, the \emph{best possible obfuscated} $BPO(c)$, and $c'$ which is just padding $c$ to the same size of $BPO(c)$. Computationally bounded adversaries cannot distinguish between $\iO(c')$ and $\iO(BPO(c))$.
+
+One could construct a PKE scheme based on a length doubling PRG $F: \{0,1\}^n \to \{0,1\}^{2n}$, using the $\iO$ obfuscation: 
+\begin{itemize}
+    \item $\gen(1^\secpar)$: $s \getsr \{0,1\}^n$, $\sk = s, \pk = F(s)$
+    \item $\enc(\pk, m)$: Output $\iO(P_{\pk, m})$, where $P_{\pk, m}(s) = \begin{cases}
+	m, \hbox{if } F(s) = \pk, \\
+	\bot, \hbox{o/w}
+    \end{cases}$.
+    \item $\dec(\sk, c)$: Output $c(\sk)$.
+\end{itemize}
+
+One can prove that this constructed PKE scheme is CPA secure using a hybrid argument. Recall the definition of CPA security:
+\begin{center}\begin{tabular}{ r c l }
+  \textbf{Challenger} & & \textbf{Adversary} \\
+  $(\pk, \sk) \gets \mathsf{Gen}(1^n)$ & $\xrightarrow{\pk = F(s)}$ &  \\
+   & $\xleftarrow{m_0, m_1}$ & \\
+  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = \mathsf{Enc}(\pk, m_b)$ & $\xrightarrow{c^* = \iO(P_{\pk, m_b})}$ & \\
+  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
+\end{tabular}
+\end{center}
+
+The first hybrid replaces $\pk$ with a random string:
+\begin{center}\begin{tabular}{ r c l }
+  \textbf{Challenger} & & \textbf{Adversary} \\
+  $(\pk, \sk) \gets \mathsf{Gen}(1^n)$ & $\xrightarrow{\pk \getsr \{0,1\}^{2n}}$ &  \\
+   & $\xleftarrow{m_0, m_1}$ & \\
+  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = \mathsf{Enc}(\pk, m_b)$ & $\xrightarrow{c^* = \iO(P_{\pk, m_b})}$ & \\
+  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
+\end{tabular}
+\end{center}
+
+This hybrid is clearly indistinguishable from the original due to the property of PRG. The next hybrid replaces the ciphertext with an obfuscation of a different program:
+\begin{center}\begin{tabular}{ r c l }
+  \textbf{Challenger} & & \textbf{Adversary} \\
+  $(\pk, \sk) \gets \mathsf{Gen}(1^n)$ & $\xrightarrow{\pk \getsr \{0,1\}^{2n}}$ &  \\
+   & $\xleftarrow{m_0, m_1}$ & \\
+  $b \overset{\$}{\gets} \{0, 1\}$, $c^* = \mathsf{Enc}(\pk, m_b)$ & $\xrightarrow{c^* = \iO(P')}$ & \\
+  Output $1$ if $b' = b$, otherwise $0$ & $\xleftarrow{b'}$ & \\
+\end{tabular}
+\end{center}
+
+where $P'$ always outputs $\bot$. Clearly, the ciphertext does not depend on the message $m_b$. Therefore, as long as we can prove that this hybrid is indistinguishable from the previous one, we are done with the proof. First, as mentioned earlier, we can pad $P'$ to have the same size as $P_{\pk, m}$. Then, observe that, since we sample $\pk$ uniformly, with an overwhelming probability, there does not exist any $s$ such that $F(s) = \pk$. As a result, $P_{\pk, m}$ also returns $\bot$ for every input $s$ and is thus functionally equal to $P'$. Therefore, following the indistinguishability property of $\iO$, these two hybrids are indistinguishable.
+
 \section{$\iO$ for Polynomial-sized Circuits}
 
 
@@ -171,11 +297,11 @@ successor being indistinguishable from its antecedent.
 Another use of indistinguishability obfuscation is to realize
 identity-based encryption (IBE).
 
-\newcommand{\SETUP}{\ensuremath{\mathsf{Setup}}}
-\newcommand{\KEYGEN}{\ensuremath{\mathsf{KeyGen}}}
-\newcommand{\mpk}{\ensuremath{\mathsf{mpk}}}
-\newcommand{\msk}{\ensuremath{\mathsf{msk}}}
-\newcommand{\id}{\ensuremath{\mathsf{id}}}
+% \newcommand{\SETUP}{\ensuremath{\mathsf{Setup}}}
+% \newcommand{\KEYGEN}{\ensuremath{\mathsf{KeyGen}}}
+% \newcommand{\mpk}{\ensuremath{\mathsf{mpk}}}
+% \newcommand{\msk}{\ensuremath{\mathsf{msk}}}
+% \newcommand{\id}{\ensuremath{\mathsf{id}}}
 
 \begin{definition}[Identity-Based Encryption]
 An \emph{identity-based encryption scheme} is a tuple of PPT algorithms
